@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lottery Results | Jejoyinye Lottery Services</title>
+    <meta name="description" content="Search Modern Billionaire and Ghana lottery results by game, year, month or date range.">
+
+    <link rel="stylesheet" href="style.css?v=81">
+    
+    <!-- SUPABASE CLIENT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script src="script.js?v=31" defer></script>
+
+  <link rel="canonical" href="https://jejsonlottery.netlify.app/results.html">
+  <link rel="icon" href="Images/logo.jpeg" type="image/jpeg">
+  <meta property="og:site_name" content="Jejoyinye Lottery Services">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Daily Lottery Results | Jejoyinye Lottery Services">
+  <meta property="og:description" content="Search Modern Billionaire and Ghana lottery results by game, year, month or date range.">
+  <meta property="og:url" content="https://jejsonlottery.netlify.app/results.html">
+  <meta property="og:image" content="https://jejsonlottery.netlify.app/Images/logo.jpeg">
+  <meta property="og:image:alt" content="Jejoyinye Lottery Services">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Daily Lottery Results | Jejoyinye Lottery Services">
+  <meta name="twitter:description" content="Search Modern Billionaire and Ghana lottery results by game, year, month or date range.">
+  <meta name="twitter:image" content="https://jejsonlottery.netlify.app/Images/logo.jpeg">
+</head>
+
+<body class="results-page">
+
+<header class="premium-header">
+    <div class="header-inner">
+        <div class="brand-area">
+            <img 
+                src="Images/logo.jpeg" 
+                alt="Jejoyinye Lottery Logo" 
+                class="premium-logo"
+            >
+            <div>
+                <h1>JEJOYINYE LOTTERY SERVICES</h1>
+                <p>Results • Insights • Agent Network</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="results.html" class="active">Results</a>
+    <a href="predictions.html">Predictions</a>
+    <a href="play-online.html">Play Online</a>
+    <a href="agent.html">Become an Agent</a>
+    <a href="contact.html">Contact</a>
+</nav>
+
+<section class="results-hero">
+    <h2>Daily Lottery Results</h2>
+    <p>Check Modern Billionaire and Ghana results.</p>
+</section>
+
+<section class="result-filter">
+
+    <div class="filter-box">
+
+        <div class="filter-item">
+            <label for="lottery-type">Lottery</label>
+            <select id="lottery-type">
+                <option value="">All Lotteries</option>
+                <option value="modern-billionaire">Modern Billionaire</option>
+                <option value="ghana">Ghana Games</option>
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label for="game-select">Game</label>
+            <select id="game-select">
+                <option value="">All Games</option>
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label for="year-select">Year</label>
+            <select id="year-select">
+                <option value="">All Years</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label for="month-select">Month</label>
+            <select id="month-select">
+                <option value="">All Months</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label for="result-date">From Date</label>
+            <input type="date" id="result-date" min="2023-01-01" max="2026-12-31">
+        </div>
+
+        <div class="filter-item">
+            <label for="result-end-date">To Date</label>
+            <input type="date" id="result-end-date" min="2023-01-01" max="2026-12-31">
+        </div>
+
+        <button type="button" class="search-result-btn">
+            Search Results
+        </button>
+
+        <button type="button" class="reset-result-btn">
+            Reset Filters
+        </button>
+
+    </div>
+
+</section>
+
+<section class="results-section">
+
+    <div class="section-heading">
+        <h2>Lottery Results</h2>
+        <p id="results-date-label">Latest Available Results</p>
+    </div>
+
+    <div id="results-container"></div>
+
+</section>
+
+<footer>
+    <p>&copy; 2026 Jejoyinye Lottery Services. All Rights Reserved.</p>
+</footer>
+<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="responsible-gaming.html">Responsible Gaming</a></div>
+
+<a class="facebook-community-btn" style="position:fixed;left:18px;bottom:18px;z-index:2147483647;display:inline-flex;align-items:center;min-height:48px;padding:11px 18px;border-radius:999px;background:rgb(24,119,242);color:white;font:800 14px Arial,sans-serif;text-decoration:none;box-shadow:0 10px 26px rgba(13,95,199,.35)" href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer" aria-label="Join our Facebook group">Join Our Facebook Group</a>
+
+</body>
+</html>

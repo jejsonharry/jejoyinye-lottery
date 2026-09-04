@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Play Online | Jejoyinye Lottery Services</title>
+  <meta name="description" content="Register to play Modern Lottery online or download the Modern Lottery Android application.">
+  <link rel="stylesheet" href="style.css?v=50">
+  <style>
+    .play-online-page{min-height:70vh;padding:70px 20px 80px;background:radial-gradient(circle at 85% 12%,rgba(34,197,94,.12),transparent 26%),linear-gradient(180deg,#f7faf8 0%,#fff 100%)}
+    .play-online-shell{width:min(1180px,100%);margin:0 auto}
+    .play-online-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:stretch}
+    .play-online-copy,.play-online-actions,.play-online-guide{border:1px solid #e2e8f0;border-radius:24px;background:#fff;box-shadow:0 18px 45px rgba(15,23,42,.08)}
+    .play-online-copy{padding:42px}
+    .play-online-badge{display:inline-flex;padding:7px 13px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:11px;font-weight:900;letter-spacing:1.25px}
+    .play-online-copy h2{margin:15px 0 14px;color:#0f172a;font-size:clamp(32px,4vw,48px);line-height:1.08}
+    .play-online-copy>p{margin:0;color:#64748b;font-size:16px;line-height:1.75}
+    .play-online-points{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px}
+    .play-online-point{display:flex;gap:10px;padding:14px;border:1px solid #e7edf2;border-radius:14px;background:#f8fafc;color:#334155;font-size:13px;line-height:1.55}
+    .play-online-point strong{width:27px;height:27px;flex:0 0 27px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#15803d;color:#fff}
+    .play-online-actions{position:relative;overflow:hidden;padding:36px;background:radial-gradient(circle at 85% 10%,rgba(74,222,128,.19),transparent 28%),linear-gradient(145deg,#052718 0%,#0a4d2e 58%,#07111f 100%);color:#fff}
+    .play-online-actions h3{margin:0 0 9px;font-size:clamp(25px,3vw,34px)}
+    .play-online-actions p{color:#cbd5e1;line-height:1.7}
+    .online-action-card{padding:20px;margin-top:14px;border:1px solid rgba(255,255,255,.13);border-radius:17px;background:rgba(255,255,255,.07)}
+    .online-action-card h4{margin:0 0 6px;font-size:17px}
+    .online-action-card p{margin:0 0 15px;color:#d7e0e8;font-size:13px;line-height:1.6}
+    .online-primary-btn,.online-secondary-btn{width:100%;min-height:50px;display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:12px;text-decoration:none;text-align:center;font-weight:900;transition:.2s ease}
+    .online-primary-btn{background:linear-gradient(180deg,#28c963,#11863f);color:#fff;border:1px solid rgba(187,247,208,.7);box-shadow:0 10px 22px rgba(22,163,74,.28)}
+    .online-secondary-btn{background:linear-gradient(180deg,#f7c948,#d9a91e);color:#172033;border:1px solid rgba(255,255,255,.25);box-shadow:0 10px 22px rgba(0,0,0,.16)}
+    .online-primary-btn:hover,.online-secondary-btn:hover{transform:translateY(-2px)}
+    .play-online-guide{margin-top:32px;padding:34px}
+    .play-online-guide-heading{max-width:700px;margin-bottom:24px}
+    .play-online-guide-heading span{color:#15803d;font-size:11px;font-weight:900;letter-spacing:1.2px}
+    .play-online-guide-heading h3{margin:8px 0;color:#0f172a;font-size:clamp(24px,3vw,33px)}
+    .play-online-guide-heading p{margin:0;color:#64748b}
+    .play-online-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .play-online-step{padding:18px;border:1px solid #e6edf3;border-radius:16px;background:#f8fafc}
+    .play-online-step strong{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;border-radius:50%;background:#0f172a;color:#fff;font-size:12px}
+    .play-online-step h4{margin:0 0 6px;color:#0f172a;font-size:15px}
+    .play-online-step p{margin:0;color:#64748b;font-size:13px;line-height:1.6}
+    .responsible-play-note{margin-top:26px;padding:17px 18px;border-left:4px solid #16a34a;border-radius:10px;background:#f0fdf4;color:#334155;font-size:13px;line-height:1.65}
+    .responsible-play-note strong{color:#166534}
+    @media(max-width:900px){.play-online-hero{grid-template-columns:1fr}.play-online-steps{grid-template-columns:1fr 1fr}}
+    @media(max-width:620px){.play-online-page{padding:50px 14px 65px}.play-online-copy,.play-online-actions,.play-online-guide{padding:22px}.play-online-points,.play-online-steps{grid-template-columns:1fr}}
+  </style>
+
+  <link rel="canonical" href="https://jejsonlottery.netlify.app/play-online.html">
+  <link rel="icon" href="Images/logo.jpeg" type="image/jpeg">
+  <meta property="og:site_name" content="Jejoyinye Lottery Services">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Modern Lottery Online | Jejoyinye Lottery Services">
+  <meta property="og:description" content="Register on the official Modern Lottery platform or download the official Android application. Adults 18+ only.">
+  <meta property="og:url" content="https://jejsonlottery.netlify.app/play-online.html">
+  <meta property="og:image" content="https://jejsonlottery.netlify.app/Images/logo.jpeg">
+  <meta property="og:image:alt" content="Jejoyinye Lottery Services">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Modern Lottery Online | Jejoyinye Lottery Services">
+  <meta name="twitter:description" content="Register on the official Modern Lottery platform or download the official Android application. Adults 18+ only.">
+  <meta name="twitter:image" content="https://jejsonlottery.netlify.app/Images/logo.jpeg">
+</head>
+<body>
+
+<header class="premium-header">
+  <div class="header-inner">
+    <div class="brand-area">
+      <img src="Images/logo.jpeg" alt="Jejoyinye Lottery Services Logo" class="premium-logo">
+      <div>
+        <h1>JEJOYINYE LOTTERY SERVICES</h1>
+        <p>Results • Insights • Agent Network</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="premium-nav">
+  <div class="nav-inner">
+    <a href="index.html">Home</a>
+    <a href="results.html">Results</a>
+    <a href="predictions.html">Predictions</a>
+    <a href="play-online.html" class="active" aria-current="page">Play Online</a>
+    <a href="agent.html">Become an Agent</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<main class="play-online-page">
+  <div class="play-online-shell">
+
+    <section class="play-online-hero">
+      <div class="play-online-copy">
+        <span class="play-online-badge">PLAY MODERN LOTTERY ONLINE</span>
+        <h2>Register And Access Modern Lottery Online</h2>
+        <p>Prefer to play from your phone? Use the official Modern Lottery platform to create your player account and access available online lottery services.</p>
+
+        <div class="play-online-points">
+          <div class="play-online-point"><strong>✓</strong><span>Register directly from your mobile phone.</span></div>
+          <div class="play-online-point"><strong>✓</strong><span>Access available Modern Lottery games online.</span></div>
+          <div class="play-online-point"><strong>✓</strong><span>Download the official Android application.</span></div>
+          <div class="play-online-point"><strong>✓</strong><span>Follow the platform instructions to manage your account.</span></div>
+        </div>
+      </div>
+
+      <div class="play-online-actions">
+        <h3>Choose How You Want To Get Started</h3>
+        <p>You can register through the mobile website or download the Android application.</p>
+
+        <div class="online-action-card">
+          <h4>Register Online</h4>
+          <p>Create your Modern Lottery player account using the registration platform.</p>
+          <a href="https://m.modernlotterynigeria.com/#/pages/register/register?promotionCode=549849"
+             class="online-primary-btn"
+             target="_blank"
+             rel="noopener noreferrer">
+             Register &amp; Play Online
+          </a>
+        </div>
+
+        <div class="online-action-card">
+          <h4>Android Application</h4>
+          <p>Download the Modern Lottery Android APK directly to your compatible Android device.</p>
+          <a href="https://nga-main.obs.af-south-1.myhuaweicloud.com/userapp/ModernApp.apk?promotionCode=549849"
+             class="online-secondary-btn"
+             target="_blank"
+             rel="noopener noreferrer">
+             Download Android App
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="play-online-guide">
+      <div class="play-online-guide-heading">
+        <span>GETTING STARTED</span>
+        <h3>How To Start Playing Online</h3>
+        <p>Follow the platform instructions after opening the registration page or Android app.</p>
+      </div>
+
+      <div class="play-online-steps">
+        <article class="play-online-step">
+          <strong>01</strong>
+          <h4>Open Registration</h4>
+          <p>Click the registration button to open the Modern Lottery registration platform.</p>
+        </article>
+
+        <article class="play-online-step">
+          <strong>02</strong>
+          <h4>Create Your Account</h4>
+          <p>Enter the information requested by the official platform to create your account.</p>
+        </article>
+
+        <article class="play-online-step">
+          <strong>03</strong>
+          <h4>Follow Account Instructions</h4>
+          <p>Complete any account setup steps displayed on the Modern Lottery platform.</p>
+        </article>
+
+        <article class="play-online-step">
+          <strong>04</strong>
+          <h4>Access Available Games</h4>
+          <p>Once your account is ready, use the platform to access the available services.</p>
+        </article>
+      </div>
+
+      <div class="responsible-play-note">
+        <strong>18+ • Please Play Responsibly.</strong>
+        Lottery participation involves financial risk. Only use money you can afford to lose and comply with applicable age and local gaming requirements.
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="premium-footer">
+  <div class="premium-footer-inner">
+    <div>
+      <strong>JEJOYINYE LOTTERY SERVICES</strong>
+      <p>Results • Insights • Agent Network</p>
+    </div>
+    <p>© 2026 Jejoyinye Lottery Services. All rights reserved.</p>
+  </div>
+</footer>
+<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="responsible-gaming.html">Responsible Gaming</a></div>
+
+<a class="facebook-community-btn" style="position:fixed;left:18px;bottom:18px;z-index:2147483647;display:inline-flex;align-items:center;min-height:48px;padding:11px 18px;border-radius:999px;background:rgb(24,119,242);color:white;font:800 14px Arial,sans-serif;text-decoration:none;box-shadow:0 10px 26px rgba(13,95,199,.35)" href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer" aria-label="Join our Facebook group">Join Our Facebook Group</a>
+
+</body>
+</html>

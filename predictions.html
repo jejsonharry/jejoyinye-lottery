@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Jejoyinye Lottery Services statistical prediction insights, upcoming draws and lottery number analysis."
+    >
+
+    <title>
+        Predictions & Insights | Jejoyinye Lottery Services
+    </title>
+
+
+    <!-- MAIN CSS -->
+    <link
+        rel="stylesheet"
+        href="style.css?v=81"
+    >
+
+
+    <!-- SUPABASE -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+    <script
+        src="supabase.js"
+    ></script>
+
+
+    <!-- PREDICTIONS ENGINE -->
+    <script
+        src="predictions.js?v=10"
+        defer
+    ></script>
+
+
+  <link rel="canonical" href="https://jejsonlottery.netlify.app/predictions.html">
+  <link rel="icon" href="Images/logo.jpeg" type="image/jpeg">
+  <meta property="og:site_name" content="Jejoyinye Lottery Services">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Lottery Number Insights | Jejoyinye Lottery Services">
+  <meta property="og:description" content="Explore statistical lottery-number trends and informational predictions. No prediction guarantees a win.">
+  <meta property="og:url" content="https://jejsonlottery.netlify.app/predictions.html">
+  <meta property="og:image" content="https://jejsonlottery.netlify.app/Images/logo.jpeg">
+  <meta property="og:image:alt" content="Jejoyinye Lottery Services">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lottery Number Insights | Jejoyinye Lottery Services">
+  <meta name="twitter:description" content="Explore statistical lottery-number trends and informational predictions. No prediction guarantees a win.">
+  <meta name="twitter:image" content="https://jejsonlottery.netlify.app/Images/logo.jpeg">
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     PREMIUM HEADER
+===================================================== -->
+
+<header class="premium-header">
+
+    <div class="header-inner">
+
+        <div class="brand-area">
+
+            <img
+                src="Images/logo.jpeg"
+                alt="Jejoyinye Lottery Services Logo"
+                class="premium-logo"
+            >
+
+            <div class="brand-text">
+
+                <h1>
+                    JEJOYINYE LOTTERY SERVICES
+                </h1>
+
+                <p>
+                    Results • Insights • Agent Network
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
+<nav class="premium-nav">
+
+    <div class="nav-inner">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="results.html">
+            Results
+        </a>
+
+        <a
+            href="predictions.html"
+            class="active"
+        >
+            Predictions
+        </a>
+
+        <a href="play-online.html">
+            Play Online
+        </a>
+
+        <a href="agent.html">
+            Become an Agent
+        </a>
+
+        <a href="contact.html">
+            Contact
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     PREDICTION HERO
+===================================================== -->
+
+<section class="prediction-premium-hero">
+
+    <div class="prediction-hero-content">
+
+        <span class="prediction-hero-badge">
+            STATISTICAL NUMBER INSIGHTS
+        </span>
+
+        <h2>
+            Lottery Prediction
+            & Number Analysis
+        </h2>
+
+        <p>
+            Explore algorithmic number combinations
+            generated from historical lottery result
+            patterns and statistical analysis.
+        </p>
+
+        <div class="prediction-hero-note">
+
+            Predictions are statistical insights only.
+            Winning numbers are never guaranteed.
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     NEXT GAME PREDICTION
+===================================================== -->
+
+<main class="prediction-page">
+
+
+    <section class="next-prediction-section">
+
+
+        <div class="prediction-section-heading">
+
+            <span>
+                NEXT DRAW
+            </span>
+
+            <h2>
+                Upcoming Game Prediction
+            </h2>
+
+            <p>
+                Our system automatically identifies
+                the next scheduled game and displays
+                its statistical number combination.
+            </p>
+
+        </div>
+
+        <form class="prediction-range-filter" id="prediction-range-form">
+            <div class="prediction-range-field">
+                <label for="prediction-from-date">Results from</label>
+                <input type="date" id="prediction-from-date">
+            </div>
+
+            <div class="prediction-range-field">
+                <label for="prediction-to-date">Results to</label>
+                <input type="date" id="prediction-to-date">
+            </div>
+
+            <button type="submit" class="prediction-range-apply">Apply Range</button>
+            <button type="button" class="prediction-range-reset" id="prediction-range-reset">Reset</button>
+            <p id="prediction-range-status" class="prediction-range-status">Using all historical results plus today's earlier published games.</p>
+        </form>
+
+
+        <div class="next-prediction-card">
+
+
+            <div class="prediction-card-top">
+
+
+                <span class="prediction-live-badge">
+                    UPCOMING DRAW PREDICTION
+                </span>
+
+
+                <span class="prediction-system-status">
+
+                    <span class="status-dot"></span>
+
+                    Prediction Engine Active
+
+                </span>
+
+
+            </div>
+
+
+            <!-- GAME NAME -->
+
+            <h2 id="next-game-title">
+                Loading Next Game...
+            </h2>
+
+
+            <!-- DRAW TIME -->
+
+            <p id="next-game-drawtime">
+                Target Draw Time: --:--
+            </p>
+
+
+            <!-- COUNTDOWN -->
+
+            <div class="prediction-countdown-box">
+
+                <p>
+                    Time Remaining Until Draw
+                </p>
+
+                <div id="countdown-timer">
+                    00:00:00
+                </div>
+
+            </div>
+
+
+            <!-- PREDICTED BALLS -->
+
+            <div class="prediction-number-area">
+
+                <span class="prediction-number-label">
+                    STATISTICAL 5-BALL COMBINATION
+                </span>
+
+
+                <div
+                    id="next-game-balls"
+                    class="prediction-balls winning-numbers"
+                >
+
+                    <span class="number-ball">
+                        --
+                    </span>
+
+                    <span class="number-ball">
+                        --
+                    </span>
+
+                    <span class="number-ball">
+                        --
+                    </span>
+
+                    <span class="number-ball">
+                        --
+                    </span>
+
+                    <span class="number-ball">
+                        --
+                    </span>
+
+                </div>
+
+                <div class="prediction-analysis-summary">
+
+    <div class="analysis-summary-card">
+        <span>Historical Draws Analysed</span>
+        <strong id="analysis-draw-count">0</strong>
+    </div>
+
+    <div class="analysis-summary-card">
+        <span>Prediction Method</span>
+        <strong>History + Today's Games</strong>
+    </div>
+
+    <div class="analysis-summary-card">
+        <span>Today's Earlier Games</span>
+        <strong id="analysis-today-count">0</strong>
+    </div>
+
+</div>
+
+<div class="prediction-analysis-section">
+
+    <div class="prediction-analysis-heading">
+
+        <span>WHY THESE NUMBERS?</span>
+
+        <h3>
+            Prediction Analysis
+        </h3>
+
+        <p>
+            Each selected number is ranked using
+            historical winning frequency, machine
+            frequency, recent activity and results from
+            today's games played before the upcoming draw.
+        </p>
+
+    </div>
+
+    <div id="prediction-analysis-list">
+        <p class="analysis-loading">
+            Analysing prediction data...
+        </p>
+    </div>
+
+</div>
+
+
+                <p class="prediction-small-note">
+                    Generated from historical draw
+                    patterns. This is not a guarantee
+                    of the next winning result.
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =================================================
+         INFORMATION CARDS
+    ================================================== -->
+
+    <section class="prediction-info-grid">
+
+
+        <article class="prediction-info-card">
+
+            <div class="prediction-info-icon">
+                01
+            </div>
+
+            <h3>
+                Historical Analysis
+            </h3>
+
+            <p>
+                Previous lottery results are analysed
+                to identify recurring number patterns
+                and frequency behaviour.
+            </p>
+
+        </article>
+
+
+        <article class="prediction-info-card">
+
+            <div class="prediction-info-icon">
+                02
+            </div>
+
+            <h3>
+                Number Frequency
+            </h3>
+
+            <p>
+                Numbers that have appeared more
+                frequently or less frequently can
+                be identified from historical data.
+            </p>
+
+        </article>
+
+
+        <article class="prediction-info-card">
+
+            <div class="prediction-info-icon">
+                03
+            </div>
+
+            <h3>
+                Statistical Combination
+            </h3>
+
+            <p>
+                The prediction engine creates a
+                five-number combination using
+                statistical information from
+                previous draws.
+            </p>
+
+        </article>
+
+
+    </section>
+
+
+    <!-- =================================================
+         DAILY GAME SCHEDULE
+    ================================================== -->
+
+    <section class="prediction-schedule-section">
+
+
+        <div class="prediction-section-heading">
+
+            <span>
+                TODAY'S GAMES
+            </span>
+
+            <h2>
+                Daily Game Schedule
+            </h2>
+
+            <p>
+                Track scheduled games and upcoming
+                draw progression throughout the day.
+            </p>
+
+        </div>
+
+
+        <div
+            id="upcoming-games-list"
+            class="prediction-schedule-list"
+        >
+
+            <div class="schedule-loading">
+
+                Loading today's game schedule...
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =================================================
+         RESPONSIBLE PLAY NOTICE
+    ================================================== -->
+
+    <section class="prediction-warning">
+
+        <div class="warning-icon">
+            !
+        </div>
+
+
+        <div>
+
+            <h3>
+                Important Notice
+            </h3>
+
+            <p>
+                Predictions are generated using
+                statistical analysis of previous
+                lottery draws. Lottery results are
+                random and no prediction, algorithm,
+                pattern or historical analysis can
+                guarantee future winning numbers.
+                Please play responsibly.
+            </p>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer class="premium-footer">
+
+    <div class="footer-inner">
+
+
+        <div class="footer-brand">
+
+            <h3>
+                JEJOYINYE LOTTERY SERVICES
+            </h3>
+
+            <p>
+                Lottery results, statistical insights
+                and agent services.
+            </p>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="results.html">
+                Results
+            </a>
+
+            <a href="predictions.html">
+                Predictions
+            </a>
+    <a href="play-online.html">Play Online</a>
+
+            <a href="agent.html">
+                Become an Agent
+            </a>
+
+            <a href="contact.html">
+                Contact
+            </a>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <p>
+            &copy; 2026 Jejoyinye Lottery Services.
+            All Rights Reserved.
+        </p>
+
+    </div>
+
+</footer>
+<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="responsible-gaming.html">Responsible Gaming</a></div>
+
+<a class="facebook-community-btn" style="position:fixed;left:18px;bottom:18px;z-index:2147483647;display:inline-flex;align-items:center;min-height:48px;padding:11px 18px;border-radius:999px;background:rgb(24,119,242);color:white;font:800 14px Arial,sans-serif;text-decoration:none;box-shadow:0 10px 26px rgba(13,95,199,.35)" href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer" aria-label="Join our Facebook group">Join Our Facebook Group</a>
+
+
+</body>
+
+</html>
