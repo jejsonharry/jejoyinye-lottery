@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jejsonlottery.netlify.app/sitemap.xml
+Sitemap: https://jolslottery.com/sitemap.xml

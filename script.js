@@ -1,7 +1,7 @@
 "use strict";
 
 // =========================================================
-// JEJOYINYE LOTTERY SERVICES
+// JOLS — JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
 // VERSION 30
 // =========================================================

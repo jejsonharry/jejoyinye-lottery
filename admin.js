@@ -2,7 +2,7 @@
 
 
 // =========================================================
-// JEJOYINYE LOTTERY SERVICES
+// JOLS — JEJOYINYE LOTTERY SERVICES
 // ADMIN DASHBOARD
 // VERSION 1400
 // =========================================================
@@ -1247,7 +1247,15 @@ async function loadResults() {
                 )
 
                 .select(
-                    "lottery, game, draw_date, winning, machine"
+                    "lottery, game, draw_date, winning, machine, created_at"
+                )
+
+                .order(
+                    "created_at",
+                    {
+                        ascending:
+                            false
+                    }
                 )
 
                 .order(

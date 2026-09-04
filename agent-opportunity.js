@@ -1,6 +1,6 @@
 /*
 =========================================================
-JEJOYINYE LOTTERY SERVICES
+JOLS — JEJOYINYE LOTTERY SERVICES
 AGENT OPPORTUNITY SECTION
 Advantages + Agent Image + Requirements
 =========================================================
