@@ -1282,6 +1282,75 @@ function createPagination() {
 // RENDER CURRENT PAGE
 // =========================================================
 
+function createLotteryResultsGroup(
+    results,
+    lottery
+) {
+
+    if (
+        !Array.isArray(results) ||
+        results.length === 0
+    ) {
+
+        return "";
+    }
+
+
+    const isGhana =
+        lottery ===
+        "ghana";
+
+
+    const title =
+        isGhana
+            ? "Ghana Results"
+            : "Modern Billionaire Results";
+
+
+    const groupClass =
+        isGhana
+            ? "ghana-results-group"
+            : "modern-results-group";
+
+
+    return `
+
+        <section
+            class="lottery-results-group ${groupClass}"
+        >
+
+            <div class="lottery-results-heading">
+
+                <h3>
+                    ${escapeHTML(title)}
+                </h3>
+
+                <span>
+                    ${results.length}
+                    ${results.length === 1 ? "result" : "results"}
+                    on this page
+                </span>
+
+            </div>
+
+            <div class="lottery-results-list">
+
+                ${results
+                    .map(createResultCard)
+                    .join("")}
+
+            </div>
+
+        </section>
+
+    `;
+}
+
+
+// =========================================================
+// RENDER CURRENT PAGE
+// =========================================================
+
 function renderCurrentPage() {
 
     if (!resultsContainer) {
@@ -1379,13 +1448,35 @@ function renderCurrentPage() {
         );
 
 
+    const modernResults =
+        pageResults.filter(
+            result =>
+                result.lottery ===
+                "modern-billionaire"
+        );
+
+
+    const ghanaResults =
+        pageResults.filter(
+            result =>
+                result.lottery ===
+                "ghana"
+        );
+
+
     resultsContainer.innerHTML =
 
-        pageResults
-            .map(
-                createResultCard
-            )
-            .join("")
+        createLotteryResultsGroup(
+            modernResults,
+            "modern-billionaire"
+        )
+
+        +
+
+        createLotteryResultsGroup(
+            ghanaResults,
+            "ghana"
+        )
 
         +
 
