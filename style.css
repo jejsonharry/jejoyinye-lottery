@@ -8410,3 +8410,87 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
         font-size: 9px;
     }
 }
+
+
+/* Keep all ten Modern Billionaire numbers visible in split view */
+@media (min-width: 1051px) {
+    .results-page .modern-results-group .lottery-results-list .result-card:not(.result-card-no-machine) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        grid-template-rows: auto auto !important;
+        align-items: start !important;
+        column-gap: 12px !important;
+        row-gap: 4px !important;
+        min-height: 0 !important;
+        padding: 9px 12px 10px !important;
+        overflow: visible !important;
+    }
+
+    .results-page .modern-results-group .result-card .result-top {
+        grid-column: 1 / -1 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 12px !important;
+        min-width: 0 !important;
+        padding-bottom: 3px !important;
+    }
+
+    .results-page .modern-results-group .result-card .result-game-info {
+        min-width: 0 !important;
+    }
+
+    .results-page .modern-results-group .result-card .result-top h3 {
+        margin: 0 !important;
+        font-size: 17px !important;
+        line-height: 1.1 !important;
+        white-space: nowrap !important;
+    }
+
+    .results-page .modern-results-group .result-card .result-meta {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        min-width: auto !important;
+        margin: 0 !important;
+    }
+
+    .results-page .modern-results-group .result-card .draw-time {
+        font-size: 10px !important;
+        white-space: nowrap !important;
+    }
+
+    .results-page .modern-results-group .result-card .result-status {
+        display: inline-flex !important;
+        padding: 3px 6px !important;
+        font-size: 7px !important;
+    }
+
+    .results-page .modern-results-group .result-card .result-number-group {
+        grid-column: auto !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    .results-page .modern-results-group .result-card .result-number-group h4 {
+        margin: 0 0 4px !important;
+        font-size: 8px !important;
+        white-space: nowrap !important;
+    }
+
+    .results-page .modern-results-group .result-card .winning-numbers,
+    .results-page .modern-results-group .result-card .machine-numbers {
+        display: grid !important;
+        grid-template-columns: repeat(5, 28px) !important;
+        gap: 4px !important;
+        width: max-content !important;
+        max-width: 100% !important;
+    }
+
+    .results-page .modern-results-group .result-card .number-ball {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        line-height: 28px !important;
+        font-size: 10px !important;
+    }
+}
