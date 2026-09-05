@@ -8268,3 +8268,23 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     }
 }
 
+
+
+/* Admin login password recovery link */
+.forgot-password-link {
+    margin: 16px 0 0;
+    text-align: center;
+}
+
+.forgot-password-link a {
+    color: #15803d;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.forgot-password-link a:hover,
+.forgot-password-link a:focus-visible {
+    color: #0f5f2d;
+    text-decoration: underline;
+}
