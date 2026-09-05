@@ -176,8 +176,8 @@ const ghanaDrawSchedule = {
 
     0: {
         game: "ASEDA",
-        drawMinutes: (19 * 60) + 15,
-        displayTime: "7:15 PM"
+        drawMinutes: (19 * 60) + 10,
+        displayTime: "7:10 PM"
     },
 
     1: {
@@ -2395,11 +2395,18 @@ async function fetchLatestModernFallback() {
 
 async function fetchLatestGhanaFallback() {
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
+    const lagos =
+        getLagosTimeParts();
+
+
+    const todaysGhanaGame =
+        ghanaDrawSchedule[
+            lagos.weekday
+        ];
+
+
+    let query =
+        supabaseClient
 
             .from(
                 "results"
@@ -2412,20 +2419,47 @@ async function fetchLatestGhanaFallback() {
             .eq(
                 "lottery",
                 "ghana"
+            );
+
+
+    /*
+     Ghana has one named game for each weekday.
+     Keep the homepage aligned with today's game,
+     even before today's result is uploaded.
+    */
+
+    if (todaysGhanaGame) {
+
+        query =
+            query.ilike(
+                "game",
+                todaysGhanaGame.game
+            );
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await query
+
+            .order(
+                "draw_date",
+                {
+                    ascending:
+                        false,
+                    nullsFirst:
+                        false
+                }
             )
 
             .order(
                 "created_at",
                 {
                     ascending:
-                        false
-                }
-            )
-
-            .order(
-                "draw_date",
-                {
-                    ascending:
+                        false,
+                    nullsFirst:
                         false
                 }
             )
