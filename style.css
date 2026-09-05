@@ -8277,14 +8277,25 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
 }
 
 .forgot-password-link a {
+    display: flex;
+    width: 100%;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 16px;
+    border: 2px solid #15803d;
+    border-radius: 10px;
+    background: #ffffff;
     color: #15803d;
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 850;
     text-decoration: none;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
 }
 
 .forgot-password-link a:hover,
 .forgot-password-link a:focus-visible {
-    color: #0f5f2d;
-    text-decoration: underline;
+    background: #15803d;
+    color: #ffffff;
+    transform: translateY(-1px);
 }
