@@ -2225,13 +2225,76 @@ async function fetchLatestModernFallback() {
     }
 
 
-    const sorted =
-        sortLotteryResults(
-            data
+    /*
+     Select the newest result date, then choose
+     the last published game in the official
+     daily game order.
+    */
+
+    const newestDate =
+        data[0].draw_date;
+
+
+    const newestDateResults =
+        data.filter(
+            result =>
+                result.draw_date ===
+                newestDate
         );
 
 
-    return sorted[0] || null;
+    const order =
+        gameOrder[
+            "modern-billionaire"
+        ] || [];
+
+
+    const latestPublishedResult =
+        [...newestDateResults]
+            .sort(
+                (a, b) => {
+
+                    const indexA =
+                        order.indexOf(
+                            normalizeGameName(
+                                a.game
+                            )
+                        );
+
+
+                    const indexB =
+                        order.indexOf(
+                            normalizeGameName(
+                                b.game
+                            )
+                        );
+
+
+                    const positionA =
+                        indexA === -1
+                            ? -1
+                            : indexA;
+
+
+                    const positionB =
+                        indexB === -1
+                            ? -1
+                            : indexB;
+
+
+                    return (
+                        positionB -
+                        positionA
+                    );
+                }
+            )[0];
+
+
+    return (
+        latestPublishedResult ||
+        data[0] ||
+        null
+    );
 }
 
 
