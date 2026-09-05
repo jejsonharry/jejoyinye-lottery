@@ -2395,18 +2395,11 @@ async function fetchLatestModernFallback() {
 
 async function fetchLatestGhanaFallback() {
 
-    const lagos =
-        getLagosTimeParts();
-
-
-    const todaysGhanaGame =
-        ghanaDrawSchedule[
-            lagos.weekday
-        ];
-
-
-    let query =
-        supabaseClient
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
 
             .from(
                 "results"
@@ -2419,33 +2412,17 @@ async function fetchLatestGhanaFallback() {
             .eq(
                 "lottery",
                 "ghana"
-            );
+            )
 
-
-    /*
-     Ghana has one named game for each weekday.
-     Keep the homepage aligned with today's game,
-     even before today's result is uploaded.
-    */
-
-    if (todaysGhanaGame) {
-
-        query =
-            query.ilike(
-                "game",
-                todaysGhanaGame.game
-            );
-    }
-
-
-    const {
-        data,
-        error
-    } =
-        await query
+            /*
+             Use the most recently published Ghana
+             result. Empty timestamps must come last
+             so older imported records cannot override
+             a newly published result.
+            */
 
             .order(
-                "draw_date",
+                "created_at",
                 {
                     ascending:
                         false,
@@ -2455,7 +2432,7 @@ async function fetchLatestGhanaFallback() {
             )
 
             .order(
-                "created_at",
+                "draw_date",
                 {
                     ascending:
                         false,
