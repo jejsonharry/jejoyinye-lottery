@@ -8730,3 +8730,58 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
         grid-column: 1 / -1 !important;
     }
 }
+
+
+/* Side-by-side Modern and Ghana prediction cards */
+.next-prediction-section {
+    max-width: 1220px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+.prediction-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 22px;
+}
+
+.prediction-cards-grid .next-prediction-card {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+    padding: 28px 24px 32px;
+}
+
+.ghana-prediction-card::before {
+    background: linear-gradient(90deg, #a66c00, #f2b705, #a66c00);
+}
+
+.ghana-prediction-badge {
+    background: #fff7d6 !important;
+    color: #8a5b00 !important;
+}
+
+.ghana-analysis-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+#ghana-countdown-timer {
+    color: #9a6700;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    letter-spacing: .04em;
+}
+
+@media (max-width: 850px) {
+    .prediction-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .prediction-cards-grid .next-prediction-card {
+        padding: 25px 16px 28px;
+    }
+}
