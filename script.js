@@ -2390,6 +2390,63 @@ async function fetchLatestModernFallback() {
 
 
 // =========================================================
+// FALLBACK LATEST GHANA RESULT
+// =========================================================
+
+async function fetchLatestGhanaFallback() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "results"
+            )
+
+            .select(
+                "lottery, game, draw_date, winning, machine"
+            )
+
+            .eq(
+                "lottery",
+                "ghana"
+            )
+
+            .order(
+                "draw_date",
+                {
+                    ascending:
+                        false
+                }
+            )
+
+            .limit(
+                1
+            );
+
+
+    if (error) {
+
+        throw error;
+    }
+
+
+    if (
+        !Array.isArray(data) ||
+        data.length === 0
+    ) {
+
+        return null;
+    }
+
+
+    return data[0];
+}
+
+
+// =========================================================
 // DISPLAY HOMEPAGE RESULTS
 // =========================================================
 
@@ -2481,6 +2538,19 @@ async function displayHomepageResults() {
         }
 
 
+        /*
+         If today's scheduled Ghana result is
+         not available yet, show the newest
+         Ghana result already published.
+        */
+
+        if (!ghanaResult) {
+
+            ghanaResult =
+                await fetchLatestGhanaFallback();
+        }
+
+
         let html = "";
 
 
@@ -2514,15 +2584,32 @@ async function displayHomepageResults() {
         }
 
 
-        if (
-            ghanaResult &&
-            ghanaSchedule
-        ) {
+        if (ghanaResult) {
+
+            const ghanaScheduleForCard =
+
+                ghanaSchedule &&
+                normalizeGameName(
+                    ghanaResult.game
+                ) ===
+                normalizeGameName(
+                    ghanaSchedule.game
+                ) &&
+                ghanaResult.draw_date ===
+                ghanaSchedule.drawDate
+
+                    ? ghanaSchedule
+
+                    : {
+                        displayTime:
+                            "Published Result"
+                    };
+
 
             html +=
                 createHomeResultCard(
                     ghanaResult,
-                    ghanaSchedule
+                    ghanaScheduleForCard
                 );
         }
 
