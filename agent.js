@@ -1,5 +1,5 @@
 // =========================================================
-// JOLS — JEJOYINYE LOTTERY SERVICES
+// JEJOYINYE LOTTERY SERVICES
 // AGENT APPLICATION
 // VERSION 22
 // =========================================================
