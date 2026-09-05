@@ -8299,3 +8299,85 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     color: #ffffff;
     transform: translateY(-1px);
 }
+
+
+/* =========================================================
+   SEPARATE MODERN BILLIONAIRE AND GHANA RESULT SECTIONS
+   ========================================================= */
+
+.results-page #results-container {
+    display: block !important;
+}
+
+.results-page .lottery-results-group {
+    margin: 0 0 26px;
+}
+
+.results-page .lottery-results-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 0 0 9px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .10);
+}
+
+.results-page .modern-results-group .lottery-results-heading {
+    background: linear-gradient(135deg, #04793d, #16a34a);
+}
+
+.results-page .ghana-results-group .lottery-results-heading {
+    background: linear-gradient(135deg, #9a6700, #d99a08);
+}
+
+.results-page .lottery-results-heading h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.results-page .lottery-results-heading span {
+    color: rgba(255, 255, 255, .92);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.results-page .lottery-results-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 7px;
+}
+
+.results-page .lottery-results-list .result-card {
+    margin: 0 !important;
+}
+
+.results-page .results-pagination {
+    margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+    .results-page .lottery-results-group {
+        margin-bottom: 18px;
+    }
+
+    .results-page .lottery-results-heading {
+        margin-bottom: 7px;
+        padding: 9px 11px;
+        border-radius: 7px;
+    }
+
+    .results-page .lottery-results-heading h3 {
+        font-size: 15px;
+    }
+
+    .results-page .lottery-results-heading span {
+        font-size: 9px;
+    }
+}
