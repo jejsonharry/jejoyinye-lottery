@@ -48,6 +48,21 @@ const predictionRangeReset =
 const predictionRangeStatus =
     document.getElementById("prediction-range-status");
 
+const ghanaGameTitle =
+    document.getElementById("ghana-game-title");
+
+const ghanaGameDrawTime =
+    document.getElementById("ghana-game-drawtime");
+
+const ghanaCountdownTimer =
+    document.getElementById("ghana-countdown-timer");
+
+const ghanaGameBalls =
+    document.getElementById("ghana-game-balls");
+
+const ghanaAnalysisDrawCount =
+    document.getElementById("ghana-analysis-draw-count");
+
 let predictionDateRange = { from: "", to: "" };
 
 
@@ -191,8 +206,8 @@ const ghanaPredictionSchedule = {
         lottery: "ghana",
         game: "ASEDA",
         databaseNames: ["ASEDA"],
-        drawMinutes: (19 * 60) + 15,
-        drawTime: "7:15 PM"
+        drawMinutes: (19 * 60) + 10,
+        drawTime: "7:10 PM"
     },
 
     1: {
@@ -500,12 +515,21 @@ function getNextPredictionGame() {
         lagos.second;
 
 
-    const games =
-        getTodaysGames();
+    const today =
+        getTodayDateString();
+
+
+    const modernGames =
+        modernPredictionSchedule.map(
+            game => ({
+                ...game,
+                drawDate: today
+            })
+        );
 
 
     for (
-        const game of games
+        const game of modernGames
     ) {
 
         const gameSeconds =
@@ -518,9 +542,7 @@ function getNextPredictionGame() {
         ) {
 
             return game;
-
         }
-
     }
 
 
@@ -533,6 +555,39 @@ function getNextPredictionGame() {
 
         tomorrow:
             true
+
+    };
+}
+
+
+// =========================================================
+// TODAY'S GHANA PREDICTION GAME
+// =========================================================
+
+function getGhanaPredictionGame() {
+
+    const lagos =
+        getLagosTime();
+
+
+    const ghanaGame =
+        ghanaPredictionSchedule[
+            lagos.weekday
+        ];
+
+
+    if (!ghanaGame) {
+
+        return null;
+    }
+
+
+    return {
+
+        ...ghanaGame,
+
+        drawDate:
+            getTodayDateString()
 
     };
 }
@@ -627,10 +682,13 @@ function getTargetTimestamp(game) {
 // COUNTDOWN
 // =========================================================
 
-function updateCountdown(game) {
+function updateCountdown(
+    game,
+    timerElement = countdownTimer
+) {
 
     if (
-        !countdownTimer ||
+        !timerElement ||
         !game
     ) {
         return;
@@ -649,11 +707,10 @@ function updateCountdown(game) {
         difference <= 0
     ) {
 
-        countdownTimer.textContent =
-            "00:00:00";
+        timerElement.textContent =
+            "Draw Completed";
 
         return;
-
     }
 
 
@@ -680,7 +737,7 @@ function updateCountdown(game) {
         seconds % 60;
 
 
-    countdownTimer.textContent =
+    timerElement.textContent =
 
         `${String(hours).padStart(2, "0")}:` +
 
@@ -1602,6 +1659,140 @@ async function displayNextGamePrediction() {
 
 
 // =========================================================
+// DISPLAY GHANA PREDICTION
+// =========================================================
+
+async function displayGhanaPrediction() {
+
+    const ghanaGame =
+        getGhanaPredictionGame();
+
+
+    if (!ghanaGame) {
+
+        return;
+    }
+
+
+    if (ghanaGameTitle) {
+
+        ghanaGameTitle.textContent =
+            ghanaGame.game;
+    }
+
+
+    if (ghanaGameDrawTime) {
+
+        ghanaGameDrawTime.textContent =
+
+            `Ghana Games • Draw Time: ${ghanaGame.drawTime}`;
+    }
+
+
+    updateCountdown(
+        ghanaGame,
+        ghanaCountdownTimer
+    );
+
+
+    if (ghanaGameBalls) {
+
+        ghanaGameBalls.innerHTML = `
+
+            <span style="color:#64748b;font-weight:700;">
+                Analysing Ghana history...
+            </span>
+
+        `;
+    }
+
+
+    try {
+
+        const history =
+            await fetchPredictionHistory(
+                ghanaGame
+            );
+
+
+        if (ghanaAnalysisDrawCount) {
+
+            ghanaAnalysisDrawCount.textContent =
+                String(history.length);
+        }
+
+
+        if (!history.length) {
+
+            if (ghanaGameBalls) {
+
+                ghanaGameBalls.innerHTML = `
+
+                    <span style="color:#64748b;font-weight:700;">
+                        Insufficient historical data
+                    </span>
+
+                `;
+            }
+
+
+            return;
+        }
+
+
+        const predictionData =
+            calculateStatisticalPrediction(
+                history,
+                []
+            );
+
+
+        if (ghanaGameBalls) {
+
+            ghanaGameBalls.innerHTML =
+
+                predictionData
+                    .predictedNumbers
+
+                    .map(
+                        number => `
+
+                            <span class="number-ball">
+                                ${String(number).padStart(2, "0")}
+                            </span>
+
+                        `
+                    )
+
+                    .join("");
+        }
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Ghana prediction error:",
+            error
+        );
+
+
+        if (ghanaGameBalls) {
+
+            ghanaGameBalls.innerHTML = `
+
+                <span style="color:#dc2626;font-weight:700;">
+                    Ghana prediction temporarily unavailable
+                </span>
+
+            `;
+        }
+    }
+}
+
+
+// =========================================================
 // GAME STATUS
 // =========================================================
 
@@ -1830,7 +2021,10 @@ async function checkForGameChange() {
             gameKey;
 
 
-        await displayNextGamePrediction();
+        await Promise.all([
+            displayNextGamePrediction(),
+            displayGhanaPrediction()
+        ]);
 
 
         renderPredictionSchedule();
@@ -1873,7 +2067,10 @@ document.addEventListener(
                     : "Using all historical results plus today's earlier published games.";
             }
 
-            await displayNextGamePrediction();
+            await Promise.all([
+            displayNextGamePrediction(),
+            displayGhanaPrediction()
+        ]);
         });
 
         predictionRangeReset?.addEventListener("click", async () => {
@@ -1884,7 +2081,10 @@ document.addEventListener(
                 predictionRangeStatus.textContent = "Using all historical results plus today's earlier published games.";
             }
 
-            await displayNextGamePrediction();
+            await Promise.all([
+            displayNextGamePrediction(),
+            displayGhanaPrediction()
+        ]);
         });
 
 
@@ -1908,7 +2108,10 @@ document.addEventListener(
         }
 
 
-        await displayNextGamePrediction();
+        await Promise.all([
+            displayNextGamePrediction(),
+            displayGhanaPrediction()
+        ]);
 
 
         // Countdown every second
@@ -1926,6 +2129,18 @@ document.addEventListener(
                         currentGame
                     );
 
+                }
+
+                const currentGhanaGame =
+                    getGhanaPredictionGame();
+
+
+                if (currentGhanaGame) {
+
+                    updateCountdown(
+                        currentGhanaGame,
+                        ghanaCountdownTimer
+                    );
                 }
 
             },
@@ -1952,7 +2167,11 @@ document.addEventListener(
         // Pull in newly published earlier games without requiring a page reload.
 
         setInterval(
-            displayNextGamePrediction,
+            function () {
+
+                displayNextGamePrediction();
+                displayGhanaPrediction();
+            },
             120000
         );
 
