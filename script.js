@@ -2406,12 +2406,20 @@ async function fetchLatestGhanaFallback() {
             )
 
             .select(
-                "lottery, game, draw_date, winning, machine"
+                "lottery, game, draw_date, winning, machine, created_at"
             )
 
             .eq(
                 "lottery",
                 "ghana"
+            )
+
+            .order(
+                "created_at",
+                {
+                    ascending:
+                        false
+                }
             )
 
             .order(
