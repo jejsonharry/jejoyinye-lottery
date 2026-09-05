@@ -2,7 +2,7 @@
 
 
 // =========================================================
-// JOLS — JEJOYINYE LOTTERY SERVICES
+// JEJOYINYE LOTTERY SERVICES
 // ADMIN DASHBOARD
 // VERSION 1400
 // =========================================================
