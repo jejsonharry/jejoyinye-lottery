@@ -8306,7 +8306,10 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
    ========================================================= */
 
 .results-page #results-container {
-    display: block !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 18px !important;
 }
 
 .results-page .lottery-results-group {
@@ -8359,7 +8362,33 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
 }
 
 .results-page .results-pagination {
+    grid-column: 1 / -1;
     margin-top: 16px;
+}
+
+@media (min-width: 1051px) {
+    .results-page .lottery-results-list .result-card:not(.result-card-no-machine) {
+        grid-template-columns: minmax(125px, .85fr) minmax(150px, 1fr) minmax(150px, 1fr) !important;
+        column-gap: 8px !important;
+        padding: 10px 11px !important;
+    }
+
+    .results-page .lottery-results-list .result-card-no-machine {
+        grid-template-columns: minmax(0, 1.1fr) minmax(150px, 1fr) !important;
+        column-gap: 10px !important;
+        padding: 10px 12px !important;
+    }
+
+    .results-page .lottery-results-list .result-card-no-machine .result-number-group {
+        grid-column: auto !important;
+    }
+}
+
+@media (max-width: 1050px) {
+    .results-page #results-container {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+    }
 }
 
 @media (max-width: 600px) {
