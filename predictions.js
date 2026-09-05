@@ -1,5 +1,5 @@
 // =========================================================
-// JOLS — JEJOYINYE LOTTERY SERVICES
+// JEJOYINYE LOTTERY SERVICES
 // COMPLETE PREDICTION ENGINE
 // predictions.js
 // =========================================================
