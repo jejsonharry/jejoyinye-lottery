@@ -8629,3 +8629,104 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
         grid-column: 1 / -1 !important;
     }
 }
+
+
+/* Mobile two-column homepage results */
+@media (max-width: 600px) {
+    .home-results-section {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    #home-results-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        align-items: start !important;
+        gap: 6px !important;
+    }
+
+    #home-results-container .home-result-card {
+        min-width: 0 !important;
+        min-height: 0 !important;
+        padding: 7px 6px 8px !important;
+        border-radius: 7px !important;
+        overflow: hidden !important;
+    }
+
+    #home-results-container .home-result-heading {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: start !important;
+        gap: 3px !important;
+        min-width: 0 !important;
+        padding-bottom: 4px !important;
+    }
+
+    #home-results-container .home-result-heading > div {
+        min-width: 0 !important;
+    }
+
+    #home-results-container .home-result-heading > div:last-child {
+        text-align: right !important;
+    }
+
+    #home-results-container .home-result-heading h3 {
+        margin: 0 0 1px !important;
+        font-size: 11px !important;
+        line-height: 1.05 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #home-results-container .home-result-heading span {
+        display: block !important;
+        font-size: 7px !important;
+        line-height: 1.15 !important;
+    }
+
+    #home-results-container .home-result-heading > div:last-child > div {
+        margin-top: 2px !important;
+        font-size: 6px !important;
+        line-height: 1.1 !important;
+        white-space: nowrap !important;
+    }
+
+    #home-results-container .home-number-section,
+    #home-results-container .home-result-card-no-machine .home-number-section {
+        grid-column: auto !important;
+        min-width: 0 !important;
+        margin-top: 5px !important;
+    }
+
+    #home-results-container .home-number-section h4 {
+        margin: 0 0 2px !important;
+        font-size: 6px !important;
+        line-height: 1 !important;
+        letter-spacing: .02em !important;
+        white-space: nowrap !important;
+    }
+
+    #home-results-container .home-number-section .winning-numbers,
+    #home-results-container .home-number-section .machine-numbers {
+        display: grid !important;
+        grid-template-columns: repeat(5, 20px) !important;
+        gap: 2px !important;
+        width: max-content !important;
+        max-width: 100% !important;
+    }
+
+    #home-results-container .home-result-card .number-ball {
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+        padding: 0 !important;
+        border-width: 1px !important;
+        font-size: 7px !important;
+        line-height: 20px !important;
+        box-shadow: 0 2px 4px rgba(15, 23, 42, .14) !important;
+    }
+
+    #home-results-container > .no-results,
+    #home-results-container > p {
+        grid-column: 1 / -1 !important;
+    }
+}
