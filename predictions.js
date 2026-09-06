@@ -855,6 +855,45 @@ async function fetchPredictionHistory(game) {
 
 
 // =========================================================
+// GHANA HISTORY FALLBACK
+// Uses all Ghana winning results when a scheduled game has
+// no saved history in the selected period.
+// =========================================================
+
+async function fetchGhanaFallbackHistory() {
+    try {
+        let query = supabaseClient
+            .from("results")
+            .select("game, lottery, draw_date, winning, machine")
+            .eq("lottery", "ghana");
+
+        if (predictionDateRange.from) {
+            query = query.gte("draw_date", predictionDateRange.from);
+        }
+
+        if (predictionDateRange.to) {
+            query = query.lte("draw_date", predictionDateRange.to);
+        }
+
+        const { data, error } = await query
+            .order("draw_date", { ascending: false })
+            .limit(500);
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
+    }
+
+    catch (error) {
+        console.error("Ghana fallback history error:", error);
+        return [];
+    }
+}
+
+
+// =========================================================
 // TODAY'S EARLIER PUBLISHED GAMES
 // =========================================================
 
@@ -2006,10 +2045,15 @@ async function displayGhanaPrediction() {
 
     try {
 
-        const history =
+        const gameHistory =
             await fetchPredictionHistory(
                 ghanaGame
             );
+
+        const history =
+            gameHistory.length
+                ? gameHistory
+                : await fetchGhanaFallbackHistory();
 
 
         if (ghanaAnalysisDrawCount) {
