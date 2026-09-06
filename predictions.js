@@ -60,9 +60,6 @@ const ghanaCountdownTimer =
 const ghanaGameBalls =
     document.getElementById("ghana-game-balls");
 
-const ghanaMachineBalls =
-    document.getElementById("ghana-machine-balls");
-
 const ghanaAnalysisDrawCount =
     document.getElementById("ghana-analysis-draw-count");
 
@@ -1041,8 +1038,9 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
     moving: 0.10
 });
 
-const GHANA_PREDICTION_WEIGHTS = Object.freeze({
-    statistical: 0.70,
+const GHANA_COMBINED_WEIGHTS = Object.freeze({
+    winning: 0.50,
+    machine: 0.20,
     classification: 0.25,
     moving: 0.05
 });
@@ -2114,6 +2112,101 @@ async function displayNextGamePrediction() {
 
 
 // =========================================================
+// GHANA COMBINED PREDICTION
+// 50% winning + 20% machine + 25% classification + 5% moving
+// =========================================================
+
+function calculateGhanaCombinedPrediction(
+    results,
+    contextResults = []
+) {
+    const scoreMap = {};
+
+    for (let number = 1; number <= 90; number++) {
+        scoreMap[number] = {
+            number,
+            winningScore: 0,
+            machineScore: 0,
+            classificationScore: 0,
+            movingScore: 0,
+            totalScore: 0
+        };
+    }
+
+    function scoreResult(result, weight) {
+        parsePredictionNumbers(result.winning).forEach(number => {
+            scoreMap[number].winningScore += weight;
+            addModernRelationshipScores(
+                scoreMap,
+                number,
+                weight
+            );
+        });
+
+        parsePredictionNumbers(result.machine).forEach(number => {
+            scoreMap[number].machineScore += weight;
+            addModernRelationshipScores(
+                scoreMap,
+                number,
+                weight * 0.45
+            );
+        });
+    }
+
+    results.forEach((result, index) => {
+        const recencyWeight =
+            Math.max(
+                0.35,
+                1 - (
+                    index /
+                    Math.max(results.length, 1)
+                ) * 0.65
+            );
+
+        scoreResult(result, recencyWeight);
+    });
+
+    contextResults.slice(0, 3).forEach((result, index) => {
+        scoreResult(
+            result,
+            Math.max(1, 1.6 - (index * 0.2))
+        );
+    });
+
+    normalizePredictionComponent(scoreMap, "winningScore");
+    normalizePredictionComponent(scoreMap, "machineScore");
+    normalizePredictionComponent(scoreMap, "classificationScore");
+    normalizePredictionComponent(scoreMap, "movingScore");
+
+    Object.values(scoreMap).forEach(item => {
+        item.totalScore =
+            (item.winningScoreNormalized * GHANA_COMBINED_WEIGHTS.winning) +
+            (item.machineScoreNormalized * GHANA_COMBINED_WEIGHTS.machine) +
+            (item.classificationScoreNormalized * GHANA_COMBINED_WEIGHTS.classification) +
+            (item.movingScoreNormalized * GHANA_COMBINED_WEIGHTS.moving);
+    });
+
+    const rankedNumbers =
+        Object.values(scoreMap)
+            .sort((a, b) =>
+                b.totalScore !== a.totalScore
+                    ? b.totalScore - a.totalScore
+                    : a.number - b.number
+            );
+
+    return {
+        predictedNumbers:
+            rankedNumbers
+                .slice(0, 5)
+                .map(item => item.number)
+                .sort((a, b) => a - b),
+        rankedData: rankedNumbers,
+        scoreMap
+    };
+}
+
+
+// =========================================================
 // DISPLAY GHANA PREDICTION
 // =========================================================
 
@@ -2156,18 +2249,6 @@ async function displayGhanaPrediction() {
 
             <span style="color:#64748b;font-weight:700;">
                 Analysing Ghana history...
-            </span>
-
-        `;
-    }
-
-
-    if (ghanaMachineBalls) {
-
-        ghanaMachineBalls.innerHTML = `
-
-            <span style="color:#64748b;font-weight:700;">
-                Analysing machine history...
             </span>
 
         `;
@@ -2245,98 +2326,29 @@ async function displayGhanaPrediction() {
         }
 
 
-        const winningHistory =
-            mapGhanaNumberField(
+        const predictionData =
+            calculateGhanaCombinedPrediction(
                 history,
-                "winning"
+                supportingGhanaHistory
             );
-
-        const machineHistory =
-            mapGhanaNumberField(
-                history,
-                "machine"
-            );
-
-        const winningContext =
-            mapGhanaNumberField(
-                supportingGhanaHistory,
-                "winning"
-            );
-
-        const machineContext =
-            mapGhanaNumberField(
-                supportingGhanaHistory,
-                "machine"
-            );
-
-        const winningPrediction =
-            winningHistory.length
-                ? calculateStatisticalPrediction(
-                    winningHistory,
-                    [],
-                    true,
-                    GHANA_PREDICTION_WEIGHTS,
-                    winningContext,
-                    false
-                )
-                : null;
-
-        const machinePrediction =
-            machineHistory.length
-                ? calculateStatisticalPrediction(
-                    machineHistory,
-                    [],
-                    true,
-                    GHANA_PREDICTION_WEIGHTS,
-                    machineContext,
-                    false
-                )
-                : null;
 
 
         if (ghanaGameBalls) {
 
             ghanaGameBalls.innerHTML =
-                winningPrediction
-                    ? winningPrediction.predictedNumbers
-                        .map(
-                            number => `
+                predictionData.predictedNumbers
 
-                                <span class="number-ball">
-                                    ${String(number).padStart(2, "0")}
-                                </span>
+                    .map(
+                        number => `
 
-                            `
-                        )
-                        .join("")
-                    : `
-                        <span class="prediction-unavailable">
-                            Winning prediction unavailable
-                        </span>
-                    `;
-        }
+                            <span class="number-ball">
+                                ${String(number).padStart(2, "0")}
+                            </span>
 
+                        `
+                    )
 
-        if (ghanaMachineBalls) {
-
-            ghanaMachineBalls.innerHTML =
-                machinePrediction
-                    ? machinePrediction.predictedNumbers
-                        .map(
-                            number => `
-
-                                <span class="number-ball">
-                                    ${String(number).padStart(2, "0")}
-                                </span>
-
-                            `
-                        )
-                        .join("")
-                    : `
-                        <span class="prediction-unavailable">
-                            Machine prediction unavailable
-                        </span>
-                    `;
+                    .join("");
         }
 
     }
@@ -2356,18 +2368,6 @@ async function displayGhanaPrediction() {
 
                 <span style="color:#dc2626;font-weight:700;">
                     Ghana prediction temporarily unavailable
-                </span>
-
-            `;
-        }
-
-
-        if (ghanaMachineBalls) {
-
-            ghanaMachineBalls.innerHTML = `
-
-                <span style="color:#dc2626;font-weight:700;">
-                    Machine prediction temporarily unavailable
                 </span>
 
             `;
