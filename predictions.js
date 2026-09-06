@@ -60,6 +60,9 @@ const ghanaCountdownTimer =
 const ghanaGameBalls =
     document.getElementById("ghana-game-balls");
 
+const ghanaMachineBalls =
+    document.getElementById("ghana-machine-balls");
+
 const ghanaAnalysisDrawCount =
     document.getElementById("ghana-analysis-draw-count");
 
@@ -851,6 +854,97 @@ async function fetchPredictionHistory(game) {
 
     }
 
+}
+
+
+// =========================================================
+// BUNDLED GHANA HISTORY
+// Validated ASEDA and National winning + machine records.
+// =========================================================
+
+let bundledGhanaHistoryPromise = null;
+
+function parseGhanaHistoryCsv(csvText) {
+    return csvText
+        .trim()
+        .split(/\r?\n/)
+        .slice(1)
+        .map(line => {
+            const [lottery, game, drawDate, winning, machine] =
+                line.split(",");
+
+            return {
+                lottery,
+                game,
+                draw_date: drawDate,
+                winning,
+                machine
+            };
+        })
+        .filter(result =>
+            result.lottery === "ghana" &&
+            result.game &&
+            result.draw_date
+        );
+}
+
+async function fetchBundledGhanaHistory() {
+    if (!bundledGhanaHistoryPromise) {
+        bundledGhanaHistoryPromise =
+            fetch("data/ghana-history.csv?v=1", { cache: "no-cache" })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Bundled Ghana history could not be loaded");
+                    }
+
+                    return response.text();
+                })
+                .then(parseGhanaHistoryCsv)
+                .catch(error => {
+                    console.error("Bundled Ghana history error:", error);
+                    bundledGhanaHistoryPromise = null;
+                    return [];
+                });
+    }
+
+    return bundledGhanaHistoryPromise;
+}
+
+function mergeGhanaHistory(...collections) {
+    const merged = new Map();
+
+    collections
+        .flat()
+        .forEach(result => {
+            if (!result || !result.game || !result.draw_date) {
+                return;
+            }
+
+            const key =
+                `${String(result.game).trim().toUpperCase()}|${result.draw_date}`;
+
+            // Supabase records take priority when the same draw exists.
+            if (!merged.has(key)) {
+                merged.set(key, result);
+            }
+        });
+
+    return [...merged.values()]
+        .sort((a, b) =>
+            String(b.draw_date).localeCompare(String(a.draw_date))
+        );
+}
+
+function mapGhanaNumberField(results, field) {
+    return results
+        .filter(result =>
+            parsePredictionNumbers(result[field]).length === 5
+        )
+        .map(result => ({
+            ...result,
+            winning: result[field],
+            machine: []
+        }));
 }
 
 
@@ -2068,15 +2162,47 @@ async function displayGhanaPrediction() {
     }
 
 
+    if (ghanaMachineBalls) {
+
+        ghanaMachineBalls.innerHTML = `
+
+            <span style="color:#64748b;font-weight:700;">
+                Analysing machine history...
+            </span>
+
+        `;
+    }
+
+
     try {
 
+        const [
+            databaseGameHistory,
+            databaseGhanaHistory,
+            bundledGhanaHistory
+        ] = await Promise.all([
+            fetchPredictionHistory(ghanaGame),
+            fetchGhanaFallbackHistory(),
+            fetchBundledGhanaHistory()
+        ]);
+
+        const bundledGameHistory =
+            bundledGhanaHistory.filter(result =>
+                String(result.game).trim().toUpperCase() ===
+                String(ghanaGame.game).trim().toUpperCase()
+            );
+
         const gameHistory =
-            await fetchPredictionHistory(
-                ghanaGame
+            mergeGhanaHistory(
+                databaseGameHistory,
+                bundledGameHistory
             );
 
         const allGhanaHistory =
-            await fetchGhanaFallbackHistory();
+            mergeGhanaHistory(
+                databaseGhanaHistory,
+                bundledGhanaHistory
+            );
 
         const history =
             gameHistory.length
@@ -2086,7 +2212,10 @@ async function displayGhanaPrediction() {
         const supportingGhanaHistory =
             gameHistory.length
                 ? allGhanaHistory
-                    .filter(result => result.game !== ghanaGame.game)
+                    .filter(result =>
+                        String(result.game).trim().toUpperCase() !==
+                        String(ghanaGame.game).trim().toUpperCase()
+                    )
                     .slice(0, 3)
                 : [];
 
@@ -2116,35 +2245,98 @@ async function displayGhanaPrediction() {
         }
 
 
-        const predictionData =
-            calculateStatisticalPrediction(
+        const winningHistory =
+            mapGhanaNumberField(
                 history,
-                [],
-                true,
-                GHANA_PREDICTION_WEIGHTS,
-                supportingGhanaHistory,
-                false
+                "winning"
             );
+
+        const machineHistory =
+            mapGhanaNumberField(
+                history,
+                "machine"
+            );
+
+        const winningContext =
+            mapGhanaNumberField(
+                supportingGhanaHistory,
+                "winning"
+            );
+
+        const machineContext =
+            mapGhanaNumberField(
+                supportingGhanaHistory,
+                "machine"
+            );
+
+        const winningPrediction =
+            winningHistory.length
+                ? calculateStatisticalPrediction(
+                    winningHistory,
+                    [],
+                    true,
+                    GHANA_PREDICTION_WEIGHTS,
+                    winningContext,
+                    false
+                )
+                : null;
+
+        const machinePrediction =
+            machineHistory.length
+                ? calculateStatisticalPrediction(
+                    machineHistory,
+                    [],
+                    true,
+                    GHANA_PREDICTION_WEIGHTS,
+                    machineContext,
+                    false
+                )
+                : null;
 
 
         if (ghanaGameBalls) {
 
             ghanaGameBalls.innerHTML =
+                winningPrediction
+                    ? winningPrediction.predictedNumbers
+                        .map(
+                            number => `
 
-                predictionData
-                    .predictedNumbers
+                                <span class="number-ball">
+                                    ${String(number).padStart(2, "0")}
+                                </span>
 
-                    .map(
-                        number => `
+                            `
+                        )
+                        .join("")
+                    : `
+                        <span class="prediction-unavailable">
+                            Winning prediction unavailable
+                        </span>
+                    `;
+        }
 
-                            <span class="number-ball">
-                                ${String(number).padStart(2, "0")}
-                            </span>
 
-                        `
-                    )
+        if (ghanaMachineBalls) {
 
-                    .join("");
+            ghanaMachineBalls.innerHTML =
+                machinePrediction
+                    ? machinePrediction.predictedNumbers
+                        .map(
+                            number => `
+
+                                <span class="number-ball">
+                                    ${String(number).padStart(2, "0")}
+                                </span>
+
+                            `
+                        )
+                        .join("")
+                    : `
+                        <span class="prediction-unavailable">
+                            Machine prediction unavailable
+                        </span>
+                    `;
         }
 
     }
@@ -2164,6 +2356,18 @@ async function displayGhanaPrediction() {
 
                 <span style="color:#dc2626;font-weight:700;">
                     Ghana prediction temporarily unavailable
+                </span>
+
+            `;
+        }
+
+
+        if (ghanaMachineBalls) {
+
+            ghanaMachineBalls.innerHTML = `
+
+                <span style="color:#dc2626;font-weight:700;">
+                    Machine prediction temporarily unavailable
                 </span>
 
             `;
