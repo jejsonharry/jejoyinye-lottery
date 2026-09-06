@@ -875,6 +875,179 @@ function applySupabaseFilters(
 
 
 // =========================================================
+// BUNDLED GHANA RESULT ARCHIVE
+// =========================================================
+
+let bundledGhanaResultsPromise = null;
+
+function parseBundledGhanaResults(csvText) {
+    return csvText
+        .trim()
+        .split(/\r?\n/)
+        .slice(1)
+        .map(line => {
+            const [
+                lottery,
+                game,
+                drawDate,
+                winning,
+                machine
+            ] = line.split(",");
+
+            return {
+                lottery,
+                game,
+                draw_date: drawDate,
+                winning,
+                machine
+            };
+        })
+        .filter(result =>
+            result.lottery === "ghana" &&
+            result.game &&
+            result.draw_date
+        );
+}
+
+async function fetchBundledGhanaResults() {
+    if (!bundledGhanaResultsPromise) {
+        bundledGhanaResultsPromise =
+            fetch("data/ghana-history.csv?v=1", {
+                cache: "no-cache"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(
+                            "Ghana result archive could not be loaded"
+                        );
+                    }
+
+                    return response.text();
+                })
+                .then(parseBundledGhanaResults)
+                .catch(error => {
+                    console.error(
+                        "Bundled Ghana results error:",
+                        error
+                    );
+                    bundledGhanaResultsPromise = null;
+                    return [];
+                });
+    }
+
+    return bundledGhanaResultsPromise;
+}
+
+function filterBundledGhanaResults(results) {
+    const selectedLottery =
+        lotteryType?.value?.trim() || "";
+
+    const selectedGame =
+        gameSelect?.value?.trim() || "";
+
+    const selectedYear =
+        yearSelect?.value?.trim() || "";
+
+    const selectedMonth =
+        monthSelect?.value?.trim() || "";
+
+    let selectedDate =
+        dateInput?.value?.trim() || "";
+
+    let selectedEndDate =
+        endDateInput?.value?.trim() || "";
+
+    if (
+        selectedLottery &&
+        selectedLottery !== "ghana"
+    ) {
+        return [];
+    }
+
+    if (
+        selectedDate &&
+        selectedEndDate &&
+        selectedDate > selectedEndDate
+    ) {
+        [selectedDate, selectedEndDate] =
+            [selectedEndDate, selectedDate];
+    }
+
+    return results.filter(result => {
+        const drawDate =
+            String(result.draw_date || "");
+
+        if (
+            selectedGame &&
+            normalizeGameName(result.game).toUpperCase() !==
+            normalizeGameName(selectedGame).toUpperCase()
+        ) {
+            return false;
+        }
+
+        if (
+            selectedDate &&
+            drawDate < selectedDate
+        ) {
+            return false;
+        }
+
+        if (
+            selectedEndDate &&
+            drawDate > selectedEndDate
+        ) {
+            return false;
+        }
+
+        if (
+            !selectedDate &&
+            !selectedEndDate &&
+            selectedYear &&
+            !drawDate.startsWith(
+                `${selectedYear}-`
+            )
+        ) {
+            return false;
+        }
+
+        if (
+            !selectedDate &&
+            !selectedEndDate &&
+            selectedYear &&
+            selectedMonth &&
+            !drawDate.startsWith(
+                `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-`
+            )
+        ) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+function mergeResultSources(primaryResults, fallbackResults) {
+    const merged = new Map();
+
+    [...primaryResults, ...fallbackResults]
+        .forEach(result => {
+            const key = [
+                result.lottery,
+                normalizeGameName(result.game).toUpperCase(),
+                result.draw_date
+            ].join("|");
+
+            // Live Supabase results are supplied first and take priority.
+            if (!merged.has(key)) {
+                merged.set(key, result);
+            }
+        });
+
+    return [...merged.values()];
+}
+
+
+// =========================================================
 // FETCH ALL FILTERED RESULTS
 // =========================================================
 
@@ -1622,8 +1795,38 @@ async function displayResults() {
         );
 
 
+        const [
+            liveResult,
+            bundledResult
+        ] = await Promise.allSettled([
+            fetchAllFilteredSupabaseResults(),
+            fetchBundledGhanaResults()
+        ]);
+
+        const liveResults =
+            liveResult.status === "fulfilled"
+                ? liveResult.value
+                : [];
+
+        const bundledResults =
+            bundledResult.status === "fulfilled"
+                ? filterBundledGhanaResults(
+                    bundledResult.value
+                )
+                : [];
+
+        if (
+            liveResult.status === "rejected" &&
+            bundledResults.length === 0
+        ) {
+            throw liveResult.reason;
+        }
+
         const results =
-            await fetchAllFilteredSupabaseResults();
+            mergeResultSources(
+                liveResults,
+                bundledResults
+            );
 
 
         console.log(
