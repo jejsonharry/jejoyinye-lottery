@@ -898,12 +898,267 @@ async function fetchTodaysEarlierResults(game) {
 
 
 // =========================================================
+// MODERN BILLIONAIRE CLASSIFICATION CHART
+// 30% statistics + 50% classification + 20% moving numbers
+// =========================================================
+
+const MODERN_PREDICTION_WEIGHTS = Object.freeze({
+    statistical: 0.30,
+    classification: 0.50,
+    moving: 0.20
+});
+
+const MODERN_CLASSIFICATION_CATEGORY_NAMES = Object.freeze([
+    "counterpart",
+    "bonanza",
+    "malta",
+    "stringKey",
+    "shadow",
+    "partner",
+    "equivalent",
+    "code",
+    "turning"
+]);
+
+const MODERN_CLASSIFICATION_ROWS = `1 46 74 89 58 04 03 08 00 10
+2 47 08 88 65 08 09 07 09 20
+3 48 17 87 57 00 01 06 08 30
+4 49 36 86 76 01 02 05 07 40
+5 50 35 85 19 07 10 04 06 50
+6 51 65 84 90 09 08 03 05 60
+7 52 57 83 54 05 06 02 04 70
+8 53 02 82 43 02 05 01 03 80
+9 54 81 23 26 06 10 02 09 90
+10 55 85 80 63 03 09 00 01 00
+11 56 59 79 32 44 07 88 00 11
+12 57 48 78 75 40 12 87 09 21
+13 58 78 78 69 18 11 86 08 31
+14 59 30 76 26 41 18 85 07 41
+15 60 51 75 68 21 10 84 06 51
+16 61 54 74 59 49 17 83 05 61
+17 62 03 73 81 45 14 82 04 71
+18 63 24 72 47 46 15 81 03 81
+19 64 22 71 25 46 16 80 02 91
+20 65 86 70 66 83 22 79 01 02
+21 66 61 69 85 84 25 78 90 12
+22 67 42 68 67 88 20 77 99 22
+23 68 19 87 80 24 12 76 98 32
+24 69 18 66 45 81 23 75 97 42
+25 70 80 65 51 87 21 74 96 52
+26 71 62 64 14 89 28 73 95 62
+27 72 32 63 63 85 29 72 94 72
+28 73 71 62 52 82 26 71 93 82
+29 74 72 61 38 86 27 70 92 92
+30 75 14 60 78 03 38 69 91 03
+31 76 37 59 88 04 35 68 90 13
+32 77 27 58 71 08 34 67 89 23
+33 78 05 57 80 33 36 66 88 33
+34 79 73 56 67 01 32 65 87 43
+35 80 88 55 53 07 31 64 86 53
+36 81 04 54 09 39 33 63 85 63
+37 82 91 53 72 05 39 62 84 73
+38 83 35 52 29 06 30 61 83 83
+39 84 58 51 69 06 30 60 82 93
+40 85 43 50 86 08 41 59 81 04
+41 86 79 49 77 14 40 58 80 14
+42 87 22 48 55 18 48 57 79 24
+43 88 40 47 60 10 46 56 78 34
+44 89 76 46 61 11 47 55 77 44
+45 90 47 45 24 17 49 54 76 54
+46 01 90 44 62 19 43 53 75 64
+47 02 45 43 18 15 52 74 74 74
+48 03 12 42 16 42 51 73 84 84
+49 04 68 41 16 50 50 72 49 49
+50 05 83 40 89 73 49 61 05 05
+51 06 16 39 25 74 48 60 15 15
+52 07 66 38 28 78 47 69 25 25
+53 08 70 37 36 70 58 68 35 35
+54 09 16 36 07 71 57 67 45 45
+55 10 58 35 42 77 44 66 55 55
+56 11 60 34 79 79 34 65 65 65
+57 12 07 33 03 75 55 64 75 75
+58 13 55 32 01 72 54 63 85 85
+59 14 11 31 16 76 53 62 59 59
+60 15 56 30 44 94 63 39 51 06
+61 16 21 29 22 93 50 50 16 16
+62 17 29 28 46 98 61 37 59 26
+63 18 28 27 27 90 60 36 58 36
+64 19 67 26 16 96 35 57 46 46
+65 20 06 25 65 02 33 56 56 56
+66 21 24 24 50 97 68 55 66 66
+67 22 63 23 24 99 67 54 76 76
+68 23 49 22 14 92 66 53 86 86
+69 24 31 21 06 93 65 52 96 96
+70 25 20 20 26 88 64 51 07 07
+71 26 82 19 18 84 75 50 17 17
+72 27 23 18 37 58 74 49 27 27
+73 28 34 17 61 85 73 48 37 37
+74 29 01 16 49 51 72 47 47 47
+75 30 77 15 12 57 71 46 57 57
+76 31 44 14 04 59 70 45 67 67
+77 32 75 13 41 55 72 22 44 77
+78 33 18 12 30 52 70 21 43 57
+79 34 41 11 56 76 20 42 77 79
+80 35 25 10 33 23 89 19 31 08
+81 36 09 09 10 28 85 18 30 18
+82 37 84 08 70 28 88 17 29 28
+83 38 50 07 10 20 15 16 28 38
+84 39 23 06 7 21 14 37 48 48
+85 40 10 05 64 27 81 14 36 58
+86 41 20 04 40 29 87 13 35 68
+87 42 64 03 29 25 86 12 34 78
+88 43 9 02 31 22 82 11 33 88
+89 44 9 01 50 26 80 10 32 89
+90 45 46 06 63 09 69 21 09 09`;
+
+const MODERN_CLASSIFICATION_CHART = Object.freeze(
+    Object.fromEntries(
+        MODERN_CLASSIFICATION_ROWS
+            .trim()
+            .split(/\n+/)
+            .map(row => {
+                const values = row.trim().split(/\s+/).map(Number);
+                const number = values.shift();
+                return [
+                    number,
+                    Object.freeze(
+                        Object.fromEntries(
+                            MODERN_CLASSIFICATION_CATEGORY_NAMES.map(
+                                (category, index) => [category, values[index]]
+                            )
+                        )
+                    )
+                ];
+            })
+    )
+);
+
+const MODERN_MOVING_ROWS = `1:23,8,73;11:29,7,19;21:8,80,75;31:9,53,70;41:32,59,77;51:9,15,69;61:30,3,80;71:27,5,83;81:27,5,83
+2:58,5,74;12:3,4,76;22:4,58,65;32:23,8,77;42:17,31,78;52:37,39,22;62:28,53,80;72:18,45,81;82:19,55,87
+3:8,7,90;13:22,8,65;23:5,68,77;33:24,2,78;43:25,61,7;53:10,89,71;63:19,38,22;73:19,73,82;83:29,38,47
+4:50,40,78;14:1,77,81;24:30,47,80;34:36,73,8;44:53,62,80;54:37,77,72;64:1,19,82;74:56,47,19;84:21,8,84
+5:22,2,9;15:25,52,79;25:24,2,89;35:40,53,80;45:10,72,1;55:47,58,65;64:3,30,80;75:40,87,85;85:23,88,59
+7:34,3,56;16:9,80,40;29:45,54,90;38:28,45,64;49:1,11,56;54:48,84,75;65:40,53,87;73:17,30,18;85:24,70,87
+8:53,4,89;18:9,27,54;28:46,55,82;38:58,65,74;49:3,8,57;58:4,40,49;68:50,77,87;78:20,18,40;88:34,52,88
+9:36,50,72;29:28,54,72;22:2,20,65;33:48,57,84;46:4,40,49;43:23,32,77;60:8,60,24;37:52,80,17;31:21,71,77
+10:55,82,64;20:20,29,36;30:30,8,69;40:49,67,75;50:12,66,86;60:6,77,78;70:7,25,34;80:35,40,71;90:55,3,27`;
+
+const MODERN_MOVING_GRAPH = (() => {
+    const graph = Object.fromEntries(
+        Array.from({ length: 90 }, (_, index) => [index + 1, new Set()])
+    );
+
+    MODERN_MOVING_ROWS
+        .trim()
+        .split(/\n+/)
+        .forEach(row => {
+            row.split(";").forEach(entry => {
+                const [headingText, movesText] = entry.split(":");
+                const heading = Number(headingText);
+                const moves = movesText.split(",").map(Number);
+
+                moves.forEach(move => {
+                    if (
+                        heading >= 1 && heading <= 90 &&
+                        move >= 1 && move <= 90 &&
+                        move !== heading
+                    ) {
+                        graph[heading].add(move);
+                        graph[move].add(heading);
+                    }
+                });
+            });
+        });
+
+    return Object.freeze(
+        Object.fromEntries(
+            Object.entries(graph).map(
+                ([number, related]) => [
+                    number,
+                    Object.freeze([...related])
+                ]
+            )
+        )
+    );
+})();
+
+function normalizePredictionComponent(scoreMap, property) {
+    const maximum = Math.max(
+        0,
+        ...Object.values(scoreMap).map(item => item[property] || 0)
+    );
+
+    Object.values(scoreMap).forEach(item => {
+        item[`${property}Normalized`] =
+            maximum > 0
+                ? ((item[property] || 0) / maximum) * 100
+                : 0;
+    });
+}
+
+function addModernRelationshipScores(scoreMap, sourceNumber, weight) {
+    const relationships = MODERN_CLASSIFICATION_CHART[sourceNumber];
+
+    if (relationships) {
+        Object.values(relationships).forEach(target => {
+            if (target >= 1 && target <= 90) {
+                scoreMap[target].classificationScore += weight;
+            }
+        });
+    }
+
+    (MODERN_MOVING_GRAPH[sourceNumber] || []).forEach(target => {
+        scoreMap[target].movingScore += weight;
+    });
+}
+
+function applyModernClassificationRanking(scoreMap, results, todayResults) {
+    const signalResults = [
+        ...todayResults.map(result => ({
+            result,
+            weight: 2.5
+        })),
+        ...results.slice(0, 5).map((result, index) => ({
+            result,
+            weight: Math.max(0.35, 1 - (index * 0.15))
+        }))
+    ];
+
+    signalResults.forEach(({ result, weight }) => {
+        parsePredictionNumbers(result.winning).forEach(number => {
+            addModernRelationshipScores(scoreMap, number, weight);
+        });
+
+        parsePredictionNumbers(result.machine).forEach(number => {
+            addModernRelationshipScores(scoreMap, number, weight * 0.45);
+        });
+    });
+
+    Object.values(scoreMap).forEach(item => {
+        item.statisticalScore = item.totalScore;
+    });
+
+    normalizePredictionComponent(scoreMap, "statisticalScore");
+    normalizePredictionComponent(scoreMap, "classificationScore");
+    normalizePredictionComponent(scoreMap, "movingScore");
+
+    Object.values(scoreMap).forEach(item => {
+        item.totalScore =
+            (item.statisticalScoreNormalized * MODERN_PREDICTION_WEIGHTS.statistical) +
+            (item.classificationScoreNormalized * MODERN_PREDICTION_WEIGHTS.classification) +
+            (item.movingScoreNormalized * MODERN_PREDICTION_WEIGHTS.moving);
+    });
+}
+
+
+// =========================================================
 // STATISTICAL PREDICTION ALGORITHM
 // =========================================================
 
 function calculateStatisticalPrediction(
     results,
-    todayResults = []
+    todayResults = [],
+    useModernClassification = false
 ) {
 
     const scoreMap = {};
@@ -926,6 +1181,12 @@ function calculateStatisticalPrediction(
             todayFrequency: 0,
 
             recentScore: 0,
+
+            statisticalScore: 0,
+
+            classificationScore: 0,
+
+            movingScore: 0,
 
             totalScore: 0
 
@@ -1048,6 +1309,15 @@ function calculateStatisticalPrediction(
             item.recentScore;
 
     });
+
+
+    if (useModernClassification) {
+        applyModernClassificationRanking(
+            scoreMap,
+            results,
+            todayResults
+        );
+    }
 
 
     const rankedNumbers =
@@ -1419,6 +1689,32 @@ function displayPredictionAnalysis(
                                     <div>
 
                                         <span>
+                                            Classification Score
+                                        </span>
+
+                                        <strong>
+                                            ${item.classificationScoreNormalized.toFixed(1)}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Moving Number Score
+                                        </span>
+
+                                        <strong>
+                                            ${item.movingScoreNormalized.toFixed(1)}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
                                             Overall Score
                                         </span>
 
@@ -1605,7 +1901,8 @@ async function displayNextGamePrediction() {
         const predictionData =
             calculateStatisticalPrediction(
                 history,
-                todayResults
+                todayResults,
+                true
             );
 
 
