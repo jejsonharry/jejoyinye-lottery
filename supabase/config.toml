@@ -1,0 +1,4 @@
+project_id = "iedgznzmmfkdhgmkghwt"
+
+[functions.sync-modern-results]
+verify_jwt = true
