@@ -1,4 +1,4 @@
-name: One-time Modern Results Backfill 2023-2026
+name: Modern Results Backfill 2023-2026 (legacy retry)
 
 on:
   push:
@@ -52,4 +52,3 @@ jobs:
           END_DATE: ${{ matrix.period.end }}
           IMPORT_CONCURRENCY: "2"
         run: node scripts/import-modern-results.mjs
-
