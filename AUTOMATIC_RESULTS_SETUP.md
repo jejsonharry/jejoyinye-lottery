@@ -1,6 +1,17 @@
 # Automatic Modern Billionaire Results
 
-The scheduled GitHub Action imports official Modern Billionaire winning and machine numbers into the existing Supabase `results` table.
+The primary updater is the Supabase Edge Function in `supabase/functions/sync-modern-results`. Supabase Cron calls it every two minutes and the website listens for database changes, so an open results page updates shortly after a new result is imported.
+
+The scheduled GitHub Action still runs every ten minutes as an independent backup.
+
+## One-time fast updater setup
+
+1. Create a Supabase personal access token from **Supabase Dashboard → Account → Access Tokens**.
+2. In GitHub, open **Settings → Secrets and variables → Actions → New repository secret** and save it as `SUPABASE_ACCESS_TOKEN`.
+3. Open **Actions → Deploy Supabase Results Function → Run workflow** and wait for the deployment to finish successfully.
+4. In Supabase, open **SQL Editor**, paste all of `supabase/setup-fast-results-sync.sql`, and select **Run**.
+
+The SQL enables `pg_cron`, `pg_net`, and Realtime for `public.results`, then schedules `sync-modern-results` every two minutes. It is safe to run the setup SQL again if the schedule needs to be repaired.
 
 ## Required GitHub secrets
 
@@ -15,7 +26,7 @@ If the project only displays legacy keys, add the `service_role` key as `SUPABAS
 
 Never place the service-role key in a website JavaScript file or commit it to GitHub.
 
-## Normal operation
+## Backup operation
 
 The workflow runs every ten minutes and checks both today and yesterday in Nigeria time. Existing results are updated when the official numbers change; unchanged results are skipped, so repeated workflow runs do not create duplicates.
 
