@@ -202,18 +202,22 @@ function resultFilter(record) {
     return params.toString();
 }
 
-async function findExistingResult(record) {
+async function findExistingResults(drawDate) {
+    const params = new URLSearchParams({
+        lottery: `eq.${LOTTERY}`,
+        draw_date: `eq.${drawDate}`
+    });
     const response = await fetchWithRetry(
-        `${SUPABASE_URL}/rest/v1/results?${resultFilter(record)}&select=winning,machine&limit=1`,
+        `${SUPABASE_URL}/rest/v1/results?${params}&select=game,winning,machine`,
         { headers: supabaseHeaders() }
     );
     const rows = await response.json();
-    return Array.isArray(rows) ? rows[0] || null : null;
+    return new Map(
+        (Array.isArray(rows) ? rows : []).map(row => [String(row.game || ""), row])
+    );
 }
 
-async function saveResult(record) {
-    const existing = await findExistingResult(record);
-
+async function saveResult(record, existing) {
     if (
         existing &&
         sameNumbers(existing.winning, record.winning) &&
@@ -239,11 +243,14 @@ async function saveResult(record) {
 }
 
 async function syncDate(drawDate) {
-    const officialResults = await fetchOfficialResults(drawDate);
+    const [officialResults, existingResults] = await Promise.all([
+        fetchOfficialResults(drawDate),
+        findExistingResults(drawDate)
+    ]);
     const totals = { dates: 1, found: officialResults.length, inserted: 0, updated: 0, skipped: 0 };
 
     for (const record of officialResults) {
-        const status = await saveResult(record);
+        const status = await saveResult(record, existingResults.get(record.game));
         totals[status] += 1;
     }
 
