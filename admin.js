@@ -851,22 +851,15 @@ function loadGames(lottery) {
 
 function updateMachineNumberRequirement() {
 
-    const isGhana = lotterySelect?.value === "ghana";
-
     machineInputs.forEach(input => {
-        input.required = !isGhana;
-        input.disabled = isGhana;
-        input.placeholder = isGhana ? "N/A" : "";
-
-        if (isGhana) {
-            input.value = "";
-        }
+        input.required = true;
+        input.disabled = false;
+        input.placeholder = "";
     });
 
     if (machineNumberHelp) {
-        machineNumberHelp.textContent = isGhana
-            ? "Ghana Games publishes winning numbers only. Machine numbers are not required."
-            : "Enter five numbers between 1 and 90.";
+        machineNumberHelp.textContent =
+            "Enter five machine numbers between 1 and 90 for Modern Billionaire or Ghana Games.";
     }
 }
 
@@ -996,11 +989,10 @@ async function saveResult(event) {
             );
 
 
-    const isGhana = lotterySelect.value === "ghana";
-
-    const machine = isGhana
-        ? []
-        : machineInputs.map(input => Number(input.value));
+    const machine =
+        machineInputs.map(
+            input => Number(input.value)
+        );
 
 
     if (
@@ -1027,7 +1019,7 @@ async function saveResult(event) {
 
         ||
 
-        (!isGhana && !numbersAreValid(machine))
+        !numbersAreValid(machine)
     ) {
 
         showError(
@@ -1046,7 +1038,7 @@ async function saveResult(event) {
 
         ||
 
-        (!isGhana && hasDuplicates(machine))
+        hasDuplicates(machine)
     ) {
 
         showError(
