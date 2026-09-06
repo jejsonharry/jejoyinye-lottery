@@ -1,0 +1,46 @@
+name: Import Modern Billionaire Results
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Optional historical start date (YYYY-MM-DD)"
+        required: false
+        type: string
+      end_date:
+        description: "Optional historical end date (YYYY-MM-DD)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: modern-results-import
+  cancel-in-progress: false
+
+jobs:
+  import-results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Import official Modern Billionaire results
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+          LOOKBACK_DAYS: "1"
+          IMPORT_CONCURRENCY: "2"
+        run: node scripts/import-modern-results.mjs
