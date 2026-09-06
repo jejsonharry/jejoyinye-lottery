@@ -1,0 +1,55 @@
+name: One-time Modern Results Backfill 2023-2026
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/backfill-modern-results.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        period:
+          - name: "2023"
+            start: "2023-01-01"
+            end: "2023-12-31"
+          - name: "2024"
+            start: "2024-01-01"
+            end: "2024-12-31"
+          - name: "2025"
+            start: "2025-01-01"
+            end: "2025-12-31"
+          - name: "2026"
+            start: "2026-01-01"
+            end: "2026-09-06"
+
+    name: Import ${{ matrix.period.name }}
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Import official results for ${{ matrix.period.name }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          START_DATE: ${{ matrix.period.start }}
+          END_DATE: ${{ matrix.period.end }}
+          IMPORT_CONCURRENCY: "2"
+        run: node scripts/import-modern-results.mjs
+
