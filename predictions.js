@@ -1029,13 +1029,13 @@ async function fetchTodaysEarlierResults(game) {
 
 // =========================================================
 // MODERN BILLIONAIRE CLASSIFICATION CHART
-// 60% statistics + 30% classification + 10% moving numbers
+// 30% statistics + 50% classification + 20% moving numbers
 // =========================================================
 
 const MODERN_PREDICTION_WEIGHTS = Object.freeze({
-    statistical: 0.60,
-    classification: 0.30,
-    moving: 0.10
+    statistical: 0.30,
+    classification: 0.50,
+    moving: 0.20
 });
 
 const GHANA_COMBINED_WEIGHTS = Object.freeze({
