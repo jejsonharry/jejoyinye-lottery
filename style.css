@@ -8785,3 +8785,61 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
         padding: 25px 16px 28px;
     }
 }
+
+
+/* =========================================================
+   GHANA DUAL WINNING + MACHINE PREDICTIONS
+   ========================================================= */
+
+.ghana-prediction-group {
+    margin-top: 20px;
+}
+
+.ghana-prediction-group .prediction-number-label {
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.ghana-prediction-card #ghana-game-balls .number-ball,
+.ghana-prediction-card #ghana-machine-balls .number-ball {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border: 3px solid rgba(255, 255, 255, 0.78);
+    border-radius: 50%;
+    color: #ffffff !important;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.ghana-prediction-card #ghana-game-balls .number-ball {
+    background: linear-gradient(145deg, #39c768, #13853d) !important;
+    box-shadow: 0 7px 16px rgba(21, 128, 61, 0.24);
+}
+
+.ghana-prediction-card #ghana-machine-balls .number-ball {
+    background: linear-gradient(145deg, #ff4d57, #c91525) !important;
+    box-shadow: 0 7px 16px rgba(220, 38, 38, 0.24);
+}
+
+.prediction-unavailable {
+    color: #64748b;
+    font-weight: 700;
+}
+
+@media (max-width: 480px) {
+    .ghana-prediction-card #ghana-game-balls .number-ball,
+    .ghana-prediction-card #ghana-machine-balls .number-ball {
+        width: 42px;
+        height: 42px;
+        font-size: 14px;
+    }
+
+    .ghana-prediction-card .prediction-balls {
+        gap: 7px;
+    }
+}
