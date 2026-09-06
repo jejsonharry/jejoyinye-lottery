@@ -947,6 +947,12 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
     moving: 0.10
 });
 
+const GHANA_PREDICTION_WEIGHTS = Object.freeze({
+    statistical: 0.70,
+    classification: 0.25,
+    moving: 0.05
+});
+
 const MODERN_CLASSIFICATION_CATEGORY_NAMES = Object.freeze([
     "counterpart",
     "bonanza",
@@ -1151,11 +1157,22 @@ function addModernRelationshipScores(scoreMap, sourceNumber, weight) {
     });
 }
 
-function applyModernClassificationRanking(scoreMap, results, todayResults) {
+function applyModernClassificationRanking(
+    scoreMap,
+    results,
+    todayResults,
+    predictionWeights = MODERN_PREDICTION_WEIGHTS,
+    contextResults = [],
+    includeMachineRelationships = true
+) {
     const signalResults = [
         ...todayResults.map(result => ({
             result,
             weight: 2.5
+        })),
+        ...contextResults.slice(0, 3).map((result, index) => ({
+            result,
+            weight: Math.max(0.75, 1.35 - (index * 0.20))
         })),
         ...results.slice(0, 5).map((result, index) => ({
             result,
@@ -1168,9 +1185,11 @@ function applyModernClassificationRanking(scoreMap, results, todayResults) {
             addModernRelationshipScores(scoreMap, number, weight);
         });
 
-        parsePredictionNumbers(result.machine).forEach(number => {
-            addModernRelationshipScores(scoreMap, number, weight * 0.45);
-        });
+        if (includeMachineRelationships) {
+            parsePredictionNumbers(result.machine).forEach(number => {
+                addModernRelationshipScores(scoreMap, number, weight * 0.45);
+            });
+        }
     });
 
     Object.values(scoreMap).forEach(item => {
@@ -1183,9 +1202,9 @@ function applyModernClassificationRanking(scoreMap, results, todayResults) {
 
     Object.values(scoreMap).forEach(item => {
         item.totalScore =
-            (item.statisticalScoreNormalized * MODERN_PREDICTION_WEIGHTS.statistical) +
-            (item.classificationScoreNormalized * MODERN_PREDICTION_WEIGHTS.classification) +
-            (item.movingScoreNormalized * MODERN_PREDICTION_WEIGHTS.moving);
+            (item.statisticalScoreNormalized * predictionWeights.statistical) +
+            (item.classificationScoreNormalized * predictionWeights.classification) +
+            (item.movingScoreNormalized * predictionWeights.moving);
     });
 }
 
@@ -1197,7 +1216,10 @@ function applyModernClassificationRanking(scoreMap, results, todayResults) {
 function calculateStatisticalPrediction(
     results,
     todayResults = [],
-    useModernClassification = false
+    useModernClassification = false,
+    predictionWeights = MODERN_PREDICTION_WEIGHTS,
+    contextResults = [],
+    includeMachineRelationships = true
 ) {
 
     const scoreMap = {};
@@ -1354,7 +1376,10 @@ function calculateStatisticalPrediction(
         applyModernClassificationRanking(
             scoreMap,
             results,
-            todayResults
+            todayResults,
+            predictionWeights,
+            contextResults,
+            includeMachineRelationships
         );
     }
 
@@ -2050,10 +2075,20 @@ async function displayGhanaPrediction() {
                 ghanaGame
             );
 
+        const allGhanaHistory =
+            await fetchGhanaFallbackHistory();
+
         const history =
             gameHistory.length
                 ? gameHistory
-                : await fetchGhanaFallbackHistory();
+                : allGhanaHistory;
+
+        const supportingGhanaHistory =
+            gameHistory.length
+                ? allGhanaHistory
+                    .filter(result => result.game !== ghanaGame.game)
+                    .slice(0, 3)
+                : [];
 
 
         if (ghanaAnalysisDrawCount) {
@@ -2084,7 +2119,11 @@ async function displayGhanaPrediction() {
         const predictionData =
             calculateStatisticalPrediction(
                 history,
-                []
+                [],
+                true,
+                GHANA_PREDICTION_WEIGHTS,
+                supportingGhanaHistory,
+                false
             );
 
 
