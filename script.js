@@ -3093,6 +3093,88 @@ resetButton
 
 
 // =========================================================
+// LIVE RESULT UPDATES
+// =========================================================
+
+let resultsRealtimeChannel = null;
+let liveResultsRefreshTimer = null;
+
+
+function subscribeToLiveResultUpdates() {
+
+    if (
+        resultsRealtimeChannel ||
+        typeof supabaseClient ===
+            "undefined" ||
+        (
+            !resultsContainer &&
+            !homeResultsContainer
+        )
+    ) {
+
+        return;
+    }
+
+
+    resultsRealtimeChannel =
+        supabaseClient
+
+            .channel(
+                "jols-live-results"
+            )
+
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "results"
+                },
+                function () {
+
+                    clearTimeout(
+                        liveResultsRefreshTimer
+                    );
+
+
+                    liveResultsRefreshTimer =
+                        setTimeout(
+                            async function () {
+
+                                if (resultsContainer) {
+
+                                    await displayResults();
+                                }
+
+
+                                if (homeResultsContainer) {
+
+                                    await displayHomepageResults();
+                                }
+                            },
+                            700
+                        );
+                }
+            )
+
+            .subscribe(
+                function (status) {
+
+                    if (
+                        status ===
+                        "SUBSCRIBED"
+                    ) {
+
+                        console.log(
+                            "LIVE RESULT UPDATES CONNECTED"
+                        );
+                    }
+                }
+            );
+}
+
+
+// =========================================================
 // START WEBSITE
 // =========================================================
 
@@ -3175,6 +3257,9 @@ document.addEventListener(
                 60000
             );
         }
+
+
+        subscribeToLiveResultUpdates();
 
 
         console.log(
