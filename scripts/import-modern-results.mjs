@@ -20,6 +20,24 @@ const GAME_BY_MERCHANT_ID = Object.freeze({
     "30": "Queen"
 });
 
+// Older official records used merchantId 2 for every Modern Billionaire game.
+// Their published spin time is stable and identifies the individual game.
+const GAME_BY_SPIN_TIME = Object.freeze({
+    "09:00:00": "Powerball",
+    "11:00:00": "Awoof",
+    "13:00:00": "Biggest Bet",
+    "15:00:00": "Gold Rush",
+    "17:00:00": "Lucky Dollar",
+    "18:00:00": "Blessing",
+    "19:00:00": "Owo Time",
+    "20:00:00": "Modern Bingo",
+    "21:00:00": "Bonus Cash",
+    "22:00:00": "Hero",
+    "23:00:00": "Golden",
+    "23:59:59": "Queen",
+    "00:00:00": "Queen"
+});
+
 const SUPABASE_URL = String(process.env.SUPABASE_URL || "").replace(/\/$/, "");
 const SUPABASE_SECRET_KEY = String(
     process.env.SUPABASE_SECRET_KEY ||
@@ -103,6 +121,15 @@ function parseNumbers(value) {
     return numbers;
 }
 
+function gameForRecord(record) {
+    const currentGame = GAME_BY_MERCHANT_ID[String(record?.merchantId)];
+    if (currentGame) return currentGame;
+
+    const spinTime = String(record?.spinTime || "");
+    const time = spinTime.match(/(\d{2}:\d{2}:\d{2})$/)?.[1] || "";
+    return GAME_BY_SPIN_TIME[time] || "";
+}
+
 function sameNumbers(left, right) {
     const normalise = value => {
         if (Array.isArray(value)) return value.map(Number);
@@ -170,7 +197,7 @@ async function fetchOfficialResults(drawDate) {
         .filter(record => record?.statusFlag === "F" && record?.result)
         .map(record => ({
             lottery: LOTTERY,
-            game: GAME_BY_MERCHANT_ID[String(record.merchantId)] || "",
+            game: gameForRecord(record),
             draw_date: String(record.issueDate || drawDate).slice(0, 10),
             winning: parseNumbers(record.result),
             machine: parseNumbers(record.mach)
