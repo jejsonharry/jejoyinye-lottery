@@ -8999,9 +8999,9 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     .results-page #results-container .ghana-results-group .lottery-results-list .result-card {
         box-sizing: border-box !important;
         width: 100% !important;
-        height: 108px !important;
-        min-height: 108px !important;
-        max-height: 108px !important;
+        height: 78px !important;
+        min-height: 78px !important;
+        max-height: 78px !important;
         overflow: hidden !important;
     }
 }
