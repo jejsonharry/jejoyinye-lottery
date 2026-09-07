@@ -9049,18 +9049,18 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     .results-page #results-container .lottery-results-list .winning-numbers,
     .results-page #results-container .lottery-results-list .machine-numbers {
         display: grid !important;
-        grid-template-columns: repeat(5, 15px) !important;
+        grid-template-columns: repeat(5, 18px) !important;
         gap: 1px !important;
         width: max-content !important;
         max-width: 100% !important;
     }
 
     .results-page #results-container .lottery-results-list .number-ball {
-        width: 15px !important;
-        height: 15px !important;
-        min-width: 15px !important;
-        font-size: 6px !important;
-        line-height: 15px !important;
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        font-size: 8px !important;
+        line-height: 18px !important;
     }
 
     .results-page #results-container .lottery-results-list .result-card-no-machine .result-number-group {
@@ -9076,7 +9076,7 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
         width: 20px !important;
         height: 20px !important;
         min-width: 20px !important;
-        font-size: 7px !important;
+        font-size: 9px !important;
         line-height: 20px !important;
     }
 }
