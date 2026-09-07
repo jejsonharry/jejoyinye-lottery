@@ -202,7 +202,10 @@ async function fetchOfficialResults(drawDate) {
             winning: parseNumbers(record.result),
             machine: parseNumbers(record.mach)
         }))
-        .filter(record => record.game && record.winning.length === 5 && record.machine.length === 5);
+        .filter(record =>
+            record.game &&
+            record.winning.length === 5
+        );
 }
 
 function supabaseHeaders(extra = {}) {
@@ -245,10 +248,16 @@ async function findExistingResults(drawDate) {
 }
 
 async function saveResult(record, existing) {
+    const officialMachineAvailable =
+        record.machine.length === 5;
+
     if (
         existing &&
         sameNumbers(existing.winning, record.winning) &&
-        sameNumbers(existing.machine, record.machine)
+        (
+            !officialMachineAvailable ||
+            sameNumbers(existing.machine, record.machine)
+        )
     ) {
         return "skipped";
     }
@@ -257,13 +266,24 @@ async function saveResult(record, existing) {
         ? `${SUPABASE_URL}/rest/v1/results?${resultFilter(record)}`
         : `${SUPABASE_URL}/rest/v1/results`;
 
+    const updateBody = {
+        winning: record.winning
+    };
+
+    /* Never erase machine numbers entered through Admin while the
+       official source is still publishing winning numbers only. */
+    if (officialMachineAvailable) {
+        updateBody.machine = record.machine;
+    }
+
     await fetchWithRetry(path, {
         method: existing ? "PATCH" : "POST",
         headers: supabaseHeaders({ Prefer: "return=minimal" }),
-        body: JSON.stringify(existing ? {
-            winning: record.winning,
-            machine: record.machine
-        } : record)
+        body: JSON.stringify(
+            existing
+                ? updateBody
+                : record
+        )
     });
 
     return existing ? "updated" : "inserted";
