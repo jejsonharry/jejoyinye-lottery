@@ -9091,6 +9091,38 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     box-shadow: 0 7px 16px rgba(220, 38, 38, 0.24);
 }
 
+.prediction-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    margin-top: 16px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #1877f2, #0866d9);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 7px 18px rgba(24, 119, 242, .24);
+}
+
+.prediction-share-btn:hover,
+.prediction-share-btn:focus-visible {
+    background: linear-gradient(135deg, #0866d9, #064fa9);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+    .prediction-share-btn {
+        min-height: 36px;
+        margin-top: 12px;
+        padding: 9px 15px;
+        font-size: 11px;
+    }
+}
+
 .prediction-unavailable {
     color: #64748b;
     font-weight: 700;
