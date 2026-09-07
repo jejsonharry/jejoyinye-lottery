@@ -2,6 +2,12 @@ name: Deploy Supabase Results Function
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "supabase/functions/sync-modern-results/**"
+      - "supabase/config.toml"
 
 permissions:
   contents: read
