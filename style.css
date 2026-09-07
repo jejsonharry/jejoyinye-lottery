@@ -8925,6 +8925,48 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     font-weight: 900;
 }
 
+
+/* =========================================================
+   EQUAL-HEIGHT SIDE-BY-SIDE RESULT ROWS
+   Keep the Modern and Ghana columns aligned for every card.
+   ========================================================= */
+
+@media (min-width: 601px) {
+    .results-page #results-container .modern-results-group .lottery-results-list .result-card,
+    .results-page #results-container .ghana-results-group .lottery-results-list .result-card {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-template-rows: auto 1fr !important;
+        align-items: start !important;
+        gap: 6px 12px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 152px !important;
+        min-height: 152px !important;
+        max-height: 152px !important;
+        padding: 10px 12px !important;
+        overflow: hidden !important;
+    }
+
+    .results-page #results-container .modern-results-group .result-card .result-top,
+    .results-page #results-container .ghana-results-group .result-card .result-top {
+        grid-column: 1 / -1 !important;
+        padding-bottom: 4px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .results-page #results-container .modern-results-group .lottery-results-list .result-card,
+    .results-page #results-container .ghana-results-group .lottery-results-list .result-card {
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 108px !important;
+        min-height: 108px !important;
+        max-height: 108px !important;
+        overflow: hidden !important;
+    }
+}
+
 .ghana-prediction-card #ghana-game-balls .number-ball {
     background: linear-gradient(145deg, #39c768, #13853d) !important;
     box-shadow: 0 7px 16px rgba(21, 128, 61, 0.24);
