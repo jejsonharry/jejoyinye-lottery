@@ -31,13 +31,13 @@ const lotteryGames = {
     ],
 
     ghana: [
+        "ASEDA",
         "Monday Special",
         "Lucky Tuesday",
         "Mid Week",
         "Thursday Fortune",
         "Friday Bonanza",
-        "National",
-        "ASEDA"
+        "National"
     ]
 
 };
@@ -1179,6 +1179,23 @@ async function fetchAllFilteredSupabaseResults() {
 // SORT RESULTS
 // =========================================================
 
+function getGhanaWeekEndingSunday(dateValue) {
+    const date = new Date(`${dateValue}T00:00:00Z`);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(dateValue || "");
+    }
+
+    const daysUntilSunday =
+        (7 - date.getUTCDay()) % 7;
+
+    date.setUTCDate(
+        date.getUTCDate() + daysUntilSunday
+    );
+
+    return date.toISOString().slice(0, 10);
+}
+
 function sortLotteryResults(
     results
 ) {
@@ -1187,6 +1204,45 @@ function sortLotteryResults(
         ...results
     ].sort(
         (a, b) => {
+
+            if (
+                a.lottery === "ghana" &&
+                b.lottery === "ghana"
+            ) {
+                const weekCompare =
+                    getGhanaWeekEndingSunday(
+                        b.draw_date
+                    ).localeCompare(
+                        getGhanaWeekEndingSunday(
+                            a.draw_date
+                        )
+                    );
+
+                if (weekCompare !== 0) {
+                    return weekCompare;
+                }
+
+                const ghanaOrder =
+                    gameOrder.ghana || [];
+
+                const position = game => {
+                    const index = ghanaOrder.indexOf(
+                        normalizeGameName(game)
+                    );
+
+                    return index === -1
+                        ? 999
+                        : index;
+                };
+
+                const gameCompare =
+                    position(a.game) -
+                    position(b.game);
+
+                if (gameCompare !== 0) {
+                    return gameCompare;
+                }
+            }
 
             const dateCompare =
                 String(
