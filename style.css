@@ -8975,16 +8975,16 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     .results-page #results-container .ghana-results-group .lottery-results-list .result-card {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        grid-template-rows: auto 1fr !important;
+        grid-template-rows: auto auto !important;
         align-items: start !important;
         gap: 6px 12px !important;
         box-sizing: border-box !important;
         width: 100% !important;
-        height: 152px !important;
-        min-height: 152px !important;
-        max-height: 152px !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
         padding: 10px 12px !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
 
     .results-page #results-container .modern-results-group .result-card .result-top,
@@ -8999,10 +8999,10 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     .results-page #results-container .ghana-results-group .lottery-results-list .result-card {
         box-sizing: border-box !important;
         width: 100% !important;
-        height: 78px !important;
-        min-height: 78px !important;
-        max-height: 78px !important;
-        overflow: hidden !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
     }
 }
 
