@@ -7920,6 +7920,26 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     gap: 5px;
 }
 
+.result-share-btn {
+    min-height: 24px;
+    padding: 4px 9px;
+    border: 0;
+    border-radius: 999px;
+    background: #1877f2;
+    color: #fff;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.result-share-btn:hover,
+.result-share-btn:focus-visible {
+    background: #0b5fc7;
+}
+
 @media (max-width: 600px) {
     .results-page #results-container {
         gap: 5px !important;
@@ -8582,6 +8602,13 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
         flex: 0 0 auto !important;
         min-width: 0 !important;
         margin: 0 !important;
+    }
+
+    .results-page .lottery-results-list .result-share-btn {
+        min-height: 16px !important;
+        margin-top: 3px !important;
+        padding: 3px 5px !important;
+        font-size: 6px !important;
     }
 
     .results-page .lottery-results-list .draw-time {
