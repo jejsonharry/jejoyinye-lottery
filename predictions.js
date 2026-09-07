@@ -65,6 +65,113 @@ const ghanaAnalysisDrawCount =
 
 let predictionDateRange = { from: "", to: "" };
 
+const PREDICTIONS_SHARE_URL =
+    "https://jolslottery.com/predictions.html";
+
+
+function getDisplayedPredictionNumbers(container) {
+
+    if (!container) {
+        return [];
+    }
+
+    return Array.from(
+        container.querySelectorAll(".number-ball")
+    )
+        .map(ball => ball.textContent.trim())
+        .filter(number => /^\d{1,2}$/.test(number));
+}
+
+
+async function shareGamePrediction(button) {
+
+    const isGhana =
+        button.dataset.sharePrediction === "ghana";
+
+    const gameElement =
+        isGhana ? ghanaGameTitle : nextGameTitle;
+
+    const drawElement =
+        isGhana ? ghanaGameDrawTime : nextGameDrawTime;
+
+    const ballsElement =
+        isGhana ? ghanaGameBalls : nextGameBalls;
+
+    const numbers =
+        getDisplayedPredictionNumbers(ballsElement);
+
+    if (numbers.length < 5) {
+        button.textContent = "Prediction Not Ready";
+        setTimeout(
+            () => button.textContent = "Share Prediction",
+            1800
+        );
+        return;
+    }
+
+    const game =
+        gameElement?.textContent.trim() || "Lottery";
+
+    const drawDetails =
+        drawElement?.textContent.trim() || "";
+
+    const period =
+        predictionDateRange.from || predictionDateRange.to
+            ? `${predictionDateRange.from || "earliest"} to ${predictionDateRange.to || "latest"}`
+            : "All available historical results";
+
+    const forecastLabel =
+        isGhana ? "Combined forecast" : "Statistical forecast";
+
+    const text = [
+        `${game} Game Prediction`,
+        drawDetails,
+        `${forecastLabel}: ${numbers.join("-")}`,
+        `Historical period: ${period}`,
+        "Statistical insight only — not a guaranteed result.",
+        "View prediction details:"
+    ].filter(Boolean).join("\n");
+
+    try {
+        if (navigator.share) {
+            await navigator.share({
+                title: `${game} Game Prediction`,
+                text,
+                url: PREDICTIONS_SHARE_URL
+            });
+            return;
+        }
+
+        await navigator.clipboard.writeText(
+            `${text}\n${PREDICTIONS_SHARE_URL}`
+        );
+
+        button.textContent = "Copied!";
+        setTimeout(
+            () => button.textContent = "Share Prediction",
+            1800
+        );
+    }
+    catch (error) {
+        if (error && error.name === "AbortError") {
+            return;
+        }
+
+        console.error("PREDICTION SHARE FAILED:", error);
+    }
+}
+
+
+document.addEventListener("click", function (event) {
+
+    const button =
+        event.target.closest("[data-share-prediction]");
+
+    if (button) {
+        shareGamePrediction(button);
+    }
+});
+
 
 // =========================================================
 // MODERN BILLIONAIRE SCHEDULE
