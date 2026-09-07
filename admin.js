@@ -4,11 +4,11 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // ADMIN DASHBOARD
-// VERSION 1400
+// VERSION 1403
 // =========================================================
 
 console.log(
-    "JEJOYINYE ADMIN VERSION 1400 LOADED"
+    "JEJOYINYE ADMIN VERSION 1403 LOADED"
 );
 
 
@@ -251,6 +251,12 @@ const modalArchiveButton =
 const modalRestoreButton =
     document.getElementById(
         "modal-restore-agent"
+    );
+
+
+const modalDeleteButton =
+    document.getElementById(
+        "modal-delete-agent"
     );
 
 
@@ -2438,6 +2444,20 @@ function renderApplications(
                     }
 
 
+                    <button
+                        type="button"
+                        class="
+                            admin-danger-btn
+                            delete-agent
+                        "
+                        data-id="${escapeHTML(application.id)}"
+                    >
+
+                        Delete
+
+                    </button>
+
+
                 </div>
 
             `;
@@ -2515,6 +2535,30 @@ function renderApplications(
                     () => {
 
                         restoreAgentApplication(
+                            button.dataset.id
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    applicationsContainer
+        .querySelectorAll(
+            ".delete-agent"
+        )
+
+        .forEach(
+            button => {
+
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        deleteAgentApplication(
                             button.dataset.id
                         );
 
@@ -3198,8 +3242,106 @@ async function restoreAgentApplication(
 
 
 // =========================================================
-// LOAD CUSTOMER MESSAGES
+// DELETE AGENT APPLICATION
 // =========================================================
+
+async function deleteAgentApplication(id) {
+
+
+    const application =
+        allApplications.find(
+            item => String(item.id) === String(id)
+        );
+
+
+    const applicantName =
+        application?.full_name
+        ||
+        "this applicant";
+
+
+    const confirmed =
+        window.confirm(
+            `Permanently delete the application from ${applicantName}? This cannot be undone.`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+    }
+
+
+    try {
+
+
+        const {
+            error
+        } =
+            await supabaseClient
+
+                .from(
+                    TABLES.agents
+                )
+
+                .delete()
+
+                .eq(
+                    "id",
+                    id
+                );
+
+
+        if (error) {
+
+            throw error;
+        }
+
+
+        closeAgentModal();
+
+
+        showSuccess(
+            "Agent application deleted permanently."
+        );
+
+
+        await loadAgentApplications();
+
+
+        renderAgentAnalytics();
+        renderAnalyticsActivity();
+
+    }
+
+
+    catch (error) {
+
+
+        console.error(
+            "Delete agent application error:",
+            error
+        );
+
+
+        showError(
+
+            "Unable to delete application: "
+
+            +
+
+            (
+                error.message
+                ||
+                "Unknown error"
+            )
+
+        );
+
+    }
+
+}
+
 
 // =========================================================
 // LOAD CUSTOMER MESSAGES
@@ -3344,6 +3486,8 @@ async function deleteMessage(messageId) {
         if (error) throw error;
         showSuccess("Customer message deleted permanently.");
         await loadContactMessages({ silent: true });
+        renderMessageAnalytics();
+        renderAnalyticsActivity();
     } catch (error) {
         console.error("Delete message error:", error);
         showError("Unable to delete message: " + (error?.message || "Unknown error"));
@@ -3652,6 +3796,26 @@ function attachEvents() {
 
 
                 restoreAgentApplication(
+                    selectedApplication.id
+                );
+
+            }
+        );
+
+
+    modalDeleteButton
+        ?.addEventListener(
+            "click",
+            () => {
+
+
+                if (!selectedApplication) {
+
+                    return;
+                }
+
+
+                deleteAgentApplication(
                     selectedApplication.id
                 );
 

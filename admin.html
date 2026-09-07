@@ -2846,7 +2846,7 @@
             class="admin-tab-button"
             data-tab="messages-tab"
         >
-            Messages
+            Messages / Enquiries
             <span id="admin-unread-tab-count" class="message-unread-pill" data-count="0" aria-label="Unread messages"></span>
         </button>
 
@@ -3501,8 +3501,8 @@
         <section class="admin-panel">
             <div class="admin-panel-heading">
                 <span>CUSTOMER SUPPORT</span>
-                <h2>Customer Messages</h2>
-                <p>Read, reply, archive and manage messages submitted from the website.</p>
+                <h2>Customer Messages &amp; Enquiries</h2>
+                <p>Read, reply, archive or permanently delete enquiries submitted from the website.</p>
             </div>
 
             <div class="message-toolbar">
@@ -3617,6 +3617,15 @@
             </button>
 
 
+            <button
+                type="button"
+                id="modal-delete-agent"
+                class="admin-danger-btn"
+            >
+                Delete Permanently
+            </button>
+
+
         </div>
 
 
@@ -3668,7 +3677,7 @@
 
 <script src="supabase.js"></script>
 
-<script src="admin.js?v=1402" defer></script>
+<script src="admin.js?v=1403" defer></script>
 
 </body>
 </html>
