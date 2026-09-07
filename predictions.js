@@ -888,7 +888,7 @@ function parseGhanaHistoryCsv(csvText) {
 async function fetchBundledGhanaHistory() {
     if (!bundledGhanaHistoryPromise) {
         bundledGhanaHistoryPromise =
-            fetch("data/ghana-history.csv?v=1", { cache: "no-cache" })
+            fetch("data/ghana-history.csv?v=2", { cache: "no-cache" })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error("Bundled Ghana history could not be loaded");
