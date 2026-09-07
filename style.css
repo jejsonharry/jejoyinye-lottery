@@ -8599,12 +8599,24 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
     }
 
     .results-page .lottery-results-list .result-meta {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 3px !important;
         flex: 0 0 auto !important;
         min-width: 0 !important;
         margin: 0 !important;
     }
 
     .results-page .lottery-results-list .result-share-btn {
+        min-height: 16px !important;
+        margin: 0 !important;
+        padding: 3px 5px !important;
+        font-size: 6px !important;
+    }
+
+    #home-results-container .home-result-share-btn {
         min-height: 16px !important;
         margin-top: 3px !important;
         padding: 3px 5px !important;
