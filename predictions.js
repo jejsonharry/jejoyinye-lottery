@@ -66,7 +66,7 @@ const ghanaAnalysisDrawCount =
 let predictionDateRange = { from: "", to: "" };
 
 const PREDICTIONS_SHARE_URL =
-    "https://jolslottery.com/predictions.html";
+    "https://jolslottery.com/predictions";
 
 
 function getDisplayedPredictionNumbers(container) {

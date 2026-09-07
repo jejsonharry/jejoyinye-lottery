@@ -1480,7 +1480,7 @@ function createResultCard(
 // =========================================================
 
 const RESULTS_SHARE_URL =
-    "https://jolslottery.com/results.html";
+    "https://jolslottery.com/results";
 
 
 async function sharePublishedResult(

@@ -517,7 +517,7 @@ async function checkAuthentication() {
         if (error) throw error;
 
         if (!data?.session) {
-            window.location.replace("login.html");
+            window.location.replace("login");
             return false;
         }
 
@@ -531,7 +531,7 @@ async function checkAuthentication() {
         if (isAdmin !== true) {
             console.warn("Admin access denied for authenticated user.");
             await supabaseClient.auth.signOut();
-            window.location.replace("login.html");
+            window.location.replace("login");
             return false;
         }
 
@@ -544,7 +544,7 @@ async function checkAuthentication() {
         } catch (signOutError) {
             console.error("Sign-out error:", signOutError);
         }
-        window.location.replace("login.html");
+        window.location.replace("login");
         return false;
     }
 }
@@ -3391,7 +3391,7 @@ async function logoutAdmin() {
 
 
     window.location.replace(
-        "login.html"
+        "login"
     );
 
 }

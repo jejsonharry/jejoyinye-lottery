@@ -35,7 +35,7 @@ forgotForm.addEventListener(
                         email,
                         {
                             redirectTo:
-                                new URL("reset-password.html", window.location.href).href
+                                new URL("reset-password", window.location.href).href
                         }
                     );
 

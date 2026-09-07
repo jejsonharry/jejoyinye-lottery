@@ -45,7 +45,7 @@ loginForm.addEventListener("submit", async function (event) {
                 </div>
             `;
 
-            window.location.replace("admin.html");
+            window.location.replace("admin");
             return;
         }
 

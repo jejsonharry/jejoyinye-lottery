@@ -62,7 +62,7 @@ resetForm.addEventListener("submit", async function (event) {
 
         setTimeout(async function () {
             await supabaseClient.auth.signOut();
-            window.location.replace("login.html");
+            window.location.replace("login");
         }, 2000);
 
     } catch (error) {
