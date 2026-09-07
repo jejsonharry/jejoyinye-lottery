@@ -1444,6 +1444,7 @@ function createResultCard(
                         data-share-date="${escapeHTML(date)}"
                         data-share-winning="${escapeHTML(winning.join("-"))}"
                         data-share-machine="${escapeHTML(machine.join("-"))}"
+                        data-share-url="${RESULTS_SHARE_URL}"
                         aria-label="Share ${escapeHTML(game)} result"
                     >
                         Share
@@ -1506,6 +1507,10 @@ async function sharePublishedResult(
         button.dataset.shareMachine ||
         "";
 
+    const shareUrl =
+        button.dataset.shareUrl ||
+        RESULTS_SHARE_URL;
+
     const lines = [
         `${game} — ${lottery}`,
         `Date: ${date}`,
@@ -1532,14 +1537,14 @@ async function sharePublishedResult(
             await navigator.share({
                 title: `${game} Lottery Result`,
                 text,
-                url: RESULTS_SHARE_URL
+                url: shareUrl
             });
 
             return;
         }
 
         await navigator.clipboard.writeText(
-            `${text}\n${RESULTS_SHARE_URL}`
+            `${text}\n${shareUrl}`
         );
 
         const originalLabel =
@@ -2652,6 +2657,21 @@ function createHomeResultCard(
                             schedule.displayTime
                         )}
                     </div>
+
+                    <button
+                        type="button"
+                        class="result-share-btn home-result-share-btn"
+                        data-share-result
+                        data-share-game="${escapeHTML(game)}"
+                        data-share-lottery="${escapeHTML(lottery)}"
+                        data-share-date="${escapeHTML(date)}"
+                        data-share-winning="${escapeHTML(winning.join("-"))}"
+                        data-share-machine="${escapeHTML(machine.join("-"))}"
+                        data-share-url="https://jolslottery.com/"
+                        aria-label="Share ${escapeHTML(game)} result"
+                    >
+                        Share
+                    </button>
 
                 </div>
 
