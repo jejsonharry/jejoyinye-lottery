@@ -1639,18 +1639,22 @@ function renderCurrentPage() {
 
 
     const allModernResults =
-        allFilteredResults.filter(
-            result =>
-                result.lottery ===
-                "modern-billionaire"
+        sortLotteryResults(
+            allFilteredResults.filter(
+                result =>
+                    result.lottery ===
+                    "modern-billionaire"
+            )
         );
 
 
     const allGhanaResults =
-        allFilteredResults.filter(
-            result =>
-                result.lottery ===
-                "ghana"
+        sortLotteryResults(
+            allFilteredResults.filter(
+                result =>
+                    result.lottery ===
+                    "ghana"
+            )
         );
 
 
