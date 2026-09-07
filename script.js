@@ -65,13 +65,13 @@ const gameOrder = {
     ],
 
     ghana: [
+        "ASEDA",
         "Monday Special",
         "Lucky Tuesday",
         "Mid Week",
         "Thursday Fortune",
         "Friday Bonanza",
-        "National",
-        "ASEDA"
+        "National"
     ]
 
 };
