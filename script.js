@@ -223,7 +223,7 @@ const ghanaDrawSchedule = {
 // RESULTS SETTINGS
 // =========================================================
 
-const RESULTS_PER_PAGE = 120;
+const RESULTS_PER_LOTTERY_PAGE = 60;
 
 const DATABASE_BATCH_SIZE = 1000;
 
@@ -1388,16 +1388,9 @@ function createResultCard(
 // RESULTS PAGINATION
 // =========================================================
 
-function createPagination() {
-
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(
-                allFilteredResults.length /
-                RESULTS_PER_PAGE
-            )
-        );
+function createPagination(
+    totalPages
+) {
 
 
     return `
@@ -1569,14 +1562,33 @@ function renderCurrentPage() {
     }
 
 
-    const totalResults =
-        allFilteredResults.length;
+    const allModernResults =
+        allFilteredResults.filter(
+            result =>
+                result.lottery ===
+                "modern-billionaire"
+        );
+
+
+    const allGhanaResults =
+        allFilteredResults.filter(
+            result =>
+                result.lottery ===
+                "ghana"
+        );
 
 
     const totalPages =
-        Math.ceil(
-            totalResults /
-            RESULTS_PER_PAGE
+        Math.max(
+            1,
+            Math.ceil(
+                allModernResults.length /
+                RESULTS_PER_LOTTERY_PAGE
+            ),
+            Math.ceil(
+                allGhanaResults.length /
+                RESULTS_PER_LOTTERY_PAGE
+            )
         );
 
 
@@ -1603,37 +1615,22 @@ function renderCurrentPage() {
             currentPage -
             1
         ) *
-        RESULTS_PER_PAGE;
-
-
-    const endIndex =
-        Math.min(
-            startIndex +
-            RESULTS_PER_PAGE,
-            totalResults
-        );
-
-
-    const pageResults =
-        allFilteredResults.slice(
-            startIndex,
-            endIndex
-        );
+        RESULTS_PER_LOTTERY_PAGE;
 
 
     const modernResults =
-        pageResults.filter(
-            result =>
-                result.lottery ===
-                "modern-billionaire"
+        allModernResults.slice(
+            startIndex,
+            startIndex +
+                RESULTS_PER_LOTTERY_PAGE
         );
 
 
     const ghanaResults =
-        pageResults.filter(
-            result =>
-                result.lottery ===
-                "ghana"
+        allGhanaResults.slice(
+            startIndex,
+            startIndex +
+                RESULTS_PER_LOTTERY_PAGE
         );
 
 
@@ -1653,19 +1650,22 @@ function renderCurrentPage() {
 
         +
 
-        createPagination();
+        createPagination(
+            totalPages
+        );
 
 
     if (resultsDateLabel) {
 
+        const displayedResults =
+            modernResults.length +
+            ghanaResults.length;
+
+
         resultsDateLabel.textContent =
-            `Showing ${
-                startIndex + 1
-            } - ${
-                endIndex
-            } of ${
-                totalResults
-            } Results`;
+            `Page ${currentPage}: ${
+                displayedResults
+            } results (${modernResults.length} Modern, ${ghanaResults.length} Ghana)`;
     }
 
 
