@@ -1037,10 +1037,30 @@ function mergeResultSources(primaryResults, fallbackResults) {
                 result.draw_date
             ].join("|");
 
-            // Live Supabase results are supplied first and take priority.
-            if (!merged.has(key)) {
+            const existing = merged.get(key);
+
+            if (!existing) {
                 merged.set(key, result);
+                return;
             }
+
+            /*
+             Keep live Supabase values, but fill any missing number set from
+             the bundled Ghana archive. This prevents a winning-only live row
+             from hiding machine numbers already stored in the archive.
+            */
+            merged.set(key, {
+                ...result,
+                ...existing,
+                winning:
+                    parseJsonbBalls(existing.winning).length
+                        ? existing.winning
+                        : result.winning,
+                machine:
+                    parseJsonbBalls(existing.machine).length
+                        ? existing.machine
+                        : result.machine
+            });
         });
 
     return [...merged.values()];
