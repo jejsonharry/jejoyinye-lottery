@@ -1434,6 +1434,20 @@ function createResultCard(
                     <span class="result-status">
                         Published
                     </span>
+
+                    <button
+                        type="button"
+                        class="result-share-btn"
+                        data-share-result
+                        data-share-game="${escapeHTML(game)}"
+                        data-share-lottery="${escapeHTML(lottery)}"
+                        data-share-date="${escapeHTML(date)}"
+                        data-share-winning="${escapeHTML(winning.join("-"))}"
+                        data-share-machine="${escapeHTML(machine.join("-"))}"
+                        aria-label="Share ${escapeHTML(game)} result"
+                    >
+                        Share
+                    </button>
                 </div>
 
             </div>
@@ -1458,6 +1472,125 @@ function createResultCard(
 
     `;
 }
+
+
+// =========================================================
+// SHARE PUBLISHED RESULT
+// =========================================================
+
+const RESULTS_SHARE_URL =
+    "https://jolslottery.com/results.html";
+
+
+async function sharePublishedResult(
+    button
+) {
+
+    const game =
+        button.dataset.shareGame ||
+        "Lottery";
+
+    const lottery =
+        button.dataset.shareLottery ||
+        "";
+
+    const date =
+        button.dataset.shareDate ||
+        "";
+
+    const winning =
+        button.dataset.shareWinning ||
+        "";
+
+    const machine =
+        button.dataset.shareMachine ||
+        "";
+
+    const lines = [
+        `${game} — ${lottery}`,
+        `Date: ${date}`,
+        `Winning: ${winning}`
+    ];
+
+    if (machine) {
+        lines.push(
+            `Machine: ${machine}`
+        );
+    }
+
+    lines.push(
+        "View more results:"
+    );
+
+    const text =
+        lines.join("\n");
+
+    try {
+
+        if (navigator.share) {
+
+            await navigator.share({
+                title: `${game} Lottery Result`,
+                text,
+                url: RESULTS_SHARE_URL
+            });
+
+            return;
+        }
+
+        await navigator.clipboard.writeText(
+            `${text}\n${RESULTS_SHARE_URL}`
+        );
+
+        const originalLabel =
+            button.textContent;
+
+        button.textContent =
+            "Copied!";
+
+        setTimeout(
+            function () {
+                button.textContent =
+                    originalLabel;
+            },
+            1800
+        );
+
+    } catch (error) {
+
+        if (
+            error &&
+            error.name === "AbortError"
+        ) {
+            return;
+        }
+
+        console.error(
+            "RESULT SHARE FAILED:",
+            error
+        );
+    }
+}
+
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const button =
+            event.target.closest(
+                "[data-share-result]"
+            );
+
+        if (!button) {
+            return;
+        }
+
+        sharePublishedResult(
+            button
+        );
+    }
+);
 
 
 // =========================================================
