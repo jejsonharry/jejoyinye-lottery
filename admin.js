@@ -4,11 +4,11 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // ADMIN DASHBOARD
-// VERSION 1403
+// VERSION 1404
 // =========================================================
 
 console.log(
-    "JEJOYINYE ADMIN VERSION 1403 LOADED"
+    "JEJOYINYE ADMIN VERSION 1404 LOADED"
 );
 
 
@@ -3241,6 +3241,42 @@ async function restoreAgentApplication(
 }
 
 
+async function deleteAdminRecord(resource, id) {
+    if (id === null || id === undefined || String(id).trim() === "") {
+        throw new Error("This record does not have a valid database ID.");
+    }
+
+    const { data, error } = await supabaseClient.functions.invoke(
+        "admin-delete",
+        {
+            body: {
+                resource,
+                id: String(id)
+            }
+        }
+    );
+
+    if (error) {
+        let message = error.message || "The secure delete request failed.";
+
+        try {
+            const responseBody = await error.context?.json();
+            message = responseBody?.error || message;
+        } catch {
+            // Keep the original Supabase Functions error message.
+        }
+
+        throw new Error(message);
+    }
+
+    if (data?.ok !== true || data?.deleted !== 1) {
+        throw new Error(data?.error || "The record was not deleted.");
+    }
+
+    return data;
+}
+
+
 // =========================================================
 // DELETE AGENT APPLICATION
 // =========================================================
@@ -3275,27 +3311,10 @@ async function deleteAgentApplication(id) {
     try {
 
 
-        const {
-            error
-        } =
-            await supabaseClient
-
-                .from(
-                    TABLES.agents
-                )
-
-                .delete()
-
-                .eq(
-                    "id",
-                    id
-                );
-
-
-        if (error) {
-
-            throw error;
-        }
+        await deleteAdminRecord(
+            "agent_application",
+            id
+        );
 
 
         closeAgentModal();
@@ -3482,8 +3501,7 @@ async function toggleMessageArchive(messageId, currentlyArchived) {
 async function deleteMessage(messageId) {
     if (!window.confirm("Delete this customer message permanently? This cannot be undone.")) return;
     try {
-        const { error } = await supabaseClient.from(TABLES.messages).delete().eq("id", messageId);
-        if (error) throw error;
+        await deleteAdminRecord("message", messageId);
         showSuccess("Customer message deleted permanently.");
         await loadContactMessages({ silent: true });
         renderMessageAnalytics();

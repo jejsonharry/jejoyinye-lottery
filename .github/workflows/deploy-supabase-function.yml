@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - "supabase/functions/sync-modern-results/**"
+      - "supabase/functions/admin-delete/**"
       - "supabase/config.toml"
 
 permissions:
@@ -24,9 +25,9 @@ jobs:
         with:
           version: latest
 
-      - name: Deploy two-minute results importer
+      - name: Deploy Supabase functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: >-
-          supabase functions deploy sync-modern-results
-          --project-ref iedgznzmmfkdhgmkghwt
+        run: |
+          supabase functions deploy sync-modern-results --project-ref iedgznzmmfkdhgmkghwt
+          supabase functions deploy admin-delete --project-ref iedgznzmmfkdhgmkghwt
