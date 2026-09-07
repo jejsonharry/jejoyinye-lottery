@@ -186,7 +186,7 @@ async function fetchOfficialResults(drawDate: string): Promise<ResultRecord[]> {
       machine: parseNumbers(record.mach),
     }))
     .filter((record: ResultRecord) =>
-      record.game && record.winning.length === 5 && record.machine.length === 5
+      record.game && record.winning.length === 5
     );
 }
 
@@ -228,10 +228,14 @@ async function syncDate(
 
   for (const result of officialResults) {
     const existing = existingByGame.get(result.game);
+    const officialMachineAvailable = result.machine.length === 5;
 
     if (
       existing && sameNumbers(existing.winning, result.winning) &&
-      sameNumbers(existing.machine, result.machine)
+      (
+        !officialMachineAvailable ||
+        sameNumbers(existing.machine, result.machine)
+      )
     ) {
       totals.skipped += 1;
       continue;
@@ -245,8 +249,19 @@ async function syncDate(
     const url = existing
       ? `${projectUrl}/rest/v1/results?${filter}`
       : `${projectUrl}/rest/v1/results`;
+    const updateBody: {
+      winning: number[];
+      machine?: number[];
+    } = { winning: result.winning };
+
+    // Preserve machine numbers entered manually until the official source
+    // supplies a complete set of five machine numbers.
+    if (officialMachineAvailable) {
+      updateBody.machine = result.machine;
+    }
+
     const body = existing
-      ? { winning: result.winning, machine: result.machine }
+      ? updateBody
       : result;
 
     await fetchWithRetry(url, {
