@@ -1,0 +1,112 @@
+.result-player-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 10px 12px;
+    border: 1px solid #d8e8dc;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #f7fff9, #f1f7f3);
+}
+
+.result-player-actions p {
+    margin: 0;
+    color: #334155;
+    font-size: 10px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.result-player-action-links {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+}
+
+.result-player-action-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1.1;
+    text-align: center;
+    text-decoration: none;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.result-play-online-link {
+    background: linear-gradient(135deg, #d99a16, #a86805);
+    box-shadow: 0 5px 12px rgba(168, 104, 5, .18);
+}
+
+.result-community-link {
+    background: linear-gradient(135deg, #25d366, #128c4a);
+    box-shadow: 0 5px 12px rgba(18, 140, 74, .18);
+}
+
+.result-player-action-links a:hover,
+.result-player-action-links a:focus-visible {
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(15, 23, 42, .2);
+}
+
+.result-player-actions small {
+    color: #64748b;
+    font-size: 8px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.home-result-player-actions {
+    margin-top: 13px;
+}
+
+@media (max-width: 700px) {
+    .result-player-actions {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 7px 6px;
+        text-align: center;
+    }
+
+    .result-player-actions p {
+        font-size: 7px;
+        white-space: normal;
+    }
+
+    .result-player-action-links {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .result-player-action-links a {
+        width: 100%;
+        min-height: 25px;
+        box-sizing: border-box;
+        padding: 5px 4px;
+        border-radius: 6px;
+        font-size: 7px;
+    }
+
+    .result-player-actions small {
+        font-size: 6px;
+        white-space: normal;
+    }
+}
+
+@media (min-width: 701px) and (max-width: 1050px) {
+    .result-player-actions {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}

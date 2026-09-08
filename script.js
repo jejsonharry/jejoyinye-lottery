@@ -1388,6 +1388,45 @@ function sortLotteryResults(
 // CREATE RESULTS PAGE CARD
 // =========================================================
 
+const RESULTS_SHARE_URL =
+    "https://jolslottery.com/results?share=player-community-v1";
+
+const PLAY_ONLINE_URL =
+    "https://jolslottery.com/play-online";
+
+const WHATSAPP_PLAYERS_COMMUNITY_URL =
+    "https://chat.whatsapp.com/FL2C5b2emu8L50AG3qXuPw";
+
+
+function createResultPlayerActions(
+    extraClass = ""
+) {
+    return `
+        <div class="result-player-actions ${extraClass}" aria-label="Player options">
+            <p>Ready for the next draw?</p>
+            <div class="result-player-action-links">
+                <a
+                    href="play-online"
+                    class="result-play-online-link"
+                    data-player-action="play-online"
+                >
+                    Play Online
+                </a>
+                <a
+                    href="${WHATSAPP_PLAYERS_COMMUNITY_URL}"
+                    class="result-community-link"
+                    data-player-action="whatsapp-community"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Join Players Community
+                </a>
+            </div>
+            <small>18+ only • Play responsibly</small>
+        </div>
+    `;
+}
+
 function createResultCard(
     result
 ) {
@@ -1512,6 +1551,8 @@ function createResultCard(
 
             ${machineSection}
 
+            ${createResultPlayerActions()}
+
         </article>
 
     `;
@@ -1521,10 +1562,6 @@ function createResultCard(
 // =========================================================
 // SHARE PUBLISHED RESULT
 // =========================================================
-
-const RESULTS_SHARE_URL =
-    "https://jolslottery.com/results?share=whatsapp-v2";
-
 
 function drawShareRoundedRect(
     context,
@@ -1891,7 +1928,7 @@ async function createResultShareFile({
     context.textAlign =
         "left";
     context.fillText(
-        "Official result update • Play responsibly",
+        "Play next draw online • Join our WhatsApp community",
         445,
         559
     );
@@ -1903,7 +1940,7 @@ async function createResultShareFile({
     context.font =
         "800 20px Arial, sans-serif";
     context.fillText(
-        "jolslottery.com",
+        "18+ • Play responsibly",
         1135,
         559
     );
@@ -1988,6 +2025,14 @@ async function sharePublishedResult(
     }
 
     lines.push(
+        "",
+        "🎮 *Play the next draw online:*",
+        PLAY_ONLINE_URL,
+        "",
+        "💬 *Join our WhatsApp Players Community:*",
+        WHATSAPP_PLAYERS_COMMUNITY_URL,
+        "",
+        "🔞 18+ only. Play responsibly.",
         "",
         "*View more results:*"
     );
@@ -3228,6 +3273,8 @@ function createHomeResultCard(
 
 
             ${machineSection}
+
+            ${createResultPlayerActions("home-result-player-actions")}
 
         </article>
 
