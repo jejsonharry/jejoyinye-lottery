@@ -223,9 +223,11 @@ const ghanaDrawSchedule = {
 // RESULTS SETTINGS
 // =========================================================
 
-const RESULTS_PER_LOTTERY_PAGE = 60;
+const RESULTS_PER_LOTTERY_PAGE = 12;
 
 const DATABASE_BATCH_SIZE = 1000;
+
+const DEFAULT_RESULTS_LOOKBACK_DAYS = 45;
 
 let currentPage = 1;
 
@@ -870,7 +872,39 @@ function applySupabaseFilters(
     }
 
 
+    else {
+
+        query = query.gte(
+            "draw_date",
+            getDefaultResultsStartDate()
+        );
+    }
+
+
     return query;
+}
+
+
+// =========================================================
+// DEFAULT RESULTS WINDOW
+// Keep the unfiltered page lightweight. Older records remain
+// available whenever a year or date range is selected.
+// =========================================================
+
+function getDefaultResultsStartDate() {
+
+    const startDate =
+        new Date(
+            Date.now() -
+            (
+                DEFAULT_RESULTS_LOOKBACK_DAYS - 1
+            ) * 24 * 60 * 60 * 1000
+        );
+
+
+    return startDate
+        .toISOString()
+        .slice(0, 10);
 }
 
 
@@ -976,6 +1010,15 @@ function filterBundledGhanaResults(results) {
     return results.filter(result => {
         const drawDate =
             String(result.draw_date || "");
+
+        if (
+            !selectedDate &&
+            !selectedEndDate &&
+            !selectedYear &&
+            drawDate < getDefaultResultsStartDate()
+        ) {
+            return false;
+        }
 
         if (
             selectedGame &&
