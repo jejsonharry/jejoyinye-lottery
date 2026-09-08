@@ -3,7 +3,29 @@
 
 <head>
 
-    <meta charset="UTF-8">
+    
+<script>
+(function () {
+    const path = window.location.pathname;
+
+    if (!path.endsWith(".html")) {
+        return;
+    }
+
+    const cleanPath =
+        path === "/index.html"
+            ? "/"
+            : path.slice(0, -5);
+
+    window.location.replace(
+        cleanPath +
+        window.location.search +
+        window.location.hash
+    );
+})();
+</script>
+
+<meta charset="UTF-8">
 
     <meta
         name="viewport"
@@ -26,6 +48,23 @@
 
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://jolslottery.com/agent-application">
+  <meta property="og:site_name" content="Jejoyinye Lottery Services">
+  <meta property="og:locale" content="en_NG">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Agent Application | Jejoyinye Lottery Services">
+  <meta property="og:description" content="Apply to join the Jejoyinye Lottery Services agent network in Nigeria.">
+  <meta property="og:url" content="https://jolslottery.com/agent-application">
+  <meta property="og:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta property="og:image:secure_url" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Jejoyinye Lottery Services agent opportunities">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agent Application | Jejoyinye Lottery Services">
+  <meta name="twitter:description" content="Apply to join the Jejoyinye Lottery Services agent network in Nigeria.">
+  <meta name="twitter:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta name="twitter:image:alt" content="Jejoyinye Lottery Services agent opportunities">
 </head>
 
 

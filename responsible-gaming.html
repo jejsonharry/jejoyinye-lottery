@@ -1,7 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  
+<script>
+(function () {
+    const path = window.location.pathname;
+
+    if (!path.endsWith(".html")) {
+        return;
+    }
+
+    const cleanPath =
+        path === "/index.html"
+            ? "/"
+            : path.slice(0, -5);
+
+    window.location.replace(
+        cleanPath +
+        window.location.search +
+        window.location.hash
+    );
+})();
+</script>
+
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Responsible Gaming | Jejoyinye Lottery Services</title>
   <meta name="description" content="Practical guidance for safe, adult and responsible lottery participation.">
@@ -14,12 +36,16 @@
   <meta property="og:title" content="Responsible Gaming | Jejoyinye Lottery Services">
   <meta property="og:description" content="Practical guidance for safe, adult and responsible lottery participation. Adults 18+ only.">
   <meta property="og:url" content="https://jolslottery.com/responsible-gaming">
-  <meta property="og:image" content="https://jolslottery.com/Images/jols-logo.png">
+  <meta property="og:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta property="og:image:secure_url" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Jejoyinye Lottery Services">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Responsible Gaming | Jejoyinye Lottery Services">
   <meta name="twitter:description" content="Practical guidance for safe, adult and responsible lottery participation. Adults 18+ only.">
-  <meta name="twitter:image" content="https://jolslottery.com/Images/jols-logo.png">
+  <meta name="twitter:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
 </head>
 <body>
 <header class="premium-header"><div class="header-inner"><div class="brand-area"><img src="Images/jols-logo.png" alt="Jejoyinye Lottery Services logo" class="premium-logo"><div><h1>JEJOYINYE LOTTERY SERVICES</h1><p>Results • Insights • Agent Network</p></div></div></div></header>
