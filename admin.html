@@ -2691,6 +2691,17 @@
 </style>
 
   <meta name="robots" content="noindex, nofollow">
+
+<style>
+.prediction-accuracy-card{grid-column:1/-1}
+.prediction-accuracy-kpis{margin:18px 0}
+.prediction-accuracy-table-wrap{overflow-x:auto}
+.prediction-accuracy-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.prediction-accuracy-table th,.prediction-accuracy-table td{padding:11px 10px;border-bottom:1px solid #e2e8f0;text-align:left;white-space:nowrap}
+.prediction-accuracy-table th{color:#64748b;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}
+.prediction-hit{color:#15803d;font-weight:800}.prediction-miss{color:#b91c1c;font-weight:700}
+</style>
+
 </head>
 
 
@@ -3071,6 +3082,26 @@
                     <div id="analytics-recent-activity" class="analytics-activity-list"><p class="admin-loading">Loading analytics...</p></div>
                 </article>
             </div>
+
+
+                <article class="analytics-card prediction-accuracy-card">
+                    <div class="analytics-card-heading">
+                        <div><span>PREDICTION ENGINE V2</span><h3>Audited Accuracy</h3></div>
+                        <strong id="analytics-prediction-evaluated">0 evaluated</strong>
+                    </div>
+                    <div class="analytics-status-grid prediction-accuracy-kpis">
+                        <div><strong id="analytics-prediction-total">0</strong><span>Saved forecasts</span></div>
+                        <div><strong id="analytics-prediction-any-hit">0%</strong><span>Draws with a winning hit</span></div>
+                        <div><strong id="analytics-prediction-sure-hit">0%</strong><span>Draws with a 2 Sure hit</span></div>
+                        <div><strong id="analytics-prediction-average">0.00</strong><span>Average winning hits</span></div>
+                    </div>
+                    <div class="prediction-accuracy-table-wrap">
+                        <table class="prediction-accuracy-table">
+                            <thead><tr><th>Date</th><th>Game</th><th>Profile</th><th>2 Sure</th><th>3 Direct</th><th>Result</th></tr></thead>
+                            <tbody id="analytics-prediction-rows"><tr><td colspan="6">No evaluated forecasts yet.</td></tr></tbody>
+                        </table>
+                    </div>
+                </article>
 
             <div class="analytics-quick-links">
                 <button type="button" class="dashboard-quick-action primary" data-open-tab="results-tab">Manage Results</button>
@@ -3677,7 +3708,7 @@
 
 <script src="supabase.js"></script>
 
-<script src="admin.js?v=1404" defer></script>
+<script src="admin.js?v=1405" defer></script>
 
 </body>
 </html>

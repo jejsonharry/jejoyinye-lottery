@@ -365,6 +365,59 @@ function renderMessageAnalytics() {
     setAnalyticsText("analytics-message-unread", `${unread.length} unread`);
 }
 
+
+async function loadPredictionAccuracy() {
+    let query = supabaseClient
+        .from("prediction_snapshots")
+        .select("draw_date,game,lottery,engine_profile,sure_numbers,direct_numbers,actual_winning,total_winning_hits,sure_hit_count,direct_hit_count,status")
+        .order("draw_date", { ascending: false })
+        .limit(500);
+
+    if (analyticsRange !== "all") {
+        query = query.gte("draw_date", analyticsStartDate(analyticsRange));
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    const snapshots = Array.isArray(data) ? data : [];
+    const evaluated = snapshots.filter(item => item.status === "evaluated");
+    const percentage = (count, total) => total ? `${Math.round((count / total) * 100)}%` : "0%";
+
+    setAnalyticsText("analytics-prediction-total", snapshots.length);
+    setAnalyticsText("analytics-prediction-evaluated", `${evaluated.length} evaluated`);
+    setAnalyticsText("analytics-prediction-any-hit",
+        percentage(evaluated.filter(item => Number(item.total_winning_hits) > 0).length, evaluated.length));
+    setAnalyticsText("analytics-prediction-sure-hit",
+        percentage(evaluated.filter(item => Number(item.sure_hit_count) > 0).length, evaluated.length));
+    setAnalyticsText("analytics-prediction-average",
+        evaluated.length
+            ? (evaluated.reduce((sum, item) => sum + Number(item.total_winning_hits || 0), 0) / evaluated.length).toFixed(2)
+            : "0.00");
+
+    const tbody = document.getElementById("analytics-prediction-rows");
+    if (!tbody) return;
+    if (!evaluated.length) {
+        tbody.innerHTML = '<tr><td colspan="6">No evaluated forecasts in this period yet.</td></tr>';
+        return;
+    }
+
+    const ballText = value => parseNumberArray(value)
+        .map(number => String(number).padStart(2, "0")).join("-");
+    tbody.innerHTML = evaluated.slice(0, 25).map(item => {
+        const winningHits = Number(item.total_winning_hits || 0);
+        const resultClass = winningHits > 0 ? "prediction-hit" : "prediction-miss";
+        return `<tr>
+            <td>${escapeHTML(formatDrawDate(item.draw_date))}</td>
+            <td>${escapeHTML(item.game)}</td>
+            <td>${escapeHTML(item.engine_profile || "balanced")}</td>
+            <td>${escapeHTML(ballText(item.sure_numbers))}</td>
+            <td>${escapeHTML(ballText(item.direct_numbers))}</td>
+            <td class="${resultClass}">${winningHits} winning hit${winningHits === 1 ? "" : "s"}</td>
+        </tr>`;
+    }).join("");
+}
+
 async function loadAnalytics() {
     const refresh = document.getElementById("analytics-refresh");
     if (refresh) { refresh.disabled = true; refresh.textContent = "Refreshing..."; }
@@ -373,7 +426,8 @@ async function loadAnalytics() {
             countResultsForAnalytics(null, "all"),
             countResultsForAnalytics(null, analyticsRange),
             countResultsForAnalytics("modern-billionaire", analyticsRange),
-            countResultsForAnalytics("ghana", analyticsRange)
+            countResultsForAnalytics("ghana", analyticsRange),
+            loadPredictionAccuracy()
         ]);
         setAnalyticsText("analytics-total-results", total.toLocaleString());
         setAnalyticsText("analytics-period-results", period.toLocaleString());

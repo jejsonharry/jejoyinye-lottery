@@ -2102,6 +2102,64 @@ function getLotteryDisplayName(
 }
 
 
+
+// =========================================================
+// SAVED PREDICTION SNAPSHOTS
+// =========================================================
+
+async function fetchSavedPrediction(game) {
+    if (!game || predictionDateRange.from || predictionDateRange.to) return null;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("prediction_snapshots")
+            .select("*")
+            .eq("lottery", game.lottery)
+            .ilike("game", game.game)
+            .eq("draw_date", game.drawDate)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data || null;
+    } catch (error) {
+        console.warn("Saved prediction unavailable; using live fallback.", error);
+        return null;
+    }
+}
+
+function hydrateSavedPrediction(snapshot, fallback) {
+    if (!snapshot) return fallback;
+
+    const ordered = [
+        ...parsePredictionNumbers(snapshot.sure_numbers),
+        ...parsePredictionNumbers(snapshot.direct_numbers)
+    ].slice(0, 5);
+    if (ordered.length !== 5) return fallback;
+
+    const storedDetails = new Map(
+        (Array.isArray(snapshot.score_details) ? snapshot.score_details : [])
+            .map(item => [Number(item.number), item])
+    );
+    const scoreMap = { ...fallback.scoreMap };
+    const savedRows = ordered.map(number => {
+        const base = scoreMap[number] || {};
+        const detail = storedDetails.get(number) || {};
+        const totalScore = Number(detail.totalScore ?? base.totalScore ?? 0);
+        const row = { ...base, ...detail, number, totalScore };
+        scoreMap[number] = row;
+        return row;
+    });
+    const remainder = fallback.rankedData.filter(item => !ordered.includes(Number(item.number)));
+
+    return {
+        ...fallback,
+        predictedNumbers: [...ordered].sort((left, right) => left - right),
+        rankedData: [...savedRows, ...remainder],
+        scoreMap,
+        snapshot
+    };
+}
+
 // =========================================================
 // DISPLAY NEXT GAME
 // =========================================================
@@ -2178,9 +2236,10 @@ async function displayNextGamePrediction() {
 
     try {
 
-        const [history, todayResults] = await Promise.all([
+        const [history, todayResults, savedPrediction] = await Promise.all([
             fetchPredictionHistory(nextGame),
-            fetchTodaysEarlierResults(nextGame)
+            fetchTodaysEarlierResults(nextGame),
+            fetchSavedPrediction(nextGame)
         ]);
 
 
@@ -2225,12 +2284,25 @@ async function displayNextGamePrediction() {
         }
 
 
-        const predictionData =
+        const livePrediction =
             calculateStatisticalPrediction(
                 history,
                 todayResults,
                 true
             );
+
+        const predictionData =
+            hydrateSavedPrediction(
+                savedPrediction,
+                livePrediction
+            );
+
+        if (savedPrediction && nextGameDrawTime) {
+            const profile = String(savedPrediction.engine_profile || "balanced")
+                .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
+            nextGameDrawTime.textContent =
+                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Saved V2 (${profile})`;
+        }
 
 
         displayPredictionBalls(
@@ -2431,11 +2503,13 @@ async function displayGhanaPrediction() {
         const [
             databaseGameHistory,
             databaseGhanaHistory,
-            bundledGhanaHistory
+            bundledGhanaHistory,
+            savedPrediction
         ] = await Promise.all([
             fetchPredictionHistory(ghanaGame),
             fetchGhanaFallbackHistory(),
-            fetchBundledGhanaHistory()
+            fetchBundledGhanaHistory(),
+            fetchSavedPrediction(ghanaGame)
         ]);
 
         const bundledGameHistory =
@@ -2497,11 +2571,24 @@ async function displayGhanaPrediction() {
         }
 
 
-        const predictionData =
+        const livePrediction =
             calculateGhanaCombinedPrediction(
                 history,
                 supportingGhanaHistory
             );
+
+        const predictionData =
+            hydrateSavedPrediction(
+                savedPrediction,
+                livePrediction
+            );
+
+        if (savedPrediction && ghanaGameDrawTime) {
+            const profile = String(savedPrediction.engine_profile || "balanced")
+                .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
+            ghanaGameDrawTime.textContent =
+                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Saved V2 (${profile})`;
+        }
 
 
         displayPredictionBalls(
