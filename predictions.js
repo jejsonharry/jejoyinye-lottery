@@ -2160,6 +2160,195 @@ function hydrateSavedPrediction(snapshot, fallback) {
     };
 }
 
+
+// =========================================================
+// CUSTOM DATE-RANGE V2 (UNSAVED)
+// =========================================================
+
+const CUSTOM_RANGE_V2_PROFILES = Object.freeze([
+    Object.freeze({ name: "balanced", frequency: 0.34, recency: 0.28, transition: 0.20, machine: 0.10, gap: 0.08 }),
+    Object.freeze({ name: "recent", frequency: 0.22, recency: 0.42, transition: 0.20, machine: 0.10, gap: 0.06 }),
+    Object.freeze({ name: "frequency", frequency: 0.52, recency: 0.20, transition: 0.13, machine: 0.10, gap: 0.05 }),
+    Object.freeze({ name: "transition", frequency: 0.24, recency: 0.22, transition: 0.38, machine: 0.10, gap: 0.06 })
+]);
+
+function normalizeCustomRangeV2(rows, property) {
+    const maximum = Math.max(0, ...rows.map(row => row[property] || 0));
+    rows.forEach(row => {
+        row[property] = maximum > 0
+            ? ((row[property] || 0) / maximum) * 100
+            : 0;
+    });
+}
+
+function rankCustomRangeV2(history, context, profile) {
+    const rows = Array.from({ length: 90 }, (_, index) => ({
+        number: index + 1,
+        frequency: 0,
+        recency: 0,
+        transition: 0,
+        machine: 0,
+        gap: 0
+    }));
+    const scoreByNumber = Object.fromEntries(rows.map(row => [row.number, row]));
+    const signalNumbers = [
+        ...context,
+        ...history.slice(0, 3)
+    ].flatMap(result => parsePredictionNumbers(result.winning));
+    const pairCounts = new Map();
+
+    history.slice(0, 120).forEach((result, index) => {
+        const decay = Math.exp(-index / 24);
+        const winning = parsePredictionNumbers(result.winning);
+
+        winning.forEach(number => {
+            scoreByNumber[number].frequency += 1;
+            scoreByNumber[number].recency += decay;
+        });
+        parsePredictionNumbers(result.machine).forEach(number => {
+            scoreByNumber[number].machine += decay;
+        });
+
+        winning.forEach(source => winning.forEach(target => {
+            if (source === target) return;
+            const key = `${source}:${target}`;
+            pairCounts.set(key, (pairCounts.get(key) || 0) + decay);
+        }));
+    });
+
+    rows.forEach(row => {
+        const lastIndex = history.findIndex(result =>
+            parsePredictionNumbers(result.winning).includes(row.number)
+        );
+        row.gap = Math.min(lastIndex < 0 ? history.length : lastIndex, 30);
+        row.transition = signalNumbers.reduce(
+            (total, source) => total + (pairCounts.get(`${source}:${row.number}`) || 0),
+            0
+        );
+    });
+
+    context.forEach((result, index) => {
+        const boost = Math.max(0.8, 2.2 - (index * 0.25));
+        parsePredictionNumbers(result.winning).forEach(number => {
+            scoreByNumber[number].recency += boost;
+        });
+        parsePredictionNumbers(result.machine).forEach(number => {
+            scoreByNumber[number].machine += boost * 0.35;
+        });
+    });
+
+    ["frequency", "recency", "transition", "machine", "gap"]
+        .forEach(property => normalizeCustomRangeV2(rows, property));
+
+    rows.forEach(row => {
+        row.totalScore =
+            (row.frequency * profile.frequency) +
+            (row.recency * profile.recency) +
+            (row.transition * profile.transition) +
+            (row.machine * profile.machine) +
+            (row.gap * profile.gap);
+    });
+
+    return rows.sort((left, right) =>
+        right.totalScore !== left.totalScore
+            ? right.totalScore - left.totalScore
+            : left.number - right.number
+    );
+}
+
+function backtestCustomRangeV2(history, profile) {
+    const chronological = [...history].reverse();
+    const minimumTrainingDraws = Math.min(12, Math.max(5, chronological.length - 1));
+    const start = Math.max(minimumTrainingDraws, chronological.length - 40);
+    let draws = 0;
+    let hits = 0;
+    let sureHits = 0;
+    let anyHitDraws = 0;
+
+    for (let index = start; index < chronological.length; index++) {
+        const training = chronological.slice(0, index).reverse();
+        if (training.length < 5) continue;
+
+        const predicted = rankCustomRangeV2(training, [], profile)
+            .slice(0, 5)
+            .map(item => item.number);
+        const actual = parsePredictionNumbers(chronological[index].winning);
+        const drawHits = predicted.filter(number => actual.includes(number)).length;
+
+        hits += drawHits;
+        sureHits += predicted.slice(0, 2)
+            .filter(number => actual.includes(number)).length;
+        anyHitDraws += drawHits > 0 ? 1 : 0;
+        draws++;
+    }
+
+    return {
+        profile,
+        draws,
+        hitRate: draws > 0 ? hits / (draws * 5) : 0,
+        score: draws > 0
+            ? (hits + (sureHits * 0.5) + (anyHitDraws * 0.2)) / draws
+            : 0
+    };
+}
+
+function calculateCustomRangeV2Prediction(history, context, fallback) {
+    const tests = CUSTOM_RANGE_V2_PROFILES
+        .map(profile => backtestCustomRangeV2(history, profile))
+        .sort((left, right) =>
+            right.score !== left.score
+                ? right.score - left.score
+                : right.draws - left.draws
+        );
+    const selected = tests[0] || {
+        profile: CUSTOM_RANGE_V2_PROFILES[0],
+        draws: 0,
+        hitRate: 0
+    };
+    const v2Ranking = rankCustomRangeV2(history, context, selected.profile);
+    const topNumbers = v2Ranking.slice(0, 5).map(item => item.number);
+    const v2ByNumber = Object.fromEntries(v2Ranking.map(item => [item.number, item]));
+    const scoreMap = { ...fallback.scoreMap };
+
+    topNumbers.forEach(number => {
+        scoreMap[number] = {
+            ...scoreMap[number],
+            totalScore: v2ByNumber[number].totalScore
+        };
+    });
+
+    const rankedTop = topNumbers.map(number => ({
+        ...scoreMap[number],
+        number,
+        totalScore: v2ByNumber[number].totalScore
+    }));
+    const remainder = fallback.rankedData
+        .filter(item => !topNumbers.includes(Number(item.number)));
+
+    return {
+        ...fallback,
+        predictedNumbers: [...topNumbers].sort((left, right) => left - right),
+        rankedData: [...rankedTop, ...remainder],
+        scoreMap,
+        v2Profile: selected.profile.name,
+        v2BacktestDraws: selected.draws,
+        v2BacktestHitRate: selected.hitRate
+    };
+}
+
+function hasCustomPredictionRange() {
+    return Boolean(predictionDateRange.from || predictionDateRange.to);
+}
+
+function customRangeV2Label(predictionData) {
+    const profile = String(predictionData?.v2Profile || "balanced")
+        .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
+    const tested = Number(predictionData?.v2BacktestDraws || 0);
+    return tested > 0
+        ? `Custom V2 ${profile} • ${tested} tests`
+        : `Custom V2 ${profile} • short range`;
+}
+
 // =========================================================
 // DISPLAY NEXT GAME
 // =========================================================
@@ -2292,10 +2481,16 @@ async function displayNextGamePrediction() {
             );
 
         const predictionData =
-            hydrateSavedPrediction(
-                savedPrediction,
-                livePrediction
-            );
+            savedPrediction
+                ? hydrateSavedPrediction(savedPrediction, livePrediction)
+                : hasCustomPredictionRange()
+                    ? calculateCustomRangeV2Prediction(history, todayResults, livePrediction)
+                    : livePrediction;
+
+        if (hasCustomPredictionRange() && nextGameDrawTime) {
+            nextGameDrawTime.textContent =
+                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • ${customRangeV2Label(predictionData)}`;
+        }
 
         if (savedPrediction && nextGameDrawTime) {
             const profile = String(savedPrediction.engine_profile || "balanced")
@@ -2578,10 +2773,16 @@ async function displayGhanaPrediction() {
             );
 
         const predictionData =
-            hydrateSavedPrediction(
-                savedPrediction,
-                livePrediction
-            );
+            savedPrediction
+                ? hydrateSavedPrediction(savedPrediction, livePrediction)
+                : hasCustomPredictionRange()
+                    ? calculateCustomRangeV2Prediction(history, supportingGhanaHistory, livePrediction)
+                    : livePrediction;
+
+        if (hasCustomPredictionRange() && ghanaGameDrawTime) {
+            ghanaGameDrawTime.textContent =
+                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • ${customRangeV2Label(predictionData)}`;
+        }
 
         if (savedPrediction && ghanaGameDrawTime) {
             const profile = String(savedPrediction.engine_profile || "balanced")
@@ -2892,7 +3093,7 @@ document.addEventListener(
 
             if (predictionRangeStatus) {
                 predictionRangeStatus.textContent = from || to
-                    ? `Historical range: ${from || "earliest"} to ${to || "latest"}. Today's earlier games are also included.`
+                    ? `Custom V2 range: ${from || "earliest"} to ${to || "latest"}. Backtested when the range has enough draws; not added to official accuracy.`
                     : "Using all historical results plus today's earlier published games.";
             }
 
