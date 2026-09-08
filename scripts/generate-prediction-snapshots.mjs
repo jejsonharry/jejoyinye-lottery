@@ -131,63 +131,119 @@ function normalize(rows, key) {
     rows.forEach(row => { row[key] = max ? row[key] * 100 / max : 0; });
 }
 
+const ROLLING_SOURCE_WEIGHTS = Object.freeze({
+    recentSameGame: 0.60,
+    olderSameGame: 0.25,
+    todayWinning: 0.10,
+    todayMachine: 0.05
+});
+
 function rank(history, context, profile) {
     const rows = Array.from({ length: 90 }, (_, index) => ({
         number: index + 1, frequency: 0, recency: 0, transition: 0, machine: 0, gap: 0,
         classification: 0, moving: 0
     }));
     const byNumber = Object.fromEntries(rows.map(row => [row.number, row]));
-    const recentSignals = [...context, ...history.slice(0, 3)];
-    const signalNumbers = recentSignals.flatMap(item => numbers(item.winning));
     const pairCounts = new Map();
+    const weightedSignals = [];
 
-    history.slice(0, 120).forEach((draw, index) => {
-        const decay = Math.exp(-index / 24);
-        const winning = numbers(draw.winning);
-        winning.forEach(number => {
-            byNumber[number].frequency += 1;
-            byNumber[number].recency += decay;
+    function addSameGameGroup(draws, budget) {
+        if (!draws.length) return;
+        const drawWeight = budget / draws.length;
+
+        draws.forEach((draw, index) => {
+            const recencyMultiplier = Math.max(0.75, 1 - (index * 0.10));
+            const winning = numbers(draw.winning);
+            const machine = numbers(draw.machine);
+
+            winning.forEach(number => {
+                byNumber[number].frequency += drawWeight;
+                byNumber[number].recency += drawWeight * recencyMultiplier;
+                weightedSignals.push({ number, weight: drawWeight });
+            });
+            machine.forEach(number => {
+                byNumber[number].machine += drawWeight * 0.25;
+                weightedSignals.push({ number, weight: drawWeight * 0.20 });
+            });
+
+            for (const source of winning) for (const target of winning) {
+                if (source === target) continue;
+                const key = `${source}:${target}`;
+                pairCounts.set(key, (pairCounts.get(key) || 0) + drawWeight);
+            }
         });
-        numbers(draw.machine).forEach(number => { byNumber[number].machine += decay; });
-        for (const source of winning) for (const target of winning) {
-            if (source !== target) pairCounts.set(`${source}:${target}`, (pairCounts.get(`${source}:${target}`) || 0) + decay);
-        }
-    });
+    }
+
+    addSameGameGroup(history.slice(0, 3), ROLLING_SOURCE_WEIGHTS.recentSameGame);
+    addSameGameGroup(history.slice(3, 60), ROLLING_SOURCE_WEIGHTS.olderSameGame);
+
+    if (context.length) {
+        const winningWeight = ROLLING_SOURCE_WEIGHTS.todayWinning / context.length;
+        const machineWeight = ROLLING_SOURCE_WEIGHTS.todayMachine / context.length;
+
+        context.forEach(draw => {
+            numbers(draw.winning).forEach(number => {
+                byNumber[number].recency += winningWeight;
+                weightedSignals.push({ number, weight: winningWeight });
+            });
+            numbers(draw.machine).forEach(number => {
+                byNumber[number].machine += machineWeight;
+                weightedSignals.push({ number, weight: machineWeight });
+            });
+        });
+    }
 
     rows.forEach(row => {
         const lastIndex = history.findIndex(draw => numbers(draw.winning).includes(row.number));
         row.gap = Math.min(lastIndex < 0 ? history.length : lastIndex, 30);
-        row.transition = signalNumbers.reduce(
-            (sum, source) => sum + (pairCounts.get(`${source}:${row.number}`) || 0), 0
+        row.transition = weightedSignals.reduce(
+            (sum, signal) =>
+                sum + ((pairCounts.get(`${signal.number}:${row.number}`) || 0) * signal.weight),
+            0
         );
     });
-    signalNumbers.forEach(source => {
-        (CHART_RELATIONSHIPS.classification[source] || []).forEach(target => {
-            byNumber[target].classification += 1;
+
+    weightedSignals.forEach(signal => {
+        (CHART_RELATIONSHIPS.classification[signal.number] || []).forEach(target => {
+            byNumber[target].classification += signal.weight;
         });
-        (CHART_RELATIONSHIPS.moving[source] || []).forEach(target => {
-            byNumber[target].moving += 1;
+        (CHART_RELATIONSHIPS.moving[signal.number] || []).forEach(target => {
+            byNumber[target].moving += signal.weight;
         });
     });
 
-    context.forEach((draw, index) => {
-        const boost = Math.max(.8, 2.2 - index * .25);
-        numbers(draw.winning).forEach(number => { byNumber[number].recency += boost; });
-        numbers(draw.machine).forEach(number => { byNumber[number].machine += boost * .35; });
-    });
+    for (const key of ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"]) {
+        normalize(rows, key);
+    }
 
-    for (const key of ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"]) normalize(rows, key);
+    const featureKeys = [
+        "frequency", "recency", "transition", "machine",
+        "gap", "classification", "moving"
+    ];
     rows.forEach(row => {
-        const featureKeys = [
-            "frequency", "recency", "transition", "machine",
-            "gap", "classification", "moving"
-        ];
         row.totalScore = featureKeys.reduce(
             (sum, key) => sum + (row[key] * Number(profile[key] || 0)),
             0
         );
     });
+
     return rows.sort((a, b) => b.totalScore - a.totalScore || a.number - b.number);
+}
+
+function selectDiversifiedTop(ranked, context) {
+    const todayWinning = new Set(context.flatMap(draw => numbers(draw.winning)));
+    const selected = [];
+    let todayCarryovers = 0;
+
+    for (const item of ranked) {
+        const isTodayCarryover = todayWinning.has(item.number);
+        if (isTodayCarryover && todayCarryovers >= 2) continue;
+        selected.push(item);
+        if (isTodayCarryover) todayCarryovers++;
+        if (selected.length === 5) break;
+    }
+
+    return selected;
 }
 
 function backtest(history, profile) {
@@ -261,10 +317,10 @@ async function createSnapshot(game, now) {
     tests.sort((a, b) => b.score - a.score || b.draws - a.draws);
     const selected = tests[0];
     const ranked = rank(history, context, selected);
-    const top = ranked.slice(0, 5);
+    const top = selectDiversifiedTop(ranked, context);
     const payload = {
         lottery: game.lottery, game: game.game, draw_date: now.date, draw_time: game.drawTime,
-        engine_version: "v2.1.1", engine_profile: selected.name,
+        engine_version: "v2.2.0", engine_profile: selected.name,
         range_from: history.at(-1)?.draw_date || null, range_to: history[0]?.draw_date || null,
         sure_numbers: top.slice(0, 2).map(row => row.number),
         direct_numbers: top.slice(2).map(row => row.number),
@@ -276,8 +332,11 @@ async function createSnapshot(game, now) {
             gap: Number(row.gap.toFixed(3)), classification: Number(row.classification.toFixed(3)),
             moving: Number(row.moving.toFixed(3))
         })),
-        weights: Object.fromEntries(Object.entries(selected).filter(([key]) =>
-            ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"].includes(key))),
+        weights: {
+            features: Object.fromEntries(Object.entries(selected).filter(([key]) =>
+                ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"].includes(key))),
+            sources: ROLLING_SOURCE_WEIGHTS
+        },
         historical_draws: history.length, backtest_draws: selected.draws,
         backtest_score: Number(selected.score.toFixed(4)),
         backtest_hit_rate: Number(selected.hitRate.toFixed(4))
@@ -287,7 +346,7 @@ async function createSnapshot(game, now) {
         method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
         body: JSON.stringify(payload)
     });
-    console.log(`${game.game}: V2.1.1 snapshot ready (${selected.name}, ${selected.draws} backtest draws).`);
+    console.log(`${game.game}: V2.2 snapshot ready (${selected.name}, ${selected.draws} backtest draws).`);
 }
 
 const now = lagosNow();

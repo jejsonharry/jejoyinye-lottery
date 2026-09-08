@@ -2192,6 +2192,13 @@ function normalizeCustomRangeV2(rows, property) {
     });
 }
 
+const CUSTOM_RANGE_SOURCE_WEIGHTS = Object.freeze({
+    recentSameGame: 0.60,
+    olderSameGame: 0.25,
+    todayWinning: 0.10,
+    todayMachine: 0.05
+});
+
 function rankCustomRangeV2(history, context, profile) {
     const rows = Array.from({ length: 90 }, (_, index) => ({
         number: index + 1,
@@ -2204,65 +2211,80 @@ function rankCustomRangeV2(history, context, profile) {
         moving: 0
     }));
     const scoreByNumber = Object.fromEntries(rows.map(row => [row.number, row]));
-    const signalNumbers = [
-        ...context,
-        ...history.slice(0, 3)
-    ].flatMap(result => parsePredictionNumbers(result.winning));
     const pairCounts = new Map();
+    const weightedSignals = [];
 
-    history.slice(0, 120).forEach((result, index) => {
-        const decay = Math.exp(-index / 24);
-        const winning = parsePredictionNumbers(result.winning);
+    function addSameGameGroup(draws, budget) {
+        if (!draws.length) return;
+        const drawWeight = budget / draws.length;
 
-        winning.forEach(number => {
-            scoreByNumber[number].frequency += 1;
-            scoreByNumber[number].recency += decay;
+        draws.forEach((result, index) => {
+            const recencyMultiplier = Math.max(0.75, 1 - (index * 0.10));
+            const winning = parsePredictionNumbers(result.winning);
+            const machine = parsePredictionNumbers(result.machine);
+
+            winning.forEach(number => {
+                scoreByNumber[number].frequency += drawWeight;
+                scoreByNumber[number].recency += drawWeight * recencyMultiplier;
+                weightedSignals.push({ number, weight: drawWeight });
+            });
+            machine.forEach(number => {
+                scoreByNumber[number].machine += drawWeight * 0.25;
+                weightedSignals.push({ number, weight: drawWeight * 0.20 });
+            });
+
+            winning.forEach(source => winning.forEach(target => {
+                if (source === target) return;
+                const key = `${source}:${target}`;
+                pairCounts.set(key, (pairCounts.get(key) || 0) + drawWeight);
+            }));
         });
-        parsePredictionNumbers(result.machine).forEach(number => {
-            scoreByNumber[number].machine += decay;
-        });
+    }
 
-        winning.forEach(source => winning.forEach(target => {
-            if (source === target) return;
-            const key = `${source}:${target}`;
-            pairCounts.set(key, (pairCounts.get(key) || 0) + decay);
-        }));
-    });
+    addSameGameGroup(history.slice(0, 3), CUSTOM_RANGE_SOURCE_WEIGHTS.recentSameGame);
+    addSameGameGroup(history.slice(3, 60), CUSTOM_RANGE_SOURCE_WEIGHTS.olderSameGame);
+
+    if (context.length) {
+        const winningWeight = CUSTOM_RANGE_SOURCE_WEIGHTS.todayWinning / context.length;
+        const machineWeight = CUSTOM_RANGE_SOURCE_WEIGHTS.todayMachine / context.length;
+
+        context.forEach(result => {
+            parsePredictionNumbers(result.winning).forEach(number => {
+                scoreByNumber[number].recency += winningWeight;
+                weightedSignals.push({ number, weight: winningWeight });
+            });
+            parsePredictionNumbers(result.machine).forEach(number => {
+                scoreByNumber[number].machine += machineWeight;
+                weightedSignals.push({ number, weight: machineWeight });
+            });
+        });
+    }
 
     rows.forEach(row => {
         const lastIndex = history.findIndex(result =>
             parsePredictionNumbers(result.winning).includes(row.number)
         );
         row.gap = Math.min(lastIndex < 0 ? history.length : lastIndex, 30);
-        row.transition = signalNumbers.reduce(
-            (total, source) => total + (pairCounts.get(`${source}:${row.number}`) || 0),
+        row.transition = weightedSignals.reduce(
+            (total, signal) =>
+                total + ((pairCounts.get(`${signal.number}:${row.number}`) || 0) * signal.weight),
             0
         );
     });
 
-    signalNumbers.forEach(source => {
-        const classification = MODERN_CLASSIFICATION_CHART[source];
+    weightedSignals.forEach(signal => {
+        const classification = MODERN_CLASSIFICATION_CHART[signal.number];
         if (classification) {
             Object.values(classification).forEach(target => {
                 if (target >= 1 && target <= 90) {
-                    scoreByNumber[target].classification += 1;
+                    scoreByNumber[target].classification += signal.weight;
                 }
             });
         }
-        (MODERN_MOVING_GRAPH[source] || []).forEach(target => {
+        (MODERN_MOVING_GRAPH[signal.number] || []).forEach(target => {
             if (target >= 1 && target <= 90) {
-                scoreByNumber[target].moving += 1;
+                scoreByNumber[target].moving += signal.weight;
             }
-        });
-    });
-
-    context.forEach((result, index) => {
-        const boost = Math.max(0.8, 2.2 - (index * 0.25));
-        parsePredictionNumbers(result.winning).forEach(number => {
-            scoreByNumber[number].recency += boost;
-        });
-        parsePredictionNumbers(result.machine).forEach(number => {
-            scoreByNumber[number].machine += boost * 0.35;
         });
     });
 
@@ -2285,6 +2307,24 @@ function rankCustomRangeV2(history, context, profile) {
             ? right.totalScore - left.totalScore
             : left.number - right.number
     );
+}
+
+function selectCustomRangeV2Top(ranking, context) {
+    const todayWinning = new Set(
+        context.flatMap(result => parsePredictionNumbers(result.winning))
+    );
+    const selected = [];
+    let todayCarryovers = 0;
+
+    for (const item of ranking) {
+        const isTodayCarryover = todayWinning.has(item.number);
+        if (isTodayCarryover && todayCarryovers >= 2) continue;
+        selected.push(item);
+        if (isTodayCarryover) todayCarryovers++;
+        if (selected.length === 5) break;
+    }
+
+    return selected;
 }
 
 function backtestCustomRangeV2(history, profile) {
@@ -2337,7 +2377,7 @@ function calculateCustomRangeV2Prediction(history, context, fallback) {
         hitRate: 0
     };
     const v2Ranking = rankCustomRangeV2(history, context, selected.profile);
-    const topNumbers = v2Ranking.slice(0, 5).map(item => item.number);
+    const topNumbers = selectCustomRangeV2Top(v2Ranking, context).map(item => item.number);
     const v2ByNumber = Object.fromEntries(v2Ranking.map(item => [item.number, item]));
     const scoreMap = { ...fallback.scoreMap };
 
