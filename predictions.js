@@ -69,17 +69,31 @@ const PREDICTIONS_SHARE_URL =
     "https://jolslottery.com/predictions";
 
 
-function getDisplayedPredictionNumbers(container) {
+function getDisplayedPredictionNumbers(container, selector = ".number-ball") {
 
     if (!container) {
         return [];
     }
 
     return Array.from(
-        container.querySelectorAll(".number-ball")
+        container.querySelectorAll(selector)
     )
         .map(ball => ball.textContent.trim())
         .filter(number => /^\d{1,2}$/.test(number));
+}
+
+
+function getDisplayedPredictionTiers(container) {
+    return {
+        sureNumbers: getDisplayedPredictionNumbers(
+            container,
+            ".prediction-tier-sure .number-ball"
+        ),
+        directSureNumbers: getDisplayedPredictionNumbers(
+            container,
+            ".prediction-tier-direct .number-ball"
+        )
+    };
 }
 
 
@@ -97,10 +111,21 @@ async function shareGamePrediction(button) {
     const ballsElement =
         isGhana ? ghanaGameBalls : nextGameBalls;
 
-    const numbers =
-        getDisplayedPredictionNumbers(ballsElement);
+    const {
+        sureNumbers,
+        directSureNumbers
+    } = getDisplayedPredictionTiers(ballsElement);
 
-    if (numbers.length < 5) {
+    const numbers = [
+        ...sureNumbers,
+        ...directSureNumbers
+    ];
+
+    if (
+        sureNumbers.length !== 2
+        ||
+        directSureNumbers.length !== 3
+    ) {
         button.textContent = "Prediction Not Ready";
         setTimeout(
             () => button.textContent = "Share Prediction",
@@ -126,6 +151,8 @@ async function shareGamePrediction(button) {
     const text = [
         `${game} Game Prediction`,
         drawDetails,
+        `2 Sure Numbers: ${sureNumbers.join("-")}`,
+        `3 Direct Sure Numbers: ${directSureNumbers.join("-")}`,
         `${forecastLabel}: ${numbers.join("-")}`,
         `Historical period: ${period}`,
         "Statistical insight only — not a guaranteed result.",
@@ -1707,21 +1734,34 @@ function getPredictionStrength(
 // DISPLAY BALLS
 // =========================================================
 
-function displayPredictionBalls(
-    numbers
-) {
+function getPredictionTiers(predictionData) {
+    const rankedNumbers =
+        Array.isArray(predictionData?.rankedData)
+            ? predictionData.rankedData
+                .slice(0, 5)
+                .map(item => Number(item.number))
+                .filter(Number.isInteger)
+            : [];
 
-    if (!nextGameBalls) {
-        return;
-    }
+    return {
+        sureNumbers: rankedNumbers.slice(0, 2),
+        directSureNumbers: rankedNumbers.slice(2, 5)
+    };
+}
 
+
+function predictionTierMarkup(predictionData) {
+    const {
+        sureNumbers,
+        directSureNumbers
+    } = getPredictionTiers(predictionData);
 
     if (
-        !numbers ||
-        numbers.length < 5
+        sureNumbers.length !== 2
+        ||
+        directSureNumbers.length !== 3
     ) {
-
-        nextGameBalls.innerHTML = `
+        return `
 
             <span
                 style="
@@ -1733,34 +1773,58 @@ function displayPredictionBalls(
             </span>
 
         `;
-
-
-        return;
-
     }
 
-
-    nextGameBalls.innerHTML =
+    const renderBalls = numbers =>
         numbers
-
             .map(
                 number => `
 
-                    <span
-                        class="number-ball"
-                    >
-                        ${String(
-                            number
-                        ).padStart(
-                            2,
-                            "0"
-                        )}
+                    <span class="number-ball">
+                        ${String(number).padStart(2, "0")}
                     </span>
 
                 `
             )
-
             .join("");
+
+    return `
+
+        <div class="prediction-tier prediction-tier-sure">
+            <span class="prediction-tier-title">
+                2 Sure Numbers
+            </span>
+
+            <div class="prediction-tier-balls">
+                ${renderBalls(sureNumbers)}
+            </div>
+        </div>
+
+        <div class="prediction-tier prediction-tier-direct">
+            <span class="prediction-tier-title">
+                3 Direct Sure Numbers
+            </span>
+
+            <div class="prediction-tier-balls">
+                ${renderBalls(directSureNumbers)}
+            </div>
+        </div>
+
+    `;
+}
+
+
+function displayPredictionBalls(
+    predictionData,
+    container = nextGameBalls
+) {
+
+    if (!container) {
+        return;
+    }
+
+    container.classList.add("prediction-tier-grid");
+    container.innerHTML = predictionTierMarkup(predictionData);
 
 }
 
@@ -2170,7 +2234,7 @@ async function displayNextGamePrediction() {
 
 
         displayPredictionBalls(
-            predictionData.predictedNumbers
+            predictionData
         );
 
 
@@ -2440,23 +2504,10 @@ async function displayGhanaPrediction() {
             );
 
 
-        if (ghanaGameBalls) {
-
-            ghanaGameBalls.innerHTML =
-                predictionData.predictedNumbers
-
-                    .map(
-                        number => `
-
-                            <span class="number-ball">
-                                ${String(number).padStart(2, "0")}
-                            </span>
-
-                        `
-                    )
-
-                    .join("");
-        }
+        displayPredictionBalls(
+            predictionData,
+            ghanaGameBalls
+        );
 
     }
 

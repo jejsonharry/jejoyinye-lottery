@@ -9140,3 +9140,74 @@ body > nav > .nav-inner > a[aria-current="page"]::after {
         gap: 7px;
     }
 }
+
+
+/* =========================================================
+   PREDICTION CONFIDENCE TIERS
+   ========================================================= */
+
+.prediction-balls.prediction-tier-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+    max-width: 620px;
+    margin-inline: auto;
+}
+
+.prediction-tier {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 14px 12px;
+    border: 1px solid #dbe3ec;
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.prediction-tier-title {
+    color: #334155;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.prediction-tier-balls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+#next-game-balls .prediction-tier-sure .number-ball,
+#ghana-game-balls .prediction-tier-sure .number-ball {
+    background: linear-gradient(145deg, #f59e0b, #b45309) !important;
+    box-shadow: 0 8px 18px rgba(180, 83, 9, .25) !important;
+}
+
+#next-game-balls .prediction-tier-direct .number-ball,
+#ghana-game-balls .prediction-tier-direct .number-ball {
+    background: linear-gradient(145deg, #22c55e, #15803d) !important;
+    box-shadow: 0 8px 18px rgba(21, 128, 61, .23) !important;
+}
+
+@media (max-width: 600px) {
+    .prediction-balls.prediction-tier-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .prediction-tier {
+        padding: 10px 8px;
+    }
+
+    .prediction-tier-balls {
+        gap: 8px;
+    }
+}
