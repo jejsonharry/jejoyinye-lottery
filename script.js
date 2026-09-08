@@ -1480,7 +1480,7 @@ function createResultCard(
 // =========================================================
 
 const RESULTS_SHARE_URL =
-    "https://jolslottery.com/results";
+    "https://jolslottery.com/results?share=whatsapp-v2";
 
 
 async function sharePublishedResult(
@@ -1511,20 +1511,29 @@ async function sharePublishedResult(
         button.dataset.shareUrl ||
         RESULTS_SHARE_URL;
 
+    const formattedWinning =
+        winning.replace(/-/g, " • ");
+
+    const formattedMachine =
+        machine.replace(/-/g, " • ");
+
     const lines = [
-        `${game} — ${lottery}`,
-        `Date: ${date}`,
-        `Winning: ${winning}`
+        `🎯 *${String(game).toUpperCase()} RESULT*`,
+        `🎟️ ${lottery}`,
+        "",
+        `📅 *Date:* ${date}`,
+        `🟢 *Winning:* ${formattedWinning}`
     ];
 
-    if (machine) {
+    if (formattedMachine) {
         lines.push(
-            `Machine: ${machine}`
+            `🔴 *Machine:* ${formattedMachine}`
         );
     }
 
     lines.push(
-        "View more results:"
+        "",
+        "*View more results:*"
     );
 
     const text =
@@ -2667,7 +2676,7 @@ function createHomeResultCard(
                         data-share-date="${escapeHTML(date)}"
                         data-share-winning="${escapeHTML(winning.join("-"))}"
                         data-share-machine="${escapeHTML(machine.join("-"))}"
-                        data-share-url="https://jolslottery.com/"
+                        data-share-url="${RESULTS_SHARE_URL}"
                         aria-label="Share ${escapeHTML(game)} result"
                     >
                         Share
