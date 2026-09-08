@@ -1,0 +1,123 @@
+.agent-premium-hero {
+    padding: 42px 20px;
+}
+
+.agent-hero-badge {
+    margin-bottom: 12px;
+}
+
+.agent-hero-content h2 {
+    margin-bottom: 12px;
+}
+
+.agent-hero-content p {
+    max-width: 590px;
+    line-height: 1.55;
+}
+
+.agent-primary-action {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.agent-primary-action .agent-proceed-button {
+    min-width: 250px;
+    background: #ffffff;
+    color: #0f6b3b;
+    box-shadow: 0 12px 28px rgba(3, 37, 24, .26);
+}
+
+.agent-primary-action .agent-proceed-button:hover {
+    color: #064e3b;
+    box-shadow: 0 15px 32px rgba(3, 37, 24, .32);
+}
+
+.agent-primary-action small {
+    color: rgba(255, 255, 255, .82);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.agent-hero-points {
+    margin-top: 18px;
+}
+
+.agent-page-direct {
+    padding: 28px 0 34px;
+}
+
+.agent-quick-section {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px;
+    border: 1px solid #dce7df;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .07);
+    text-align: center;
+}
+
+.agent-quick-section > span {
+    color: #15803d;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .12em;
+}
+
+.agent-quick-section h2 {
+    margin: 7px 0 16px;
+    color: #0f172a;
+    font-size: clamp(22px, 4vw, 30px);
+}
+
+.agent-quick-requirements {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 18px;
+}
+
+.agent-quick-requirements strong {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #eefbf2;
+    color: #166534;
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+    .agent-premium-hero {
+        padding: 30px 16px;
+    }
+
+    .agent-hero-content h2 {
+        font-size: 31px;
+    }
+
+    .agent-hero-points {
+        flex-direction: row;
+        gap: 7px;
+    }
+
+    .agent-hero-points span {
+        padding: 7px 9px;
+        font-size: 10px;
+    }
+
+    .agent-page-direct {
+        padding: 18px 0 24px;
+    }
+
+    .agent-quick-section {
+        padding: 19px 14px;
+    }
+
+    .agent-primary-action .agent-proceed-button,
+    .agent-quick-section .agent-proceed-button {
+        width: 100%;
+        min-width: 0;
+    }
+}
