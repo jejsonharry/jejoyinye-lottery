@@ -178,9 +178,14 @@ function rank(history, context, profile) {
 
     for (const key of ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"]) normalize(rows, key);
     rows.forEach(row => {
-        row.totalScore = Object.entries(profile)
-            .filter(([key]) => key !== "name")
-            .reduce((sum, [key, weight]) => sum + row[key] * weight, 0);
+        const featureKeys = [
+            "frequency", "recency", "transition", "machine",
+            "gap", "classification", "moving"
+        ];
+        row.totalScore = featureKeys.reduce(
+            (sum, key) => sum + (row[key] * Number(profile[key] || 0)),
+            0
+        );
     });
     return rows.sort((a, b) => b.totalScore - a.totalScore || a.number - b.number);
 }
@@ -259,7 +264,7 @@ async function createSnapshot(game, now) {
     const top = ranked.slice(0, 5);
     const payload = {
         lottery: game.lottery, game: game.game, draw_date: now.date, draw_time: game.drawTime,
-        engine_version: "v2.1", engine_profile: selected.name,
+        engine_version: "v2.1.1", engine_profile: selected.name,
         range_from: history.at(-1)?.draw_date || null, range_to: history[0]?.draw_date || null,
         sure_numbers: top.slice(0, 2).map(row => row.number),
         direct_numbers: top.slice(2).map(row => row.number),
@@ -282,7 +287,7 @@ async function createSnapshot(game, now) {
         method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
         body: JSON.stringify(payload)
     });
-    console.log(`${game.game}: V2.1 snapshot ready (${selected.name}, ${selected.draws} backtest draws).`);
+    console.log(`${game.game}: V2.1.1 snapshot ready (${selected.name}, ${selected.draws} backtest draws).`);
 }
 
 const now = lagosNow();
