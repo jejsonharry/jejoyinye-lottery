@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 const SUPABASE_URL = String(process.env.SUPABASE_URL || "").replace(/\/$/, "");
 const SUPABASE_KEY = String(
     process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || ""
@@ -35,11 +37,57 @@ const GHANA = {
 };
 
 const PROFILES = [
-    { name: "balanced", frequency: .34, recency: .28, transition: .20, machine: .10, gap: .08 },
-    { name: "recent", frequency: .22, recency: .42, transition: .20, machine: .10, gap: .06 },
-    { name: "frequency", frequency: .52, recency: .20, transition: .13, machine: .10, gap: .05 },
-    { name: "transition", frequency: .24, recency: .22, transition: .38, machine: .10, gap: .06 }
+    { name: "balanced", frequency: .24, recency: .22, transition: .15, machine: .08, gap: .06, classification: .18, moving: .07 },
+    { name: "recent", frequency: .16, recency: .34, transition: .14, machine: .08, gap: .04, classification: .17, moving: .07 },
+    { name: "frequency", frequency: .38, recency: .16, transition: .10, machine: .08, gap: .04, classification: .17, moving: .07 },
+    { name: "relationship", frequency: .16, recency: .16, transition: .20, machine: .07, gap: .04, classification: .27, moving: .10 }
 ];
+
+function templateConstant(source, name) {
+    const marker = `const ${name} = \``;
+    const start = source.indexOf(marker);
+    if (start < 0) return "";
+    const valueStart = start + marker.length;
+    const valueEnd = source.indexOf("`;", valueStart);
+    return valueEnd < 0 ? "" : source.slice(valueStart, valueEnd);
+}
+
+async function loadChartRelationships() {
+    const source = await readFile(new URL("../predictions.js", import.meta.url), "utf8");
+    const classification = {};
+    templateConstant(source, "MODERN_CLASSIFICATION_ROWS")
+        .trim().split(/\n+/).filter(Boolean).forEach(line => {
+            const values = line.trim().split(/\s+/).map(Number);
+            const number = values.shift();
+            classification[number] = values.filter(target => target >= 1 && target <= 90);
+        });
+
+    const movingSets = Object.fromEntries(
+        Array.from({ length: 90 }, (_, index) => [index + 1, new Set()])
+    );
+    templateConstant(source, "MODERN_MOVING_ROWS")
+        .trim().split(/\n+/).filter(Boolean).forEach(line => {
+            line.split(";").forEach(entry => {
+                const [sourceText, targetsText = ""] = entry.split(":");
+                const sourceNumber = Number(sourceText);
+                targetsText.split(",").map(Number).forEach(target => {
+                    if (sourceNumber >= 1 && sourceNumber <= 90 && target >= 1 && target <= 90 && sourceNumber !== target) {
+                        movingSets[sourceNumber].add(target);
+                        movingSets[target].add(sourceNumber);
+                    }
+                });
+            });
+        });
+
+    return {
+        classification,
+        moving: Object.fromEntries(
+            Object.entries(movingSets).map(([number, values]) => [number, [...values]])
+        )
+    };
+}
+
+const CHART_RELATIONSHIPS = await loadChartRelationships();
 
 function lagosNow() {
     const parts = new Intl.DateTimeFormat("en-GB", {
@@ -85,7 +133,8 @@ function normalize(rows, key) {
 
 function rank(history, context, profile) {
     const rows = Array.from({ length: 90 }, (_, index) => ({
-        number: index + 1, frequency: 0, recency: 0, transition: 0, machine: 0, gap: 0
+        number: index + 1, frequency: 0, recency: 0, transition: 0, machine: 0, gap: 0,
+        classification: 0, moving: 0
     }));
     const byNumber = Object.fromEntries(rows.map(row => [row.number, row]));
     const recentSignals = [...context, ...history.slice(0, 3)];
@@ -112,13 +161,22 @@ function rank(history, context, profile) {
             (sum, source) => sum + (pairCounts.get(`${source}:${row.number}`) || 0), 0
         );
     });
+    signalNumbers.forEach(source => {
+        (CHART_RELATIONSHIPS.classification[source] || []).forEach(target => {
+            byNumber[target].classification += 1;
+        });
+        (CHART_RELATIONSHIPS.moving[source] || []).forEach(target => {
+            byNumber[target].moving += 1;
+        });
+    });
+
     context.forEach((draw, index) => {
         const boost = Math.max(.8, 2.2 - index * .25);
         numbers(draw.winning).forEach(number => { byNumber[number].recency += boost; });
         numbers(draw.machine).forEach(number => { byNumber[number].machine += boost * .35; });
     });
 
-    for (const key of ["frequency", "recency", "transition", "machine", "gap"]) normalize(rows, key);
+    for (const key of ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"]) normalize(rows, key);
     rows.forEach(row => {
         row.totalScore = Object.entries(profile)
             .filter(([key]) => key !== "name")
@@ -201,7 +259,7 @@ async function createSnapshot(game, now) {
     const top = ranked.slice(0, 5);
     const payload = {
         lottery: game.lottery, game: game.game, draw_date: now.date, draw_time: game.drawTime,
-        engine_version: "v2.0", engine_profile: selected.name,
+        engine_version: "v2.1", engine_profile: selected.name,
         range_from: history.at(-1)?.draw_date || null, range_to: history[0]?.draw_date || null,
         sure_numbers: top.slice(0, 2).map(row => row.number),
         direct_numbers: top.slice(2).map(row => row.number),
@@ -210,10 +268,11 @@ async function createSnapshot(game, now) {
             number: row.number, totalScore: Number(row.totalScore.toFixed(3)),
             frequency: Number(row.frequency.toFixed(3)), recency: Number(row.recency.toFixed(3)),
             transition: Number(row.transition.toFixed(3)), machine: Number(row.machine.toFixed(3)),
-            gap: Number(row.gap.toFixed(3))
+            gap: Number(row.gap.toFixed(3)), classification: Number(row.classification.toFixed(3)),
+            moving: Number(row.moving.toFixed(3))
         })),
         weights: Object.fromEntries(Object.entries(selected).filter(([key]) =>
-            ["frequency", "recency", "transition", "machine", "gap"].includes(key))),
+            ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"].includes(key))),
         historical_draws: history.length, backtest_draws: selected.draws,
         backtest_score: Number(selected.score.toFixed(4)),
         backtest_hit_rate: Number(selected.hitRate.toFixed(4))
@@ -223,7 +282,7 @@ async function createSnapshot(game, now) {
         method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
         body: JSON.stringify(payload)
     });
-    console.log(`${game.game}: V2 snapshot ready (${selected.name}, ${selected.draws} backtest draws).`);
+    console.log(`${game.game}: V2.1 snapshot ready (${selected.name}, ${selected.draws} backtest draws).`);
 }
 
 const now = lagosNow();

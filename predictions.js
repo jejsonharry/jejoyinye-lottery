@@ -2145,7 +2145,18 @@ function hydrateSavedPrediction(snapshot, fallback) {
         const base = scoreMap[number] || {};
         const detail = storedDetails.get(number) || {};
         const totalScore = Number(detail.totalScore ?? base.totalScore ?? 0);
-        const row = { ...base, ...detail, number, totalScore };
+        const row = {
+            ...base,
+            ...detail,
+            number,
+            classificationScoreNormalized: Number(
+                detail.classification ?? base.classificationScoreNormalized ?? 0
+            ),
+            movingScoreNormalized: Number(
+                detail.moving ?? base.movingScoreNormalized ?? 0
+            ),
+            totalScore
+        };
         scoreMap[number] = row;
         return row;
     });
@@ -2166,10 +2177,10 @@ function hydrateSavedPrediction(snapshot, fallback) {
 // =========================================================
 
 const CUSTOM_RANGE_V2_PROFILES = Object.freeze([
-    Object.freeze({ name: "balanced", frequency: 0.34, recency: 0.28, transition: 0.20, machine: 0.10, gap: 0.08 }),
-    Object.freeze({ name: "recent", frequency: 0.22, recency: 0.42, transition: 0.20, machine: 0.10, gap: 0.06 }),
-    Object.freeze({ name: "frequency", frequency: 0.52, recency: 0.20, transition: 0.13, machine: 0.10, gap: 0.05 }),
-    Object.freeze({ name: "transition", frequency: 0.24, recency: 0.22, transition: 0.38, machine: 0.10, gap: 0.06 })
+    Object.freeze({ name: "balanced", frequency: 0.24, recency: 0.22, transition: 0.15, machine: 0.08, gap: 0.06, classification: 0.18, moving: 0.07 }),
+    Object.freeze({ name: "recent", frequency: 0.16, recency: 0.34, transition: 0.14, machine: 0.08, gap: 0.04, classification: 0.17, moving: 0.07 }),
+    Object.freeze({ name: "frequency", frequency: 0.38, recency: 0.16, transition: 0.10, machine: 0.08, gap: 0.04, classification: 0.17, moving: 0.07 }),
+    Object.freeze({ name: "relationship", frequency: 0.16, recency: 0.16, transition: 0.20, machine: 0.07, gap: 0.04, classification: 0.27, moving: 0.10 })
 ]);
 
 function normalizeCustomRangeV2(rows, property) {
@@ -2188,7 +2199,9 @@ function rankCustomRangeV2(history, context, profile) {
         recency: 0,
         transition: 0,
         machine: 0,
-        gap: 0
+        gap: 0,
+        classification: 0,
+        moving: 0
     }));
     const scoreByNumber = Object.fromEntries(rows.map(row => [row.number, row]));
     const signalNumbers = [
@@ -2227,6 +2240,22 @@ function rankCustomRangeV2(history, context, profile) {
         );
     });
 
+    signalNumbers.forEach(source => {
+        const classification = MODERN_CLASSIFICATION_CHART[source];
+        if (classification) {
+            Object.values(classification).forEach(target => {
+                if (target >= 1 && target <= 90) {
+                    scoreByNumber[target].classification += 1;
+                }
+            });
+        }
+        (MODERN_MOVING_GRAPH[source] || []).forEach(target => {
+            if (target >= 1 && target <= 90) {
+                scoreByNumber[target].moving += 1;
+            }
+        });
+    });
+
     context.forEach((result, index) => {
         const boost = Math.max(0.8, 2.2 - (index * 0.25));
         parsePredictionNumbers(result.winning).forEach(number => {
@@ -2237,7 +2266,7 @@ function rankCustomRangeV2(history, context, profile) {
         });
     });
 
-    ["frequency", "recency", "transition", "machine", "gap"]
+    ["frequency", "recency", "transition", "machine", "gap", "classification", "moving"]
         .forEach(property => normalizeCustomRangeV2(rows, property));
 
     rows.forEach(row => {
@@ -2246,7 +2275,9 @@ function rankCustomRangeV2(history, context, profile) {
             (row.recency * profile.recency) +
             (row.transition * profile.transition) +
             (row.machine * profile.machine) +
-            (row.gap * profile.gap);
+            (row.gap * profile.gap) +
+            (row.classification * profile.classification) +
+            (row.moving * profile.moving);
     });
 
     return rows.sort((left, right) =>
@@ -2313,6 +2344,8 @@ function calculateCustomRangeV2Prediction(history, context, fallback) {
     topNumbers.forEach(number => {
         scoreMap[number] = {
             ...scoreMap[number],
+            classificationScoreNormalized: v2ByNumber[number].classification,
+            movingScoreNormalized: v2ByNumber[number].moving,
             totalScore: v2ByNumber[number].totalScore
         };
     });
@@ -2495,8 +2528,9 @@ async function displayNextGamePrediction() {
         if (savedPrediction && nextGameDrawTime) {
             const profile = String(savedPrediction.engine_profile || "balanced")
                 .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
+            const engineVersion = String(savedPrediction.engine_version || "v2").toUpperCase();
             nextGameDrawTime.textContent =
-                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Saved V2 (${profile})`;
+                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Saved ${engineVersion} (${profile})`;
         }
 
 
@@ -2787,8 +2821,9 @@ async function displayGhanaPrediction() {
         if (savedPrediction && ghanaGameDrawTime) {
             const profile = String(savedPrediction.engine_profile || "balanced")
                 .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
+            const engineVersion = String(savedPrediction.engine_version || "v2").toUpperCase();
             ghanaGameDrawTime.textContent =
-                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Saved V2 (${profile})`;
+                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Saved ${engineVersion} (${profile})`;
         }
 
 
