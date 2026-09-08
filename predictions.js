@@ -886,7 +886,10 @@ function updateCountdown(
 // FETCH HISTORICAL RESULTS
 // =========================================================
 
-async function fetchPredictionHistory(game) {
+async function fetchPredictionHistory(
+    game,
+    dateRange = predictionDateRange
+) {
 
     if (!game) {
         return [];
@@ -933,12 +936,12 @@ async function fetchPredictionHistory(game) {
 
         }
 
-        if (predictionDateRange.from) {
-            query = query.gte("draw_date", predictionDateRange.from);
+        if (dateRange.from) {
+            query = query.gte("draw_date", dateRange.from);
         }
 
-        if (predictionDateRange.to) {
-            query = query.lte("draw_date", predictionDateRange.to);
+        if (dateRange.to) {
+            query = query.lte("draw_date", dateRange.to);
         }
 
 
@@ -2108,7 +2111,7 @@ function getLotteryDisplayName(
 // =========================================================
 
 async function fetchSavedPrediction(game) {
-    if (!game || predictionDateRange.from || predictionDateRange.to) return null;
+    if (!game) return null;
 
     try {
         const { data, error } = await supabaseClient
@@ -2378,30 +2381,27 @@ function calculateCustomRangeV2Prediction(history, context, fallback) {
     };
     const v2Ranking = rankCustomRangeV2(history, context, selected.profile);
     const topNumbers = selectCustomRangeV2Top(v2Ranking, context).map(item => item.number);
-    const v2ByNumber = Object.fromEntries(v2Ranking.map(item => [item.number, item]));
     const scoreMap = { ...fallback.scoreMap };
 
-    topNumbers.forEach(number => {
-        scoreMap[number] = {
-            ...scoreMap[number],
-            classificationScoreNormalized: v2ByNumber[number].classification,
-            movingScoreNormalized: v2ByNumber[number].moving,
-            totalScore: v2ByNumber[number].totalScore
+    v2Ranking.forEach(item => {
+        scoreMap[item.number] = {
+            ...scoreMap[item.number],
+            classificationScoreNormalized: item.classification,
+            movingScoreNormalized: item.moving,
+            totalScore: item.totalScore
         };
     });
 
-    const rankedTop = topNumbers.map(number => ({
-        ...scoreMap[number],
-        number,
-        totalScore: v2ByNumber[number].totalScore
+    const rankedData = v2Ranking.map(item => ({
+        ...scoreMap[item.number],
+        number: item.number,
+        totalScore: item.totalScore
     }));
-    const remainder = fallback.rankedData
-        .filter(item => !topNumbers.includes(Number(item.number)));
 
     return {
         ...fallback,
         predictedNumbers: [...topNumbers].sort((left, right) => left - right),
-        rankedData: [...rankedTop, ...remainder],
+        rankedData,
         scoreMap,
         v2Profile: selected.profile.name,
         v2BacktestDraws: selected.draws,
@@ -2420,6 +2420,171 @@ function customRangeV2Label(predictionData) {
     return tested > 0
         ? `Custom V2 ${profile} • ${tested} tests`
         : `Custom V2 ${profile} • short range`;
+}
+
+
+function getDateRangeConsensusWeight(rangeHistory, baselineHistory) {
+    const drawCount = rangeHistory.length;
+    let weight = drawCount < 5
+        ? 0.10
+        : drawCount < 12
+            ? 0.20
+            : 0.30;
+
+    const latestRangeDate = Date.parse(rangeHistory[0]?.draw_date || "");
+    const latestBaselineDate = Date.parse(baselineHistory[0]?.draw_date || "");
+
+    if (
+        Number.isFinite(latestRangeDate)
+        &&
+        Number.isFinite(latestBaselineDate)
+    ) {
+        const ageInDays = Math.max(
+            0,
+            (latestBaselineDate - latestRangeDate) / 86400000
+        );
+
+        if (ageInDays <= 7 && drawCount >= 5) {
+            weight += 0.10;
+        }
+        else if (ageInDays > 30) {
+            weight = Math.min(weight, 0.10);
+        }
+    }
+
+    return Math.max(0.10, Math.min(0.40, weight));
+}
+
+function predictionRankScores(predictionData) {
+    const ranking = Array.isArray(predictionData?.rankedData)
+        ? predictionData.rankedData
+        : [];
+    const denominator = Math.max(ranking.length - 1, 1);
+
+    return new Map(
+        ranking.map((item, index) => [
+            Number(item.number),
+            ((ranking.length - 1 - index) / denominator) * 100
+        ])
+    );
+}
+
+function calculateDateRangeConsensusPrediction(
+    normalPrediction,
+    rangePrediction,
+    rangeHistory,
+    baselineHistory,
+    context
+) {
+    const rangeWeight = getDateRangeConsensusWeight(
+        rangeHistory,
+        baselineHistory
+    );
+    const normalWeight = 1 - rangeWeight;
+    const normalScores = predictionRankScores(normalPrediction);
+    const rangeScores = predictionRankScores(rangePrediction);
+    const normalTopFive = new Set(
+        normalPrediction.rankedData.slice(0, 5).map(item => Number(item.number))
+    );
+    const rangeTopFive = new Set(
+        rangePrediction.rankedData.slice(0, 5).map(item => Number(item.number))
+    );
+    const normalTopFifteen = new Set(
+        normalPrediction.rankedData.slice(0, 15).map(item => Number(item.number))
+    );
+    const rangeTopFifteen = new Set(
+        rangePrediction.rankedData.slice(0, 15).map(item => Number(item.number))
+    );
+    const normalByNumber = new Map(
+        normalPrediction.rankedData.map(item => [Number(item.number), item])
+    );
+    const rangeByNumber = new Map(
+        rangePrediction.rankedData.map(item => [Number(item.number), item])
+    );
+
+    const consensusRanking = Array.from({ length: 90 }, (_, index) => {
+        const number = index + 1;
+        const normalRankScore = normalScores.get(number) || 0;
+        const rangeRankScore = rangeScores.get(number) || 0;
+        const agreementBonus =
+            normalTopFive.has(number) && rangeTopFive.has(number)
+                ? 12
+                : normalTopFifteen.has(number) && rangeTopFifteen.has(number)
+                    ? 6
+                    : 0;
+        const normalItem = normalByNumber.get(number) || {};
+        const rangeItem = rangeByNumber.get(number) || {};
+
+        return {
+            ...normalItem,
+            number,
+            classificationScoreNormalized:
+                (Number(normalItem.classificationScoreNormalized || 0) * normalWeight)
+                +
+                (Number(rangeItem.classificationScoreNormalized || 0) * rangeWeight),
+            movingScoreNormalized:
+                (Number(normalItem.movingScoreNormalized || 0) * normalWeight)
+                +
+                (Number(rangeItem.movingScoreNormalized || 0) * rangeWeight),
+            totalScore:
+                (normalRankScore * normalWeight)
+                +
+                (rangeRankScore * rangeWeight)
+                +
+                agreementBonus
+        };
+    }).sort((left, right) =>
+        right.totalScore !== left.totalScore
+            ? right.totalScore - left.totalScore
+            : left.number - right.number
+    );
+
+    const normalAnchors = consensusRanking
+        .filter(item => normalTopFive.has(item.number))
+        .slice(0, 3);
+    const anchorNumbers = new Set(
+        normalAnchors.map(item => item.number)
+    );
+    const consensusWithAnchors = [
+        ...normalAnchors,
+        ...consensusRanking.filter(item => !anchorNumbers.has(item.number))
+    ];
+    const selected = selectCustomRangeV2Top(
+        consensusWithAnchors,
+        context
+    );
+    const selectedNumbers = selected.map(item => item.number);
+    const rankedData = [
+        ...selected,
+        ...consensusRanking.filter(item => !selectedNumbers.includes(item.number))
+    ];
+    const scoreMap = Object.fromEntries(
+        rankedData.map(item => [item.number, item])
+    );
+    const overlap = selectedNumbers.filter(number =>
+        normalTopFive.has(number)
+    ).length;
+
+    return {
+        ...normalPrediction,
+        predictedNumbers: [...selectedNumbers].sort((left, right) => left - right),
+        rankedData,
+        scoreMap,
+        v2Profile: rangePrediction.v2Profile,
+        v2BacktestDraws: rangePrediction.v2BacktestDraws,
+        v2BacktestHitRate: rangePrediction.v2BacktestHitRate,
+        consensusRangeWeight: rangeWeight,
+        consensusOverlap: overlap
+    };
+}
+
+function dateRangeConsensusLabel(predictionData) {
+    const rangePercent = Math.round(
+        Number(predictionData?.consensusRangeWeight || 0) * 100
+    );
+    const overlap = Number(predictionData?.consensusOverlap || 0);
+
+    return `V2.2 Consensus • ${100 - rangePercent}% main + ${rangePercent}% range • ${overlap}/5 aligned`;
 }
 
 // =========================================================
@@ -2498,10 +2663,20 @@ async function displayNextGamePrediction() {
 
     try {
 
-        const [history, todayResults, savedPrediction] = await Promise.all([
+        const customRangeActive = hasCustomPredictionRange();
+
+        const [
+            history,
+            todayResults,
+            savedPrediction,
+            baselineHistory
+        ] = await Promise.all([
             fetchPredictionHistory(nextGame),
             fetchTodaysEarlierResults(nextGame),
-            fetchSavedPrediction(nextGame)
+            fetchSavedPrediction(nextGame),
+            customRangeActive
+                ? fetchPredictionHistory(nextGame, { from: "", to: "" })
+                : Promise.resolve([])
         ]);
 
 
@@ -2553,19 +2728,46 @@ async function displayNextGamePrediction() {
                 true
             );
 
-        const predictionData =
-            savedPrediction
-                ? hydrateSavedPrediction(savedPrediction, livePrediction)
-                : hasCustomPredictionRange()
-                    ? calculateCustomRangeV2Prediction(history, todayResults, livePrediction)
-                    : livePrediction;
+        let predictionData;
 
-        if (hasCustomPredictionRange() && nextGameDrawTime) {
-            nextGameDrawTime.textContent =
-                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • ${customRangeV2Label(predictionData)}`;
+        if (customRangeActive) {
+            const normalHistory = baselineHistory.length
+                ? baselineHistory
+                : history;
+            const normalLivePrediction = calculateStatisticalPrediction(
+                normalHistory,
+                todayResults,
+                true
+            );
+            const normalPrediction = savedPrediction
+                ? hydrateSavedPrediction(savedPrediction, normalLivePrediction)
+                : normalLivePrediction;
+            const rangePrediction = calculateCustomRangeV2Prediction(
+                history,
+                todayResults,
+                livePrediction
+            );
+
+            predictionData = calculateDateRangeConsensusPrediction(
+                normalPrediction,
+                rangePrediction,
+                history,
+                normalHistory,
+                todayResults
+            );
+        }
+        else {
+            predictionData = savedPrediction
+                ? hydrateSavedPrediction(savedPrediction, livePrediction)
+                : livePrediction;
         }
 
-        if (savedPrediction && nextGameDrawTime) {
+        if (customRangeActive && nextGameDrawTime) {
+            nextGameDrawTime.textContent =
+                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • ${dateRangeConsensusLabel(predictionData)}`;
+        }
+
+        if (savedPrediction && !customRangeActive && nextGameDrawTime) {
             const profile = String(savedPrediction.engine_profile || "balanced")
                 .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
             const engineVersion = String(savedPrediction.engine_version || "v2").toUpperCase();
