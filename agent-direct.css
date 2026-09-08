@@ -205,12 +205,18 @@
     }
 
     .agent-image-panel {
-        min-height: 0;
-        aspect-ratio: 16 / 10;
+        width: 100%;
+        height: clamp(320px, 92vw, 460px);
+        min-height: 320px;
+        aspect-ratio: auto;
     }
 
     .agent-image-panel img {
-        object-position: center 30%;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-position: center 22%;
     }
 
     .agent-details-panel {
