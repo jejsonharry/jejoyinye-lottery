@@ -1483,6 +1483,419 @@ const RESULTS_SHARE_URL =
     "https://jolslottery.com/results?share=whatsapp-v2";
 
 
+function drawShareRoundedRect(
+    context,
+    x,
+    y,
+    width,
+    height,
+    radius
+) {
+    const safeRadius =
+        Math.min(radius, width / 2, height / 2);
+
+    context.beginPath();
+    context.moveTo(x + safeRadius, y);
+    context.lineTo(x + width - safeRadius, y);
+    context.quadraticCurveTo(
+        x + width,
+        y,
+        x + width,
+        y + safeRadius
+    );
+    context.lineTo(
+        x + width,
+        y + height - safeRadius
+    );
+    context.quadraticCurveTo(
+        x + width,
+        y + height,
+        x + width - safeRadius,
+        y + height
+    );
+    context.lineTo(x + safeRadius, y + height);
+    context.quadraticCurveTo(
+        x,
+        y + height,
+        x,
+        y + height - safeRadius
+    );
+    context.lineTo(x, y + safeRadius);
+    context.quadraticCurveTo(x, y, x + safeRadius, y);
+    context.closePath();
+}
+
+
+function loadResultShareLogo() {
+    return new Promise(function (resolve, reject) {
+        const image = new Image();
+
+        image.onload = function () {
+            resolve(image);
+        };
+
+        image.onerror = function () {
+            reject(
+                new Error("Share logo could not be loaded.")
+            );
+        };
+
+        image.src =
+            "/Images/jols-logo.png";
+    });
+}
+
+
+function drawResultShareNumbers(
+    context,
+    numbers,
+    startX,
+    centerY,
+    colour
+) {
+    numbers.slice(0, 5).forEach(
+        function (number, index) {
+            const centerX =
+                startX + (index * 91);
+
+            context.fillStyle =
+                "rgba(255,255,255,0.10)";
+
+            context.beginPath();
+            context.arc(
+                centerX,
+                centerY,
+                35,
+                0,
+                Math.PI * 2
+            );
+            context.fill();
+
+            context.strokeStyle =
+                colour;
+            context.lineWidth =
+                4;
+            context.stroke();
+
+            context.fillStyle =
+                "#ffffff";
+            context.font =
+                "800 28px Arial, sans-serif";
+            context.textAlign =
+                "center";
+            context.textBaseline =
+                "middle";
+            context.fillText(
+                String(number).padStart(2, "0"),
+                centerX,
+                centerY + 1
+            );
+        }
+    );
+}
+
+
+async function createResultShareFile({
+    game,
+    lottery,
+    date,
+    winning,
+    machine
+}) {
+    const canvas =
+        document.createElement("canvas");
+
+    canvas.width =
+        1200;
+    canvas.height =
+        630;
+
+    const context =
+        canvas.getContext("2d");
+
+    if (!context) {
+        throw new Error(
+            "Result card canvas is unavailable."
+        );
+    }
+
+    const background =
+        context.createLinearGradient(
+            0,
+            0,
+            1200,
+            630
+        );
+
+    background.addColorStop(
+        0,
+        "#031d2a"
+    );
+    background.addColorStop(
+        0.55,
+        "#063f38"
+    );
+    background.addColorStop(
+        1,
+        "#0b6b45"
+    );
+
+    context.fillStyle =
+        background;
+    context.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    const gold =
+        context.createLinearGradient(
+            0,
+            0,
+            1200,
+            0
+        );
+
+    gold.addColorStop(
+        0,
+        "#d99a16"
+    );
+    gold.addColorStop(
+        0.5,
+        "#ffd76a"
+    );
+    gold.addColorStop(
+        1,
+        "#d99a16"
+    );
+
+    context.fillStyle =
+        gold;
+    context.fillRect(
+        0,
+        0,
+        1200,
+        12
+    );
+
+    drawShareRoundedRect(
+        context,
+        65,
+        76,
+        320,
+        430,
+        38
+    );
+    context.fillStyle =
+        "rgba(255,255,255,0.08)";
+    context.fill();
+    context.strokeStyle =
+        "rgba(255,255,255,0.20)";
+    context.lineWidth =
+        2;
+    context.stroke();
+
+    try {
+        const logo =
+            await loadResultShareLogo();
+
+        context.drawImage(
+            logo,
+            100,
+            120,
+            250,
+            250
+        );
+    }
+    catch (error) {
+        console.warn(
+            "Result share logo unavailable:",
+            error
+        );
+    }
+
+    context.fillStyle =
+        "#f5c451";
+    context.font =
+        "800 22px Arial, sans-serif";
+    context.textAlign =
+        "center";
+    context.textBaseline =
+        "alphabetic";
+    context.fillText(
+        "JEJOYINYE",
+        225,
+        420
+    );
+
+    context.fillStyle =
+        "#ffffff";
+    context.font =
+        "700 17px Arial, sans-serif";
+    context.fillText(
+        "LOTTERY SERVICES",
+        225,
+        449
+    );
+
+    context.fillStyle =
+        "rgba(255,255,255,0.72)";
+    context.font =
+        "600 16px Arial, sans-serif";
+    context.fillText(
+        "jolslottery.com",
+        225,
+        480
+    );
+
+    context.textAlign =
+        "left";
+
+    context.fillStyle =
+        "#f5c451";
+    context.font =
+        "800 22px Arial, sans-serif";
+    context.fillText(
+        String(lottery).toUpperCase(),
+        445,
+        112
+    );
+
+    context.fillStyle =
+        "#ffffff";
+    context.font =
+        "800 48px Arial, sans-serif";
+
+    const resultTitle =
+        `${String(game).toUpperCase()} RESULT`;
+
+    context.fillText(
+        resultTitle.length > 28
+            ? resultTitle.slice(0, 28)
+            : resultTitle,
+        445,
+        177
+    );
+
+    context.fillStyle =
+        "#d9eee7";
+    context.font =
+        "600 22px Arial, sans-serif";
+    context.fillText(
+        `Draw Date: ${date}`,
+        445,
+        219
+    );
+
+    context.fillStyle =
+        "#56d88a";
+    context.font =
+        "800 22px Arial, sans-serif";
+    context.fillText(
+        "WINNING NUMBERS",
+        445,
+        277
+    );
+
+    drawResultShareNumbers(
+        context,
+        String(winning).split("-").filter(Boolean),
+        480,
+        331,
+        "#42d37c"
+    );
+
+    if (machine) {
+        context.fillStyle =
+            "#ff7878";
+        context.font =
+            "800 22px Arial, sans-serif";
+        context.textAlign =
+            "left";
+        context.fillText(
+            "MACHINE NUMBERS",
+            445,
+            407
+        );
+
+        drawResultShareNumbers(
+            context,
+            String(machine).split("-").filter(Boolean),
+            480,
+            461,
+            "#ff6b6b"
+        );
+    }
+    else {
+        context.fillStyle =
+            "rgba(255,255,255,0.70)";
+        context.font =
+            "600 20px Arial, sans-serif";
+        context.textAlign =
+            "left";
+        context.fillText(
+            "Official winning numbers published",
+            445,
+            449
+        );
+    }
+
+    context.fillStyle =
+        "rgba(255,255,255,0.68)";
+    context.font =
+        "500 17px Arial, sans-serif";
+    context.textAlign =
+        "left";
+    context.fillText(
+        "Official result update • Play responsibly",
+        445,
+        559
+    );
+
+    context.textAlign =
+        "right";
+    context.fillStyle =
+        "#f5c451";
+    context.font =
+        "800 20px Arial, sans-serif";
+    context.fillText(
+        "jolslottery.com",
+        1135,
+        559
+    );
+
+    const blob =
+        await new Promise(function (resolve) {
+            canvas.toBlob(
+                resolve,
+                "image/png",
+                0.96
+            );
+        });
+
+    if (!blob) {
+        throw new Error(
+            "Result card image could not be created."
+        );
+    }
+
+    const safeGame =
+        String(game)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "");
+
+    return new File(
+        [blob],
+        `${safeGame || "lottery"}-result.png`,
+        {
+            type: "image/png"
+        }
+    );
+}
+
+
 async function sharePublishedResult(
     button
 ) {
@@ -1539,14 +1952,76 @@ async function sharePublishedResult(
     const text =
         lines.join("\n");
 
+    const originalLabel =
+        button.textContent;
+
+    button.disabled =
+        true;
+    button.textContent =
+        "Preparing...";
+
+    let delayedLabelReset =
+        false;
+
     try {
+
+        if (
+            navigator.share
+            &&
+            navigator.canShare
+            &&
+            typeof File !== "undefined"
+        ) {
+            try {
+                const resultFile =
+                    await createResultShareFile({
+                        game,
+                        lottery,
+                        date,
+                        winning,
+                        machine
+                    });
+
+                if (
+                    navigator.canShare({
+                        files: [resultFile]
+                    })
+                ) {
+                    await navigator.share({
+                        files: [resultFile],
+                        title:
+                            `${game} Lottery Result`,
+                        text:
+                            `${text}\n${shareUrl}`
+                    });
+
+                    return;
+                }
+            }
+            catch (imageShareError) {
+                if (
+                    imageShareError
+                    &&
+                    imageShareError.name === "AbortError"
+                ) {
+                    return;
+                }
+
+                console.warn(
+                    "RESULT IMAGE SHARE FALLBACK:",
+                    imageShareError
+                );
+            }
+        }
 
         if (navigator.share) {
 
             await navigator.share({
-                title: `${game} Lottery Result`,
+                title:
+                    `${game} Lottery Result`,
                 text,
-                url: shareUrl
+                url:
+                    shareUrl
             });
 
             return;
@@ -1556,11 +2031,11 @@ async function sharePublishedResult(
             `${text}\n${shareUrl}`
         );
 
-        const originalLabel =
-            button.textContent;
-
         button.textContent =
             "Copied!";
+
+        delayedLabelReset =
+            true;
 
         setTimeout(
             function () {
@@ -1573,7 +2048,8 @@ async function sharePublishedResult(
     } catch (error) {
 
         if (
-            error &&
+            error
+            &&
             error.name === "AbortError"
         ) {
             return;
@@ -1584,8 +2060,16 @@ async function sharePublishedResult(
             error
         );
     }
-}
+    finally {
+        button.disabled =
+            false;
 
+        if (!delayedLabelReset) {
+            button.textContent =
+                originalLabel;
+        }
+    }
+}
 
 document.addEventListener(
     "click",
