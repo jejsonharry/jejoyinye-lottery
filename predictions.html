@@ -47,6 +47,7 @@
         rel="stylesheet"
         href="style.css?v=95"
     >
+    <link rel="stylesheet" href="prediction-details.css?v=1">
 
 
     <!-- SUPABASE -->
@@ -61,7 +62,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions.js?v=28"
+        src="predictions.js?v=29"
         defer
     ></script>
 
@@ -282,6 +283,21 @@
                 Target Draw Time: --:--
             </p>
 
+            <div class="prediction-run-details" aria-label="Modern prediction details">
+                <div>
+                    <span>Engine</span>
+                    <strong id="modern-engine-version">Loading...</strong>
+                </div>
+                <div>
+                    <span>Data Period</span>
+                    <strong id="modern-data-window">Loading...</strong>
+                </div>
+                <div>
+                    <span>Generated</span>
+                    <strong id="modern-generated-time">--</strong>
+                </div>
+            </div>
+
 
             <!-- COUNTDOWN -->
 
@@ -424,6 +440,21 @@
             <p id="ghana-game-drawtime">
                 Ghana Games • Draw Time: --:--
             </p>
+
+            <div class="prediction-run-details" aria-label="Ghana prediction details">
+                <div>
+                    <span>Engine</span>
+                    <strong id="ghana-engine-version">Loading...</strong>
+                </div>
+                <div>
+                    <span>Data Period</span>
+                    <strong id="ghana-data-window">Loading...</strong>
+                </div>
+                <div>
+                    <span>Generated</span>
+                    <strong id="ghana-generated-time">--</strong>
+                </div>
+            </div>
 
             <div class="prediction-countdown-box">
 

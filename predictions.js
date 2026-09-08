@@ -63,6 +63,24 @@ const ghanaGameBalls =
 const ghanaAnalysisDrawCount =
     document.getElementById("ghana-analysis-draw-count");
 
+const modernEngineVersion =
+    document.getElementById("modern-engine-version");
+
+const modernDataWindow =
+    document.getElementById("modern-data-window");
+
+const modernGeneratedTime =
+    document.getElementById("modern-generated-time");
+
+const ghanaEngineVersion =
+    document.getElementById("ghana-engine-version");
+
+const ghanaDataWindow =
+    document.getElementById("ghana-data-window");
+
+const ghanaGeneratedTime =
+    document.getElementById("ghana-generated-time");
+
 let predictionDateRange = { from: "", to: "" };
 
 const PREDICTIONS_SHARE_URL =
@@ -517,6 +535,104 @@ function getTomorrowDateString() {
         date.getUTCMonth() + 1,
         date.getUTCDate()
     );
+}
+
+
+function formatPredictionDetailDate(dateValue) {
+
+    const value = String(dateValue || "").slice(0, 10);
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return "Unavailable";
+    }
+
+    return new Intl.DateTimeFormat(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            timeZone: "UTC"
+        }
+    ).format(new Date(`${value}T00:00:00Z`));
+}
+
+
+function getPredictionDataWindow(history) {
+
+    const dates = (Array.isArray(history) ? history : [])
+        .map(result => String(result?.draw_date || "").slice(0, 10))
+        .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date))
+        .sort();
+
+    if (!dates.length) {
+        return "No records available";
+    }
+
+    const first = formatPredictionDetailDate(dates[0]);
+    const last = formatPredictionDetailDate(dates[dates.length - 1]);
+
+    return first === last ? first : `${first} – ${last}`;
+}
+
+
+function formatPredictionGeneratedTime(value) {
+
+    const date = value ? new Date(value) : new Date();
+
+    if (Number.isNaN(date.getTime())) {
+        return "Unavailable";
+    }
+
+    return `${new Intl.DateTimeFormat(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23",
+            timeZone: "Africa/Lagos"
+        }
+    ).format(date)} WAT`;
+}
+
+
+function updatePredictionRunDetails({
+    engineElement,
+    windowElement,
+    generatedElement,
+    engineLabel,
+    history,
+    generatedAt
+}) {
+
+    if (engineElement) {
+        engineElement.textContent = engineLabel;
+    }
+
+    if (windowElement) {
+        windowElement.textContent = getPredictionDataWindow(history);
+    }
+
+    if (generatedElement) {
+        generatedElement.textContent = formatPredictionGeneratedTime(generatedAt);
+    }
+}
+
+
+function getSavedEngineLabel(snapshot, fallbackLabel) {
+
+    if (!snapshot) {
+        return fallbackLabel;
+    }
+
+    const version = String(snapshot.engine_version || "v2").toUpperCase();
+    const profile = String(snapshot.engine_profile || "balanced")
+        .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
+
+    return `${version} Saved (${profile})`;
 }
 
 
@@ -2680,6 +2796,20 @@ async function displayNextGamePrediction() {
         ]);
 
 
+        updatePredictionRunDetails({
+            engineElement: modernEngineVersion,
+            windowElement: modernDataWindow,
+            generatedElement: modernGeneratedTime,
+            engineLabel: customRangeActive
+                ? "V2.2 Consensus"
+                : getSavedEngineLabel(savedPrediction, "V2 Live"),
+            history,
+            generatedAt: customRangeActive
+                ? null
+                : savedPrediction?.generated_at
+        });
+
+
         if (
             history.length === 0
         ) {
@@ -3006,6 +3136,21 @@ async function displayGhanaPrediction() {
                 ? gameHistory
                 : allGhanaHistory;
 
+        const ghanaRangeActive =
+            hasCustomPredictionRange();
+
+        updatePredictionRunDetails({
+            engineElement: ghanaEngineVersion,
+            windowElement: ghanaDataWindow,
+            generatedElement: ghanaGeneratedTime,
+            engineLabel: getSavedEngineLabel(
+                savedPrediction,
+                ghanaRangeActive ? "Custom V2" : "V2 Live"
+            ),
+            history,
+            generatedAt: savedPrediction?.generated_at
+        });
+
         const supportingGhanaHistory =
             gameHistory.length
                 ? allGhanaHistory
@@ -3051,11 +3196,11 @@ async function displayGhanaPrediction() {
         const predictionData =
             savedPrediction
                 ? hydrateSavedPrediction(savedPrediction, livePrediction)
-                : hasCustomPredictionRange()
+                : ghanaRangeActive
                     ? calculateCustomRangeV2Prediction(history, supportingGhanaHistory, livePrediction)
                     : livePrediction;
 
-        if (hasCustomPredictionRange() && ghanaGameDrawTime) {
+        if (ghanaRangeActive && ghanaGameDrawTime) {
             ghanaGameDrawTime.textContent =
                 `Ghana Games • Draw Time: ${ghanaGame.drawTime} • ${customRangeV2Label(predictionData)}`;
         }
