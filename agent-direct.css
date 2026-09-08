@@ -21,7 +21,7 @@
 }
 
 .agent-overview-card {
-    max-width: 980px;
+    max-width: 1120px;
     margin: 0 auto;
     overflow: hidden;
     border: 1px solid #dce7df;
@@ -32,17 +32,20 @@
 
 .agent-overview-grid {
     display: grid;
-    grid-template-columns: minmax(300px, .9fr) minmax(360px, 1.1fr);
-    min-height: 430px;
+    grid-template-columns: minmax(340px, .82fr) minmax(480px, 1.18fr);
+    align-items: stretch;
 }
 
 .agent-image-panel {
-    min-height: 430px;
+    position: relative;
+    min-height: 100%;
     overflow: hidden;
     background: #e8f5eb;
 }
 
 .agent-image-panel img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     display: block;
@@ -53,8 +56,7 @@
 .agent-details-panel {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 36px 40px;
+    padding: 38px 40px 40px;
 }
 
 .agent-details-label {
@@ -66,14 +68,46 @@
 }
 
 .agent-details-panel h2 {
-    margin: 0 0 24px;
+    margin: 0 0 10px;
     color: #0f172a;
     font-size: clamp(25px, 3vw, 34px);
     line-height: 1.15;
 }
 
+.agent-details-intro {
+    margin: 0 0 18px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.agent-benefit-highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 22px;
+}
+
+.agent-benefit-highlights span {
+    padding: 6px 10px;
+    border: 1px solid #bbf7d0;
+    border-radius: 999px;
+    background: #f0fdf4;
+    color: #166534;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .02em;
+}
+
+.agent-detail-group {
+    padding: 17px 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
 .agent-detail-group + .agent-detail-group {
-    margin-top: 20px;
+    margin-top: 13px;
 }
 
 .agent-detail-group h3 {
@@ -98,6 +132,24 @@
     line-height: 1.4;
 }
 
+.agent-detail-group li strong,
+.agent-detail-group li span {
+    display: block;
+}
+
+.agent-detail-group li strong {
+    color: #1e293b;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.agent-detail-group li span {
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
 .agent-detail-group li::before {
     content: "✓";
     position: absolute;
@@ -112,6 +164,11 @@
     font-weight: 900;
     line-height: 18px;
     text-align: center;
+}
+
+.agent-requirements-group {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
 }
 
 .agent-overview-action {
@@ -132,13 +189,13 @@
     font-size: 11px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
     .agent-premium-hero {
         padding: 26px 16px;
     }
 
     .agent-page-direct {
-        width: min(100% - 24px, 980px);
+        width: min(100% - 24px, 1120px);
         padding: 20px 0 28px;
     }
 
@@ -161,11 +218,11 @@
     }
 
     .agent-details-panel h2 {
-        margin-bottom: 19px;
+        margin-bottom: 10px;
     }
 
     .agent-detail-group + .agent-detail-group {
-        margin-top: 16px;
+        margin-top: 12px;
     }
 
     .agent-overview-action {
