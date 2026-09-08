@@ -229,7 +229,9 @@ const DATABASE_BATCH_SIZE = 1000;
 
 const DEFAULT_RESULTS_LOOKBACK_DAYS = 45;
 
-let currentPage = 1;
+let modernCurrentPage = 1;
+
+let ghanaCurrentPage = 1;
 
 let allFilteredResults = [];
 
@@ -2184,22 +2186,35 @@ document.addEventListener(
 // =========================================================
 
 function createPagination(
-    totalPages
+    totalPages,
+    page,
+    lottery
 ) {
+
+    const paginationKey =
+        lottery === "ghana"
+            ? "ghana"
+            : "modern";
+
+    const paginationLabel =
+        lottery === "ghana"
+            ? "Ghana results pages"
+            : "Modern Billionaire results pages";
 
 
     return `
 
         <div
-            class="results-pagination"
+            class="results-pagination results-pagination-${paginationKey}"
             style="grid-column:1/-1;"
+            aria-label="${paginationLabel}"
         >
 
             <button
                 type="button"
-                id="previous-results-page"
+                id="previous-${paginationKey}-results-page"
                 ${
-                    currentPage <= 1
+                    page <= 1
                         ? "disabled"
                         : ""
                 }
@@ -2215,16 +2230,16 @@ function createPagination(
                     color:#475569;
                 "
             >
-                Page ${currentPage}
+                Page ${page}
                 of ${totalPages}
             </span>
 
 
             <button
                 type="button"
-                id="next-results-page"
+                id="next-${paginationKey}-results-page"
                 ${
-                    currentPage >=
+                    page >=
                     totalPages
                         ? "disabled"
                         : ""
@@ -2245,7 +2260,8 @@ function createPagination(
 
 function createLotteryResultsGroup(
     results,
-    lottery
+    lottery,
+    pagination
 ) {
 
     if (
@@ -2301,6 +2317,8 @@ function createLotteryResultsGroup(
                     .join("")}
 
             </div>
+
+            ${pagination}
 
         </section>
 
@@ -2377,41 +2395,69 @@ function renderCurrentPage() {
         );
 
 
-    const totalPages =
+    const modernTotalPages =
         Math.max(
             1,
             Math.ceil(
                 allModernResults.length /
                 RESULTS_PER_LOTTERY_PAGE
-            ),
+            )
+        );
+
+    const ghanaTotalPages =
+        Math.max(
+            1,
             Math.ceil(
                 allGhanaResults.length /
                 RESULTS_PER_LOTTERY_PAGE
             )
         );
 
-
     if (
-        currentPage >
-        totalPages
+        modernCurrentPage >
+        modernTotalPages
     ) {
 
-        currentPage =
-            totalPages;
+        modernCurrentPage =
+            modernTotalPages;
     }
 
 
     if (
-        currentPage < 1
+        modernCurrentPage < 1
     ) {
 
-        currentPage = 1;
+        modernCurrentPage = 1;
+    }
+
+    if (
+        ghanaCurrentPage >
+        ghanaTotalPages
+    ) {
+
+        ghanaCurrentPage =
+            ghanaTotalPages;
     }
 
 
-    const startIndex =
+    if (
+        ghanaCurrentPage < 1
+    ) {
+
+        ghanaCurrentPage = 1;
+    }
+
+
+    const modernStartIndex =
         (
-            currentPage -
+            modernCurrentPage -
+            1
+        ) *
+        RESULTS_PER_LOTTERY_PAGE;
+
+    const ghanaStartIndex =
+        (
+            ghanaCurrentPage -
             1
         ) *
         RESULTS_PER_LOTTERY_PAGE;
@@ -2419,16 +2465,16 @@ function renderCurrentPage() {
 
     const modernResults =
         allModernResults.slice(
-            startIndex,
-            startIndex +
+            modernStartIndex,
+            modernStartIndex +
                 RESULTS_PER_LOTTERY_PAGE
         );
 
 
     const ghanaResults =
         allGhanaResults.slice(
-            startIndex,
-            startIndex +
+            ghanaStartIndex,
+            ghanaStartIndex +
                 RESULTS_PER_LOTTERY_PAGE
         );
 
@@ -2437,83 +2483,136 @@ function renderCurrentPage() {
 
         createLotteryResultsGroup(
             modernResults,
-            "modern-billionaire"
+            "modern-billionaire",
+            createPagination(
+                modernTotalPages,
+                modernCurrentPage,
+                "modern-billionaire"
+            )
         )
 
         +
 
         createLotteryResultsGroup(
             ghanaResults,
-            "ghana"
-        )
-
-        +
-
-        createPagination(
-            totalPages
+            "ghana",
+            createPagination(
+                ghanaTotalPages,
+                ghanaCurrentPage,
+                "ghana"
+            )
         );
 
 
     if (resultsDateLabel) {
 
-        const displayedResults =
-            modernResults.length +
-            ghanaResults.length;
-
-
         resultsDateLabel.textContent =
-            `Page ${currentPage}: ${
-                displayedResults
-            } results (${modernResults.length} Modern, ${ghanaResults.length} Ghana)`;
+            `${modernResults.length} Modern (page ${modernCurrentPage}/${modernTotalPages}) • ${ghanaResults.length} Ghana (page ${ghanaCurrentPage}/${ghanaTotalPages})`;
     }
 
 
-    const previousButton =
+    const previousModernButton =
         document.getElementById(
-            "previous-results-page"
+            "previous-modern-results-page"
         );
 
 
-    const nextButton =
+    const nextModernButton =
         document.getElementById(
-            "next-results-page"
+            "next-modern-results-page"
         );
 
+    const previousGhanaButton =
+        document.getElementById(
+            "previous-ghana-results-page"
+        );
 
-    previousButton
+    const nextGhanaButton =
+        document.getElementById(
+            "next-ghana-results-page"
+        );
+
+    previousModernButton
         ?.addEventListener(
             "click",
             function () {
 
                 if (
-                    currentPage > 1
+                    modernCurrentPage > 1
                 ) {
 
-                    currentPage--;
+                    modernCurrentPage--;
 
                     renderCurrentPage();
 
-                    scrollToResults();
+                    scrollToLotteryResults(
+                        "modern-billionaire"
+                    );
                 }
             }
         );
 
 
-    nextButton
+    nextModernButton
         ?.addEventListener(
             "click",
             function () {
 
                 if (
-                    currentPage <
-                    totalPages
+                    modernCurrentPage <
+                    modernTotalPages
                 ) {
 
-                    currentPage++;
+                    modernCurrentPage++;
 
                     renderCurrentPage();
 
-                    scrollToResults();
+                    scrollToLotteryResults(
+                        "modern-billionaire"
+                    );
+                }
+            }
+        );
+
+
+    previousGhanaButton
+        ?.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    ghanaCurrentPage > 1
+                ) {
+
+                    ghanaCurrentPage--;
+
+                    renderCurrentPage();
+
+                    scrollToLotteryResults(
+                        "ghana"
+                    );
+                }
+            }
+        );
+
+
+    nextGhanaButton
+        ?.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    ghanaCurrentPage <
+                    ghanaTotalPages
+                ) {
+
+                    ghanaCurrentPage++;
+
+                    renderCurrentPage();
+
+                    scrollToLotteryResults(
+                        "ghana"
+                    );
                 }
             }
         );
@@ -2549,6 +2648,28 @@ function scrollToResults() {
                     "start"
             }
         );
+    }
+}
+
+
+function scrollToLotteryResults(
+    lottery
+) {
+
+    const selector =
+        lottery === "ghana"
+            ? ".ghana-results-group"
+            : ".modern-results-group";
+
+    const group =
+        resultsContainer
+            ?.querySelector(selector);
+
+    if (group) {
+        group.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     }
 }
 
@@ -2640,7 +2761,8 @@ async function displayResults() {
             );
 
 
-        currentPage = 1;
+        modernCurrentPage = 1;
+        ghanaCurrentPage = 1;
 
 
         renderCurrentPage();
@@ -3902,7 +4024,8 @@ resetButton
             }
 
 
-            currentPage = 1;
+            modernCurrentPage = 1;
+            ghanaCurrentPage = 1;
             displayResults();
         }
     );

@@ -146,6 +146,35 @@
     margin-top: 13px;
 }
 
+.lottery-results-group > .results-pagination {
+    margin: 12px 0 0 !important;
+    padding: 9px 8px !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.ghana-results-group > .results-pagination {
+    border-color: #f2d58d;
+    background: #fffbeb;
+}
+
+.ghana-results-group > .results-pagination span {
+    color: #8a5b00 !important;
+}
+
+.modern-results-group > .results-pagination {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+
+.lottery-results-group > .results-pagination button {
+    min-height: 34px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    font-size: 10px;
+}
+
 @media (max-width: 700px) {
     .results-hero {
         padding-top: 28px !important;
@@ -208,6 +237,26 @@
     .result-player-actions small {
         font-size: 6px;
         white-space: normal;
+    }
+
+    .lottery-results-group > .results-pagination {
+        display: grid !important;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 5px;
+        margin-top: 7px !important;
+        padding: 6px 5px !important;
+    }
+
+    .lottery-results-group > .results-pagination span {
+        padding: 6px 4px !important;
+        font-size: 8px;
+        white-space: nowrap;
+    }
+
+    .lottery-results-group > .results-pagination button {
+        min-height: 28px;
+        padding: 5px 7px;
+        font-size: 8px;
     }
 }
 
