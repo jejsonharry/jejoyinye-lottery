@@ -948,7 +948,7 @@ function parseBundledGhanaResults(csvText) {
 async function fetchBundledGhanaResults() {
     if (!bundledGhanaResultsPromise) {
         bundledGhanaResultsPromise =
-            fetch("data/ghana-history.csv?v=3", {
+            fetch("data/ghana-history.csv?v=4", {
                 cache: "no-cache"
             })
                 .then(response => {
