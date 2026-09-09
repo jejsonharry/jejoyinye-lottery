@@ -50,6 +50,18 @@
     .online-primary-btn{background:linear-gradient(180deg,#28c963,#11863f);color:#fff;border:1px solid rgba(187,247,208,.7);box-shadow:0 10px 22px rgba(22,163,74,.28)}
     .online-secondary-btn{background:linear-gradient(180deg,#f7c948,#d9a91e);color:#172033;border:1px solid rgba(255,255,255,.25);box-shadow:0 10px 22px rgba(0,0,0,.16)}
     .online-primary-btn:hover,.online-secondary-btn:hover{transform:translateY(-2px)}
+    .online-promo{display:grid;grid-template-columns:minmax(280px,430px) 1fr;gap:38px;align-items:center;margin-top:32px;padding:32px;border:1px solid #d8e5dd;border-radius:26px;background:linear-gradient(145deg,#fff 0%,#f0fdf4 100%);box-shadow:0 18px 45px rgba(15,23,42,.08)}
+    .online-promo-poster{display:block;overflow:hidden;border-radius:20px;background:#08733f;box-shadow:0 18px 38px rgba(5,39,24,.2);transition:transform .2s ease,box-shadow .2s ease}
+    .online-promo-poster:hover{transform:translateY(-3px);box-shadow:0 23px 44px rgba(5,39,24,.26)}
+    .online-promo-poster img{display:block;width:100%;height:auto}
+    .online-promo-label{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:900;letter-spacing:1.15px}
+    .online-promo-copy h3{margin:15px 0 12px;color:#0f172a;font-size:clamp(27px,3.5vw,40px);line-height:1.12}
+    .online-promo-copy>p{margin:0;color:#526174;font-size:16px;line-height:1.75}
+    .online-promo-code{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:24px 0;padding:18px 20px;border:1px dashed #16a34a;border-radius:15px;background:#fff}
+    .online-promo-code span{display:block;color:#64748b;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+    .online-promo-code strong{color:#0b6b3a;font-size:clamp(25px,3vw,34px);letter-spacing:2px}
+    .online-promo-copy .online-primary-btn{max-width:360px}
+    .online-promo-note{margin-top:15px!important;color:#64748b!important;font-size:12px!important;line-height:1.6!important}
     .play-online-guide{margin-top:32px;padding:34px}
     .play-online-guide-heading{max-width:700px;margin-bottom:24px}
     .play-online-guide-heading span{color:#15803d;font-size:11px;font-weight:900;letter-spacing:1.2px}
@@ -62,8 +74,8 @@
     .play-online-step p{margin:0;color:#64748b;font-size:13px;line-height:1.6}
     .responsible-play-note{margin-top:26px;padding:17px 18px;border-left:4px solid #16a34a;border-radius:10px;background:#f0fdf4;color:#334155;font-size:13px;line-height:1.65}
     .responsible-play-note strong{color:#166534}
-    @media(max-width:900px){.play-online-hero{grid-template-columns:1fr}.play-online-steps{grid-template-columns:1fr 1fr}}
-    @media(max-width:620px){.play-online-page{padding:50px 14px 65px}.play-online-copy,.play-online-actions,.play-online-guide{padding:22px}.play-online-points,.play-online-steps{grid-template-columns:1fr}}
+    @media(max-width:900px){.play-online-hero,.online-promo{grid-template-columns:1fr}.online-promo-poster{width:min(520px,100%);margin:0 auto}.play-online-steps{grid-template-columns:1fr 1fr}}
+    @media(max-width:620px){.play-online-page{padding:50px 14px 65px}.play-online-copy,.play-online-actions,.play-online-guide,.online-promo{padding:22px}.play-online-points,.play-online-steps{grid-template-columns:1fr}.online-promo{gap:25px}.online-promo-code{align-items:flex-start;flex-direction:column;gap:7px}.online-promo-copy .online-primary-btn{max-width:none}}
   </style>
 
   <link rel="canonical" href="https://jolslottery.com/play-online">
@@ -151,6 +163,42 @@
              Download Android App
           </a>
         </div>
+      </div>
+    </section>
+
+    <section class="online-promo" aria-labelledby="online-promo-title">
+      <a class="online-promo-poster"
+         href="https://m.modernlotterynigeria.com/#/pages/register/register?promotionCode=549849"
+         target="_blank"
+         rel="noopener noreferrer"
+         aria-label="Register for Modern Lottery with referral code 549849">
+        <img src="Images/modern-online-promo-549849.webp"
+             width="1130"
+             height="1392"
+             loading="lazy"
+             alt="Modern Lottery first recharge promotion with Jejoyinye referral code 549849">
+      </a>
+
+      <div class="online-promo-copy">
+        <span class="online-promo-label">ONGOING ONLINE PLAYER PROMOTION</span>
+        <h3 id="online-promo-title">Get 30% Extra On Your First Recharge</h3>
+        <p>Open your Modern Lottery player account through our registration link. Your referral code is included automatically, so you can proceed directly to registration.</p>
+
+        <div class="online-promo-code">
+          <div>
+            <span>Your referral code</span>
+            <strong>549849</strong>
+          </div>
+          <span>Included in the link</span>
+        </div>
+
+        <a href="https://m.modernlotterynigeria.com/#/pages/register/register?promotionCode=549849"
+           class="online-primary-btn"
+           target="_blank"
+           rel="noopener noreferrer">
+           Register With Code 549849
+        </a>
+        <p class="online-promo-note">You can also scan either QR code in the poster. Promotion availability and account eligibility are subject to the Modern Lottery platform's terms. Adults 18+ only.</p>
       </div>
     </section>
 
