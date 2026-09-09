@@ -185,8 +185,7 @@ async function shareGamePrediction(button) {
             ? `${activeDateRange.from || "earliest"} to ${activeDateRange.to || "latest"}`
             : "All available historical results";
 
-    const forecastLabel =
-        isGhana ? "Combined forecast" : "Statistical forecast";
+    const forecastLabel = "Fixed 30/50/20 forecast";
 
     const text = [
         `${game} Game Prediction`,
@@ -1336,22 +1335,17 @@ async function fetchTodaysEarlierResults(game) {
 
 
 // =========================================================
-// MODERN BILLIONAIRE CLASSIFICATION CHART
-// 60% statistics + 30% classification + 10% moving numbers
+// FIXED PREDICTION METHOD
+// 30% statistics + 50% classification + 20% moving numbers
 // =========================================================
 
 const MODERN_PREDICTION_WEIGHTS = Object.freeze({
-    statistical: 0.60,
-    classification: 0.30,
-    moving: 0.10
+    statistical: 0.30,
+    classification: 0.50,
+    moving: 0.20
 });
 
-const GHANA_COMBINED_WEIGHTS = Object.freeze({
-    winning: 0.50,
-    machine: 0.20,
-    classification: 0.25,
-    moving: 0.05
-});
+const FIXED_PREDICTION_ENGINE_LABEL = "Fixed 30/50/20";
 
 const MODERN_CLASSIFICATION_CATEGORY_NAMES = Object.freeze([
     "counterpart",
@@ -2278,7 +2272,8 @@ function getLotteryDisplayName(
 
 
 // =========================================================
-// SAVED PREDICTION SNAPSHOTS
+// INACTIVE V2.2 SAVED-SNAPSHOT ARCHIVE
+// Retained for possible future reactivation; no live forecast calls it.
 // =========================================================
 
 async function fetchSavedPrediction(game) {
@@ -2347,7 +2342,8 @@ function hydrateSavedPrediction(snapshot, fallback) {
 
 
 // =========================================================
-// CUSTOM DATE-RANGE V2 (UNSAVED)
+// INACTIVE V2.2 DATE-RANGE ARCHIVE
+// Retained for possible future reactivation; no live forecast calls it.
 // =========================================================
 
 const CUSTOM_RANGE_V2_PROFILES = Object.freeze([
@@ -2842,16 +2838,10 @@ async function displayNextGamePrediction() {
 
         const [
             history,
-            todayResults,
-            savedPrediction,
-            baselineHistory
+            todayResults
         ] = await Promise.all([
             fetchPredictionHistory(nextGame),
-            fetchTodaysEarlierResults(nextGame),
-            fetchSavedPrediction(nextGame),
-            customRangeActive
-                ? fetchPredictionHistory(nextGame, { from: "", to: "" })
-                : Promise.resolve([])
+            fetchTodaysEarlierResults(nextGame)
         ]);
 
 
@@ -2859,13 +2849,9 @@ async function displayNextGamePrediction() {
             engineElement: modernEngineVersion,
             windowElement: modernDataWindow,
             generatedElement: modernGeneratedTime,
-            engineLabel: customRangeActive
-                ? "V2.2 Consensus"
-                : getSavedEngineLabel(savedPrediction, "V2 Live"),
+            engineLabel: FIXED_PREDICTION_ENGINE_LABEL,
             history,
-            generatedAt: customRangeActive
-                ? null
-                : savedPrediction?.generated_at
+            generatedAt: null
         });
 
 
@@ -2910,58 +2896,17 @@ async function displayNextGamePrediction() {
         }
 
 
-        const livePrediction =
+        const predictionData =
             calculateStatisticalPrediction(
                 history,
                 todayResults,
-                true
+                true,
+                MODERN_PREDICTION_WEIGHTS
             );
-
-        let predictionData;
-
-        if (customRangeActive) {
-            const normalHistory = baselineHistory.length
-                ? baselineHistory
-                : history;
-            const normalLivePrediction = calculateStatisticalPrediction(
-                normalHistory,
-                todayResults,
-                true
-            );
-            const normalPrediction = savedPrediction
-                ? hydrateSavedPrediction(savedPrediction, normalLivePrediction)
-                : normalLivePrediction;
-            const rangePrediction = calculateCustomRangeV2Prediction(
-                history,
-                todayResults,
-                livePrediction
-            );
-
-            predictionData = calculateDateRangeConsensusPrediction(
-                normalPrediction,
-                rangePrediction,
-                history,
-                normalHistory,
-                todayResults
-            );
-        }
-        else {
-            predictionData = savedPrediction
-                ? hydrateSavedPrediction(savedPrediction, livePrediction)
-                : livePrediction;
-        }
 
         if (customRangeActive && nextGameDrawTime) {
             nextGameDrawTime.textContent =
-                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • ${dateRangeConsensusLabel(predictionData)}`;
-        }
-
-        if (savedPrediction && !customRangeActive && nextGameDrawTime) {
-            const profile = String(savedPrediction.engine_profile || "balanced")
-                .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
-            const engineVersion = String(savedPrediction.engine_version || "v2").toUpperCase();
-            nextGameDrawTime.textContent =
-                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Saved ${engineVersion} (${profile})`;
+                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Fixed 30/50/20 range`;
         }
 
 
@@ -3015,8 +2960,8 @@ async function displayNextGamePrediction() {
 
 
 // =========================================================
-// GHANA COMBINED PREDICTION
-// 50% winning + 20% machine + 25% classification + 5% moving
+// GHANA FIXED PREDICTION
+// 30% statistics + 50% classification + 20% moving numbers
 // =========================================================
 
 function calculateGhanaCombinedPrediction(
@@ -3030,6 +2975,7 @@ function calculateGhanaCombinedPrediction(
             number,
             winningScore: 0,
             machineScore: 0,
+            statisticalScore: 0,
             classificationScore: 0,
             movingScore: 0,
             totalScore: 0
@@ -3082,11 +3028,18 @@ function calculateGhanaCombinedPrediction(
     normalizePredictionComponent(scoreMap, "movingScore");
 
     Object.values(scoreMap).forEach(item => {
+        item.statisticalScore =
+            item.winningScoreNormalized +
+            item.machineScoreNormalized;
+    });
+
+    normalizePredictionComponent(scoreMap, "statisticalScore");
+
+    Object.values(scoreMap).forEach(item => {
         item.totalScore =
-            (item.winningScoreNormalized * GHANA_COMBINED_WEIGHTS.winning) +
-            (item.machineScoreNormalized * GHANA_COMBINED_WEIGHTS.machine) +
-            (item.classificationScoreNormalized * GHANA_COMBINED_WEIGHTS.classification) +
-            (item.movingScoreNormalized * GHANA_COMBINED_WEIGHTS.moving);
+            (item.statisticalScoreNormalized * MODERN_PREDICTION_WEIGHTS.statistical) +
+            (item.classificationScoreNormalized * MODERN_PREDICTION_WEIGHTS.classification) +
+            (item.movingScoreNormalized * MODERN_PREDICTION_WEIGHTS.moving);
     });
 
     const rankedNumbers =
@@ -3163,13 +3116,11 @@ async function displayGhanaPrediction() {
         const [
             databaseGameHistory,
             databaseGhanaHistory,
-            bundledGhanaHistory,
-            savedPrediction
+            bundledGhanaHistory
         ] = await Promise.all([
             fetchPredictionHistory(ghanaGame),
             fetchGhanaFallbackHistory(),
-            fetchBundledGhanaHistory(),
-            fetchSavedPrediction(ghanaGame)
+            fetchBundledGhanaHistory()
         ]);
 
         const filteredBundledGhanaHistory =
@@ -3210,16 +3161,9 @@ async function displayGhanaPrediction() {
             engineElement: ghanaEngineVersion,
             windowElement: ghanaDataWindow,
             generatedElement: ghanaGeneratedTime,
-            engineLabel: ghanaRangeActive
-                ? "Custom V2"
-                : getSavedEngineLabel(
-                    savedPrediction,
-                    "V2 Live"
-                ),
+            engineLabel: FIXED_PREDICTION_ENGINE_LABEL,
             history,
-            generatedAt: ghanaRangeActive
-                ? null
-                : savedPrediction?.generated_at
+            generatedAt: null
         });
 
         const supportingGhanaHistory =
@@ -3258,38 +3202,15 @@ async function displayGhanaPrediction() {
         }
 
 
-        const livePrediction =
+        const predictionData =
             calculateGhanaCombinedPrediction(
                 history,
                 supportingGhanaHistory
             );
 
-        const predictionData =
-            ghanaRangeActive
-                ? calculateCustomRangeV2Prediction(
-                    history,
-                    supportingGhanaHistory,
-                    livePrediction
-                )
-                : savedPrediction
-                    ? hydrateSavedPrediction(savedPrediction, livePrediction)
-                    : livePrediction;
-
         if (ghanaRangeActive && ghanaGameDrawTime) {
             ghanaGameDrawTime.textContent =
-                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • ${customRangeV2Label(predictionData)}`;
-        }
-
-        if (
-            savedPrediction &&
-            !ghanaRangeActive &&
-            ghanaGameDrawTime
-        ) {
-            const profile = String(savedPrediction.engine_profile || "balanced")
-                .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
-            const engineVersion = String(savedPrediction.engine_version || "v2").toUpperCase();
-            ghanaGameDrawTime.textContent =
-                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Saved ${engineVersion} (${profile})`;
+                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Fixed 30/50/20 range`;
         }
 
 
@@ -3594,7 +3515,7 @@ document.addEventListener(
 
             if (modernPredictionRangeStatus) {
                 modernPredictionRangeStatus.textContent = from || to
-                    ? `Modern V2.2 range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
+                    ? `Fixed 30/50/20 range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
                     : "Using all Modern history plus today's earlier Modern games.";
             }
 
@@ -3628,7 +3549,7 @@ document.addEventListener(
 
             if (ghanaPredictionRangeStatus) {
                 ghanaPredictionRangeStatus.textContent = from || to
-                    ? `Ghana V2 range: ${from || "earliest"} to ${to || "latest"}. Modern history is unchanged.`
+                    ? `Fixed 30/50/20 range: ${from || "earliest"} to ${to || "latest"}. Modern history is unchanged.`
                     : "Using all verified results for the scheduled Ghana game.";
             }
 
