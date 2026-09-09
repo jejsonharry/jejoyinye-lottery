@@ -2395,6 +2395,18 @@ function renderCurrentPage() {
         );
 
 
+    const showCompleteGhanaHistory =
+        lotteryType?.value === "ghana" &&
+        Boolean(gameSelect?.value) &&
+        Boolean(yearSelect?.value);
+
+
+    const ghanaPageSize =
+        showCompleteGhanaHistory
+            ? Math.max(1, allGhanaResults.length)
+            : RESULTS_PER_LOTTERY_PAGE;
+
+
     const modernTotalPages =
         Math.max(
             1,
@@ -2409,7 +2421,7 @@ function renderCurrentPage() {
             1,
             Math.ceil(
                 allGhanaResults.length /
-                RESULTS_PER_LOTTERY_PAGE
+                ghanaPageSize
             )
         );
 
@@ -2460,7 +2472,7 @@ function renderCurrentPage() {
             ghanaCurrentPage -
             1
         ) *
-        RESULTS_PER_LOTTERY_PAGE;
+        ghanaPageSize;
 
 
     const modernResults =
@@ -2475,7 +2487,7 @@ function renderCurrentPage() {
         allGhanaResults.slice(
             ghanaStartIndex,
             ghanaStartIndex +
-                RESULTS_PER_LOTTERY_PAGE
+                ghanaPageSize
         );
 
 
@@ -2496,18 +2508,22 @@ function renderCurrentPage() {
         createLotteryResultsGroup(
             ghanaResults,
             "ghana",
-            createPagination(
-                ghanaTotalPages,
-                ghanaCurrentPage,
-                "ghana"
-            )
+            showCompleteGhanaHistory
+                ? ""
+                : createPagination(
+                    ghanaTotalPages,
+                    ghanaCurrentPage,
+                    "ghana"
+                )
         );
 
 
     if (resultsDateLabel) {
 
         resultsDateLabel.textContent =
-            `${modernResults.length} Modern (page ${modernCurrentPage}/${modernTotalPages}) • ${ghanaResults.length} Ghana (page ${ghanaCurrentPage}/${ghanaTotalPages})`;
+            showCompleteGhanaHistory
+                ? `${ghanaResults.length} published Ghana ${normalizeGameName(gameSelect.value)} results found for ${yearSelect.value}`
+                : `${modernResults.length} Modern (page ${modernCurrentPage}/${modernTotalPages}) • ${ghanaResults.length} Ghana (page ${ghanaCurrentPage}/${ghanaTotalPages})`;
     }
 
 
