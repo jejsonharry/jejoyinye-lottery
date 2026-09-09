@@ -3964,6 +3964,39 @@ async function displayHomepageResults() {
 // DAILY MODERN RESULTS LANDING VIEW
 // =========================================================
 
+function createPendingDailyResultCard(game, drawDate) {
+    const normalizedGame =
+        normalizeGameName(game);
+
+    const schedule =
+        modernDrawSchedule.find(item =>
+            item.game === normalizedGame
+        );
+
+    const displayTime =
+        schedule?.displayTime ||
+        (normalizedGame === "Queen" ? "12:00 AM" : "Pending");
+
+    return `
+        <article class="result-card daily-result-pending">
+            <div class="result-top">
+                <div class="result-game-info">
+                    <h3>${escapeHTML(getResultsArchiveGameName(normalizedGame))}</h3>
+                    <span class="lottery-name">${escapeHTML(displayTime)}</span>
+                </div>
+                <div class="result-meta">
+                    <span class="draw-time">${escapeHTML(formatResultDate(drawDate))}</span>
+                    <span class="result-status">Pending</span>
+                </div>
+            </div>
+            <div class="daily-result-pending-message">
+                Awaiting result publication
+            </div>
+        </article>
+    `;
+}
+
+
 async function displayLatestDailyModernResults() {
     if (!dailyModernResultsContainer) {
         return;
@@ -4023,13 +4056,23 @@ async function displayLatestDailyModernResults() {
             });
 
         const dailyResults =
-            sortLotteryResults(
-                [...resultsByGame.values()]
-            ).slice(0, 12);
+            [...resultsByGame.values()];
 
         dailyModernResultsContainer.innerHTML =
-            dailyResults
-                .map(createResultCard)
+            lotteryGames["modern-billionaire"]
+                .map(game => {
+                    const result =
+                        resultsByGame.get(
+                            normalizeGameName(game).toUpperCase()
+                        );
+
+                    return result
+                        ? createResultCard(result)
+                        : createPendingDailyResultCard(
+                            game,
+                            latestDate
+                        );
+                })
                 .join("");
 
         if (dailyModernResultsLabel) {
