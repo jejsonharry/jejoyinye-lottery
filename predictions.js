@@ -33,20 +33,35 @@ const analysisTodayCount =
 const predictionAnalysisList =
     document.getElementById("prediction-analysis-list");
 
-const predictionRangeForm =
-    document.getElementById("prediction-range-form");
+const modernPredictionRangeForm =
+    document.getElementById("modern-prediction-range-form");
 
-const predictionFromDate =
-    document.getElementById("prediction-from-date");
+const modernPredictionFromDate =
+    document.getElementById("modern-prediction-from-date");
 
-const predictionToDate =
-    document.getElementById("prediction-to-date");
+const modernPredictionToDate =
+    document.getElementById("modern-prediction-to-date");
 
-const predictionRangeReset =
-    document.getElementById("prediction-range-reset");
+const modernPredictionRangeReset =
+    document.getElementById("modern-prediction-range-reset");
 
-const predictionRangeStatus =
-    document.getElementById("prediction-range-status");
+const modernPredictionRangeStatus =
+    document.getElementById("modern-prediction-range-status");
+
+const ghanaPredictionRangeForm =
+    document.getElementById("ghana-prediction-range-form");
+
+const ghanaPredictionFromDate =
+    document.getElementById("ghana-prediction-from-date");
+
+const ghanaPredictionToDate =
+    document.getElementById("ghana-prediction-to-date");
+
+const ghanaPredictionRangeReset =
+    document.getElementById("ghana-prediction-range-reset");
+
+const ghanaPredictionRangeStatus =
+    document.getElementById("ghana-prediction-range-status");
 
 const ghanaGameTitle =
     document.getElementById("ghana-game-title");
@@ -81,7 +96,9 @@ const ghanaDataWindow =
 const ghanaGeneratedTime =
     document.getElementById("ghana-generated-time");
 
-let predictionDateRange = { from: "", to: "" };
+let modernPredictionDateRange = { from: "", to: "" };
+
+let ghanaPredictionDateRange = { from: "", to: "" };
 
 const PREDICTIONS_SHARE_URL =
     "https://jolslottery.com/predictions";
@@ -158,9 +175,14 @@ async function shareGamePrediction(button) {
     const drawDetails =
         drawElement?.textContent.trim() || "";
 
+    const activeDateRange =
+        isGhana
+            ? ghanaPredictionDateRange
+            : modernPredictionDateRange;
+
     const period =
-        predictionDateRange.from || predictionDateRange.to
-            ? `${predictionDateRange.from || "earliest"} to ${predictionDateRange.to || "latest"}`
+        activeDateRange.from || activeDateRange.to
+            ? `${activeDateRange.from || "earliest"} to ${activeDateRange.to || "latest"}`
             : "All available historical results";
 
     const forecastLabel =
@@ -1004,12 +1026,20 @@ function updateCountdown(
 
 async function fetchPredictionHistory(
     game,
-    dateRange = predictionDateRange
+    dateRange = null
 ) {
 
     if (!game) {
         return [];
     }
+
+
+    const activeDateRange =
+        dateRange || (
+            game.lottery === "ghana"
+                ? ghanaPredictionDateRange
+                : modernPredictionDateRange
+        );
 
 
     try {
@@ -1052,12 +1082,12 @@ async function fetchPredictionHistory(
 
         }
 
-        if (dateRange.from) {
-            query = query.gte("draw_date", dateRange.from);
+        if (activeDateRange.from) {
+            query = query.gte("draw_date", activeDateRange.from);
         }
 
-        if (dateRange.to) {
-            query = query.lte("draw_date", dateRange.to);
+        if (activeDateRange.to) {
+            query = query.lte("draw_date", activeDateRange.to);
         }
 
 
@@ -1185,6 +1215,29 @@ function mergeGhanaHistory(...collections) {
         );
 }
 
+function filterHistoryByDateRange(
+    results,
+    dateRange
+) {
+    const from = dateRange?.from || "";
+    const to = dateRange?.to || "";
+
+    return (Array.isArray(results) ? results : [])
+        .filter(result => {
+            const drawDate = String(result?.draw_date || "").slice(0, 10);
+
+            if (from && drawDate < from) {
+                return false;
+            }
+
+            if (to && drawDate > to) {
+                return false;
+            }
+
+            return true;
+        });
+}
+
 function mapGhanaNumberField(results, field) {
     return results
         .filter(result =>
@@ -1204,19 +1257,21 @@ function mapGhanaNumberField(results, field) {
 // no saved history in the selected period.
 // =========================================================
 
-async function fetchGhanaFallbackHistory() {
+async function fetchGhanaFallbackHistory(
+    dateRange = ghanaPredictionDateRange
+) {
     try {
         let query = supabaseClient
             .from("results")
             .select("game, lottery, draw_date, winning, machine")
             .eq("lottery", "ghana");
 
-        if (predictionDateRange.from) {
-            query = query.gte("draw_date", predictionDateRange.from);
+        if (dateRange.from) {
+            query = query.gte("draw_date", dateRange.from);
         }
 
-        if (predictionDateRange.to) {
-            query = query.lte("draw_date", predictionDateRange.to);
+        if (dateRange.to) {
+            query = query.lte("draw_date", dateRange.to);
         }
 
         const { data, error } = await query
@@ -2525,8 +2580,10 @@ function calculateCustomRangeV2Prediction(history, context, fallback) {
     };
 }
 
-function hasCustomPredictionRange() {
-    return Boolean(predictionDateRange.from || predictionDateRange.to);
+function hasCustomPredictionRange(
+    dateRange = modernPredictionDateRange
+) {
+    return Boolean(dateRange.from || dateRange.to);
 }
 
 function customRangeV2Label(predictionData) {
@@ -2779,7 +2836,9 @@ async function displayNextGamePrediction() {
 
     try {
 
-        const customRangeActive = hasCustomPredictionRange();
+        const customRangeActive = hasCustomPredictionRange(
+            modernPredictionDateRange
+        );
 
         const [
             history,
@@ -3113,8 +3172,14 @@ async function displayGhanaPrediction() {
             fetchSavedPrediction(ghanaGame)
         ]);
 
+        const filteredBundledGhanaHistory =
+            filterHistoryByDateRange(
+                bundledGhanaHistory,
+                ghanaPredictionDateRange
+            );
+
         const bundledGameHistory =
-            bundledGhanaHistory.filter(result =>
+            filteredBundledGhanaHistory.filter(result =>
                 String(result.game).trim().toUpperCase() ===
                 String(ghanaGame.game).trim().toUpperCase()
             );
@@ -3128,7 +3193,7 @@ async function displayGhanaPrediction() {
         const allGhanaHistory =
             mergeGhanaHistory(
                 databaseGhanaHistory,
-                bundledGhanaHistory
+                filteredBundledGhanaHistory
             );
 
         const history =
@@ -3137,18 +3202,24 @@ async function displayGhanaPrediction() {
                 : allGhanaHistory;
 
         const ghanaRangeActive =
-            hasCustomPredictionRange();
+            hasCustomPredictionRange(
+                ghanaPredictionDateRange
+            );
 
         updatePredictionRunDetails({
             engineElement: ghanaEngineVersion,
             windowElement: ghanaDataWindow,
             generatedElement: ghanaGeneratedTime,
-            engineLabel: getSavedEngineLabel(
-                savedPrediction,
-                ghanaRangeActive ? "Custom V2" : "V2 Live"
-            ),
+            engineLabel: ghanaRangeActive
+                ? "Custom V2"
+                : getSavedEngineLabel(
+                    savedPrediction,
+                    "V2 Live"
+                ),
             history,
-            generatedAt: savedPrediction?.generated_at
+            generatedAt: ghanaRangeActive
+                ? null
+                : savedPrediction?.generated_at
         });
 
         const supportingGhanaHistory =
@@ -3194,10 +3265,14 @@ async function displayGhanaPrediction() {
             );
 
         const predictionData =
-            savedPrediction
-                ? hydrateSavedPrediction(savedPrediction, livePrediction)
-                : ghanaRangeActive
-                    ? calculateCustomRangeV2Prediction(history, supportingGhanaHistory, livePrediction)
+            ghanaRangeActive
+                ? calculateCustomRangeV2Prediction(
+                    history,
+                    supportingGhanaHistory,
+                    livePrediction
+                )
+                : savedPrediction
+                    ? hydrateSavedPrediction(savedPrediction, livePrediction)
                     : livePrediction;
 
         if (ghanaRangeActive && ghanaGameDrawTime) {
@@ -3205,7 +3280,11 @@ async function displayGhanaPrediction() {
                 `Ghana Games • Draw Time: ${ghanaGame.drawTime} • ${customRangeV2Label(predictionData)}`;
         }
 
-        if (savedPrediction && ghanaGameDrawTime) {
+        if (
+            savedPrediction &&
+            !ghanaRangeActive &&
+            ghanaGameDrawTime
+        ) {
             const profile = String(savedPrediction.engine_profile || "balanced")
                 .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
             const engineVersion = String(savedPrediction.engine_version || "v2").toUpperCase();
@@ -3499,44 +3578,72 @@ document.addEventListener(
     "DOMContentLoaded",
     async function () {
 
-        predictionRangeForm?.addEventListener("submit", async event => {
+        modernPredictionRangeForm?.addEventListener("submit", async event => {
             event.preventDefault();
 
-            let from = predictionFromDate?.value || "";
-            let to = predictionToDate?.value || "";
+            let from = modernPredictionFromDate?.value || "";
+            let to = modernPredictionToDate?.value || "";
 
             if (from && to && from > to) {
                 [from, to] = [to, from];
-                predictionFromDate.value = from;
-                predictionToDate.value = to;
+                modernPredictionFromDate.value = from;
+                modernPredictionToDate.value = to;
             }
 
-            predictionDateRange = { from, to };
+            modernPredictionDateRange = { from, to };
 
-            if (predictionRangeStatus) {
-                predictionRangeStatus.textContent = from || to
-                    ? `Custom V2 range: ${from || "earliest"} to ${to || "latest"}. Backtested when the range has enough draws; not added to official accuracy.`
-                    : "Using all historical results plus today's earlier published games.";
+            if (modernPredictionRangeStatus) {
+                modernPredictionRangeStatus.textContent = from || to
+                    ? `Modern V2.2 range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
+                    : "Using all Modern history plus today's earlier Modern games.";
             }
 
-            await Promise.all([
-            displayNextGamePrediction(),
-            displayGhanaPrediction()
-        ]);
+            await displayNextGamePrediction();
         });
 
-        predictionRangeReset?.addEventListener("click", async () => {
-            predictionRangeForm?.reset();
-            predictionDateRange = { from: "", to: "" };
+        modernPredictionRangeReset?.addEventListener("click", async () => {
+            modernPredictionRangeForm?.reset();
+            modernPredictionDateRange = { from: "", to: "" };
 
-            if (predictionRangeStatus) {
-                predictionRangeStatus.textContent = "Using all historical results plus today's earlier published games.";
+            if (modernPredictionRangeStatus) {
+                modernPredictionRangeStatus.textContent = "Using all Modern history plus today's earlier Modern games.";
             }
 
-            await Promise.all([
-            displayNextGamePrediction(),
-            displayGhanaPrediction()
-        ]);
+            await displayNextGamePrediction();
+        });
+
+        ghanaPredictionRangeForm?.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            let from = ghanaPredictionFromDate?.value || "";
+            let to = ghanaPredictionToDate?.value || "";
+
+            if (from && to && from > to) {
+                [from, to] = [to, from];
+                ghanaPredictionFromDate.value = from;
+                ghanaPredictionToDate.value = to;
+            }
+
+            ghanaPredictionDateRange = { from, to };
+
+            if (ghanaPredictionRangeStatus) {
+                ghanaPredictionRangeStatus.textContent = from || to
+                    ? `Ghana V2 range: ${from || "earliest"} to ${to || "latest"}. Modern history is unchanged.`
+                    : "Using all verified results for the scheduled Ghana game.";
+            }
+
+            await displayGhanaPrediction();
+        });
+
+        ghanaPredictionRangeReset?.addEventListener("click", async () => {
+            ghanaPredictionRangeForm?.reset();
+            ghanaPredictionDateRange = { from: "", to: "" };
+
+            if (ghanaPredictionRangeStatus) {
+                ghanaPredictionRangeStatus.textContent = "Using all verified results for the scheduled Ghana game.";
+            }
+
+            await displayGhanaPrediction();
         });
 
 
