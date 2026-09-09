@@ -35,21 +35,40 @@
     <!-- SUPABASE CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js"></script>
-    <script src="script.js?v=55" defer></script>
+    <script src="script.js?v=56" defer></script>
     <style>
+        .daily-modern-results{width:min(1180px,calc(100% - 32px));margin:34px auto 0;padding:27px;border:1px solid #dbe5df;border-radius:24px;background:linear-gradient(180deg,#f7fcf9,#fff);box-shadow:0 15px 40px rgba(15,23,42,.07)}
+        .daily-modern-results-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px}
+        .daily-modern-results-header span{color:#15803d;font-size:11px;font-weight:900;letter-spacing:1.2px}
+        .daily-modern-results-header h2{margin:7px 0 0;color:#0f172a;font-size:clamp(24px,3vw,32px)}
+        .daily-modern-results-label{margin:0;color:#64748b;font-size:13px;font-weight:700;text-align:right}
+        .daily-modern-results-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+        .daily-modern-results-grid .result-card{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;min-width:0;margin:0;padding:14px 15px}
+        .daily-modern-results-grid .result-top{grid-column:1/-1;margin:0;padding-bottom:7px;border-bottom:1px solid #edf1f5}
+        .daily-modern-results-grid .result-number-group{min-width:0;margin:0}
+        .daily-modern-results-grid .result-number-group h4{margin:0 0 6px;font-size:10px}
+        .daily-modern-results-grid .winning-numbers,.daily-modern-results-grid .machine-numbers{display:flex;flex-wrap:wrap;gap:4px}
+        .daily-modern-results-grid .number-ball{width:27px;height:27px;min-width:27px;font-size:10px;line-height:27px}
+        .daily-modern-results-grid .result-player-actions{display:none}
         .results-game-directory{width:min(1180px,calc(100% - 32px));margin:34px auto 0}
         .results-directory-heading{text-align:center;margin-bottom:25px}
         .results-directory-heading span,.results-archive-kicker{color:#15803d;font-size:11px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}
         .results-directory-heading h2{margin:8px 0;color:#0f172a;font-size:clamp(27px,4vw,39px)}
         .results-directory-heading p{max-width:680px;margin:0 auto;color:#64748b;line-height:1.65}
-        .results-directory-groups{display:grid;grid-template-columns:1.35fr .9fr;gap:24px;align-items:start}
-        .results-directory-group{padding:25px;border:1px solid #e2e8f0;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(15,23,42,.07)}
-        .results-directory-group-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:19px}
-        .results-directory-group-header h3{margin:0 0 5px;color:#0f172a;font-size:21px}
-        .results-directory-group-header p{margin:0;color:#64748b;font-size:13px}
+        .results-directory-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+        .results-directory-group{overflow:hidden;border:1px solid #e2e8f0;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(15,23,42,.07)}
+        .results-directory-folder{width:100%;display:flex;align-items:center;gap:14px;padding:22px;border:0;background:#fff;text-align:left;cursor:pointer;transition:background .18s ease}
+        .results-directory-folder:hover,.results-directory-folder:focus-visible,.results-directory-folder[aria-expanded="true"]{background:#f0fdf4;outline:0}
+        .results-directory-folder-icon{width:48px;height:48px;flex:0 0 48px;display:inline-flex;align-items:center;justify-content:center;border-radius:14px;background:linear-gradient(145deg,#16a34a,#0d6731);color:#fff;font-size:13px;font-weight:900;letter-spacing:.6px}
+        .results-directory-group-ghana .results-directory-folder-icon{background:linear-gradient(145deg,#dc2626,#991b1b)}
+        .results-directory-folder-copy{min-width:0;flex:1}
+        .results-directory-folder-title{display:block;margin:0 0 5px;color:#0f172a;font-size:21px;font-weight:900}
+        .results-directory-folder-copy>span{display:block;color:#64748b;font-size:13px}
+        .results-directory-folder-action{color:#15803d;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
         .results-directory-count{flex:0 0 auto;padding:6px 10px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11px;font-weight:900}
-        .results-directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
-        .results-directory-group-ghana .results-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .results-directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding:0 22px 22px;border-top:1px solid #edf1f5}
+        .results-directory-grid[hidden]{display:none!important}
+        .results-directory-grid::before{content:"Select a game folder";grid-column:1/-1;padding-top:16px;color:#64748b;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}
         .results-game-card{min-width:0;display:flex;align-items:center;gap:10px;padding:13px 12px;border:1px solid #e5eaf0;border-radius:14px;background:#f8fafc;color:#0f172a;text-align:left;cursor:pointer;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
         .results-game-card:hover,.results-game-card:focus-visible,.results-game-card.is-active{border-color:#22c55e;background:#f0fdf4;transform:translateY(-2px);box-shadow:0 9px 20px rgba(21,128,61,.12);outline:0}
         .results-game-card-icon{width:34px;height:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(145deg,#16a34a,#0f6b34);color:#fff;font-size:10px;font-weight:900;letter-spacing:.4px}
@@ -69,8 +88,8 @@
         #results-archive-workspace .results-section{margin-top:27px}
         #results-archive-workspace .section-heading{text-align:left;margin-bottom:19px}
         #results-archive-workspace .section-heading h2{font-size:21px}
-        @media(max-width:980px){.results-directory-groups{grid-template-columns:1fr}.results-directory-group-ghana .results-directory-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#results-archive-workspace .filter-box{grid-template-columns:repeat(2,minmax(0,1fr))}.search-result-btn,.reset-result-btn{width:100%}}
-        @media(max-width:650px){.results-game-directory,#results-archive-workspace{width:min(100% - 20px,1180px)}.results-game-directory{margin-top:22px}.results-directory-group,#results-archive-workspace{padding:16px;border-radius:17px}.results-directory-grid,.results-directory-group-ghana .results-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.results-game-card{padding:10px 8px;gap:8px}.results-game-card-icon{width:30px;height:30px;flex-basis:30px}.results-game-card-copy strong{font-size:11px}.results-game-card-copy small{font-size:9px}.results-archive-header{align-items:flex-start;flex-direction:column;gap:12px}#results-archive-workspace .filter-box{grid-template-columns:1fr 1fr;padding:13px;gap:10px}#results-archive-workspace .filter-box .filter-item label{font-size:11px}#results-archive-workspace .filter-box input,#results-archive-workspace .filter-box select{font-size:13px;padding:10px 7px}}
+        @media(max-width:980px){.results-directory-groups{grid-template-columns:1fr}.daily-modern-results-grid{grid-template-columns:1fr}#results-archive-workspace .filter-box{grid-template-columns:repeat(2,minmax(0,1fr))}.search-result-btn,.reset-result-btn{width:100%}}
+        @media(max-width:650px){.daily-modern-results,.results-game-directory,#results-archive-workspace{width:min(100% - 20px,1180px)}.daily-modern-results{margin-top:22px;padding:14px;border-radius:17px}.daily-modern-results-header{align-items:flex-start;flex-direction:column;gap:8px}.daily-modern-results-label{text-align:left}.daily-modern-results-grid{gap:8px}.daily-modern-results-grid .result-card{padding:8px;gap:5px}.daily-modern-results-grid .result-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px}.daily-modern-results-grid .result-game-info h3{font-size:13px}.daily-modern-results-grid .lottery-name{font-size:8px}.daily-modern-results-grid .result-meta{gap:3px}.daily-modern-results-grid .draw-time,.daily-modern-results-grid .result-status,.daily-modern-results-grid .result-share-btn{font-size:8px;padding:4px 6px}.daily-modern-results-grid .result-number-group h4{font-size:8px}.daily-modern-results-grid .number-ball{width:22px;height:22px;min-width:22px;font-size:8px;line-height:22px}.results-game-directory{margin-top:22px}.results-directory-folder{padding:16px}.results-directory-folder-icon{width:42px;height:42px;flex-basis:42px}.results-directory-folder-title{font-size:17px}.results-directory-count{display:none}.results-directory-group,#results-archive-workspace{border-radius:17px}.results-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 12px 12px}.results-game-card{padding:10px 8px;gap:8px}.results-game-card-icon{width:30px;height:30px;flex-basis:30px}.results-game-card-copy strong{font-size:11px}.results-game-card-copy small{font-size:9px}.results-archive-header{align-items:flex-start;flex-direction:column;gap:12px}#results-archive-workspace{padding:16px}#results-archive-workspace .filter-box{grid-template-columns:1fr 1fr;padding:13px;gap:10px}#results-archive-workspace .filter-box .filter-item label{font-size:11px}#results-archive-workspace .filter-box input,#results-archive-workspace .filter-box select{font-size:13px;padding:10px 7px}}
         @media(max-width:390px){.results-directory-grid,.results-directory-group-ghana .results-directory-grid{grid-template-columns:1fr}}
     </style>
 
@@ -142,20 +161,35 @@
     <small class="results-hero-responsible">18+ only • Play responsibly</small>
 </section>
 
+<section class="daily-modern-results" aria-labelledby="daily-modern-results-title">
+    <div class="daily-modern-results-header">
+        <div>
+            <span>DAILY MODERN BILLIONAIRE RESULTS</span>
+            <h2 id="daily-modern-results-title">Latest 12 Daily Games</h2>
+        </div>
+        <p class="daily-modern-results-label" id="daily-modern-results-label">Loading the latest published day...</p>
+    </div>
+    <div class="daily-modern-results-grid" id="daily-modern-results-container">
+        <p style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b">Loading daily results...</p>
+    </div>
+</section>
+
 <section class="results-game-directory" id="results-game-directory" aria-labelledby="results-directory-title">
     <div class="results-directory-heading">
         <span>GAME RESULT ARCHIVES</span>
-        <h2 id="results-directory-title">Choose A Game To View Its History</h2>
-        <p>Select any Modern Billionaire or Ghana game. Only that game's published results will load, keeping the page organised and fast.</p>
+        <h2 id="results-directory-title">Browse Past Results By Lottery</h2>
+        <p>Open a lottery folder, choose a game, then view all its recent and past published results.</p>
     </div>
 
     <div class="results-directory-groups">
         <section class="results-directory-group">
-            <div class="results-directory-group-header">
-                <div><h3>Modern Billionaire</h3><p>Daily game result archives</p></div>
+            <button type="button" class="results-directory-folder" data-results-folder="modern-billionaire" aria-expanded="false">
+                <span class="results-directory-folder-icon">MB</span>
+                <span class="results-directory-folder-copy"><strong class="results-directory-folder-title">Modern Billionaire</strong><span>Open the 12 daily game folders</span></span>
                 <span class="results-directory-count">12 Games</span>
-            </div>
-            <div class="results-directory-grid">
+                <span class="results-directory-folder-action">Open</span>
+            </button>
+            <div class="results-directory-grid" data-results-folder-panel="modern-billionaire" hidden>
                 <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Powerball"><span class="results-game-card-icon">PB</span><span class="results-game-card-copy"><strong>Powerball</strong><small>Daily • 9:00 AM</small></span></button>
                 <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Awoof"><span class="results-game-card-icon">AW</span><span class="results-game-card-copy"><strong>Awoof</strong><small>Daily • 11:00 AM</small></span></button>
                 <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Biggest Bet"><span class="results-game-card-icon">BB</span><span class="results-game-card-copy"><strong>Biggest Bet</strong><small>Daily • 1:00 PM</small></span></button>
@@ -172,11 +206,13 @@
         </section>
 
         <section class="results-directory-group results-directory-group-ghana">
-            <div class="results-directory-group-header">
-                <div><h3>Ghana Games</h3><p>Monday to Sunday archives</p></div>
+            <button type="button" class="results-directory-folder" data-results-folder="ghana" aria-expanded="false">
+                <span class="results-directory-folder-icon">GH</span>
+                <span class="results-directory-folder-copy"><strong class="results-directory-folder-title">Ghana Games</strong><span>Open the Monday-to-Sunday game folders</span></span>
                 <span class="results-directory-count">7 Games</span>
-            </div>
-            <div class="results-directory-grid">
+                <span class="results-directory-folder-action">Open</span>
+            </button>
+            <div class="results-directory-grid" data-results-folder-panel="ghana" hidden>
                 <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Monday Special"><span class="results-game-card-icon">MO</span><span class="results-game-card-copy"><strong>Monday Special</strong><small>Monday • 9:10 PM</small></span></button>
                 <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Lucky Tuesday"><span class="results-game-card-icon">TU</span><span class="results-game-card-copy"><strong>Lucky Tuesday</strong><small>Tuesday • 9:10 PM</small></span></button>
                 <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Mid Week"><span class="results-game-card-icon">WE</span><span class="results-game-card-copy"><strong>Mid Week</strong><small>Wednesday • 9:10 PM</small></span></button>

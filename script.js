@@ -325,6 +325,26 @@ const resultsGameCards =
         "[data-results-lottery][data-results-game]"
     );
 
+const resultsFolderButtons =
+    document.querySelectorAll(
+        "[data-results-folder]"
+    );
+
+const resultsFolderPanels =
+    document.querySelectorAll(
+        "[data-results-folder-panel]"
+    );
+
+const dailyModernResultsContainer =
+    document.getElementById(
+        "daily-modern-results-container"
+    );
+
+const dailyModernResultsLabel =
+    document.getElementById(
+        "daily-modern-results-label"
+    );
+
 
 // =========================================================
 // SAFE HTML
@@ -3941,8 +3961,167 @@ async function displayHomepageResults() {
 
 
 // =========================================================
+// DAILY MODERN RESULTS LANDING VIEW
+// =========================================================
+
+async function displayLatestDailyModernResults() {
+    if (!dailyModernResultsContainer) {
+        return;
+    }
+
+    dailyModernResultsContainer.innerHTML = `
+        <p style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b">
+            Loading daily results...
+        </p>
+    `;
+
+    try {
+        const { data, error } =
+            await supabaseClient
+                .from("results")
+                .select("lottery, game, draw_date, winning, machine")
+                .eq("lottery", "modern-billionaire")
+                .order("draw_date", { ascending: false })
+                .limit(36);
+
+        if (error) {
+            throw error;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+            dailyModernResultsContainer.innerHTML = `
+                <div class="no-results" style="grid-column:1/-1">
+                    <h3>No Daily Results Available</h3>
+                    <p>Published Modern Billionaire results will appear here.</p>
+                </div>
+            `;
+
+            if (dailyModernResultsLabel) {
+                dailyModernResultsLabel.textContent =
+                    "No published day is currently available";
+            }
+
+            return;
+        }
+
+        const latestDate =
+            String(data[0].draw_date || "");
+
+        const resultsByGame = new Map();
+
+        data
+            .filter(result =>
+                String(result.draw_date || "") === latestDate
+            )
+            .forEach(result => {
+                const key =
+                    normalizeGameName(result.game).toUpperCase();
+
+                if (key && !resultsByGame.has(key)) {
+                    resultsByGame.set(key, result);
+                }
+            });
+
+        const dailyResults =
+            sortLotteryResults(
+                [...resultsByGame.values()]
+            ).slice(0, 12);
+
+        dailyModernResultsContainer.innerHTML =
+            dailyResults
+                .map(createResultCard)
+                .join("");
+
+        if (dailyModernResultsLabel) {
+            dailyModernResultsLabel.textContent =
+                `${formatResultDate(latestDate)} • ${dailyResults.length} of 12 games published`;
+        }
+    }
+    catch (error) {
+        console.error(
+            "DAILY MODERN RESULTS ERROR:",
+            error
+        );
+
+        dailyModernResultsContainer.innerHTML = `
+            <div class="no-results" style="grid-column:1/-1">
+                <h3>Daily Results Temporarily Unavailable</h3>
+                <p>Please refresh the page and try again.</p>
+            </div>
+        `;
+
+        if (dailyModernResultsLabel) {
+            dailyModernResultsLabel.textContent =
+                "Unable to load the latest published day";
+        }
+    }
+}
+
+
+// =========================================================
 // RESULTS PAGE EVENTS
 // =========================================================
+
+function setResultsFolderState(lottery, expanded) {
+    resultsFolderButtons.forEach(button => {
+        const isTarget =
+            button.dataset.resultsFolder === lottery;
+
+        if (isTarget) {
+            button.setAttribute(
+                "aria-expanded",
+                expanded ? "true" : "false"
+            );
+
+            const action =
+                button.querySelector(
+                    ".results-directory-folder-action"
+                );
+
+            if (action) {
+                action.textContent =
+                    expanded ? "Close" : "Open";
+            }
+        }
+    });
+
+    resultsFolderPanels.forEach(panel => {
+        if (panel.dataset.resultsFolderPanel === lottery) {
+            panel.hidden = !expanded;
+        }
+    });
+}
+
+
+function openOnlyResultsFolder(lottery) {
+    resultsFolderButtons.forEach(button => {
+        const folder =
+            button.dataset.resultsFolder;
+
+        setResultsFolderState(
+            folder,
+            folder === lottery
+        );
+    });
+}
+
+
+resultsFolderButtons.forEach(button => {
+    button.addEventListener("click", function () {
+        const lottery =
+            button.dataset.resultsFolder;
+
+        const isExpanded =
+            button.getAttribute("aria-expanded") === "true";
+
+        if (isExpanded) {
+            setResultsFolderState(lottery, false);
+        }
+        else {
+            openOnlyResultsFolder(lottery);
+        }
+    });
+});
 
 function getResultsArchiveGameName(game) {
     const normalized =
@@ -4091,6 +4270,8 @@ async function openResultsGameArchive(
     buildGameDropdown();
     gameSelect.value = game;
 
+    openOnlyResultsFolder(lottery);
+
     resultsArchiveWorkspace.hidden = false;
 
     if (resultsArchiveLottery) {
@@ -4189,7 +4370,7 @@ async function restoreResultsArchiveFromURL() {
         {
             clearDates: false,
             updateURL: false,
-            scroll: false
+            scroll: true
         }
     );
 }
@@ -4406,7 +4587,8 @@ function subscribeToLiveResultUpdates() {
             "undefined" ||
         (
             !resultsContainer &&
-            !homeResultsContainer
+            !homeResultsContainer &&
+            !dailyModernResultsContainer
         )
     ) {
 
@@ -4438,6 +4620,10 @@ function subscribeToLiveResultUpdates() {
                     liveResultsRefreshTimer =
                         setTimeout(
                             async function () {
+
+                                if (dailyModernResultsContainer) {
+                                    await displayLatestDailyModernResults();
+                                }
 
                                 if (
                                     resultsContainer &&
@@ -4531,7 +4717,10 @@ document.addEventListener(
         // =============================================
 
         if (resultsContainer) {
-            await restoreResultsArchiveFromURL();
+            await Promise.all([
+                displayLatestDailyModernResults(),
+                restoreResultsArchiveFromURL()
+            ]);
         }
 
 
