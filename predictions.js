@@ -677,61 +677,33 @@ function getSavedEngineLabel(snapshot, fallbackLabel) {
 // =========================================================
 
 function parsePredictionNumbers(data) {
-
-    if (
-        data === null ||
-        data === undefined
-    ) {
+    if (data === null || data === undefined) {
         return [];
     }
 
-
-    let numbers = [];
-
-
     if (Array.isArray(data)) {
-
-        numbers = data;
-
+        return data
+            .map(Number)
+            .filter(number =>
+                Number.isInteger(number) &&
+                number >= 1 &&
+                number <= 90
+            );
     }
 
-    else if (
-        typeof data === "string"
-    ) {
+    if (typeof data === "string") {
+        const matches = data.match(/\b\d{1,2}\b/g) || [];
 
-        const matches =
-            data.match(/\d+/g);
-
-        if (matches) {
-            numbers = matches;
-        }
-
+        return matches
+            .map(Number)
+            .filter(number =>
+                Number.isInteger(number) &&
+                number >= 1 &&
+                number <= 90
+            );
     }
 
-    else if (
-        typeof data === "object"
-    ) {
-
-        const matches =
-            JSON.stringify(data)
-                .match(/\d+/g);
-
-        if (matches) {
-            numbers = matches;
-        }
-
-    }
-
-
-    return numbers
-
-        .map(number => Number(number))
-
-        .filter(number =>
-            Number.isInteger(number) &&
-            number >= 1 &&
-            number <= 90
-        );
+    return [];
 }
 
 
@@ -1441,9 +1413,22 @@ async function checkForNewPublishedModernResult() {
     }
 }
 
-function subscribeToModernResultUpdates() {
+async function subscribeToModernResultUpdates() {
     if (!supabaseClient?.channel) {
         return;
+    }
+
+    if (modernResultsRealtimeChannel) {
+        const previousChannel = modernResultsRealtimeChannel;
+        modernResultsRealtimeChannel = null;
+
+        try {
+            await supabaseClient.removeChannel(previousChannel);
+        }
+
+        catch (error) {
+            console.warn("Previous prediction channel cleanup failed:", error);
+        }
     }
 
     const handlePublishedResult = payload => {
@@ -1704,16 +1689,82 @@ function addModernRelationshipScores(scoreMap, sourceNumber, weight) {
     const relationships = MODERN_CLASSIFICATION_CHART[sourceNumber];
 
     if (relationships) {
-        Object.values(relationships).forEach(target => {
+        const uniqueClassificationTargets = new Set(
+            Object.values(relationships)
+        );
+
+        uniqueClassificationTargets.forEach(target => {
             if (target >= 1 && target <= 90) {
                 scoreMap[target].classificationScore += weight;
             }
         });
     }
 
-    (MODERN_MOVING_GRAPH[sourceNumber] || []).forEach(target => {
+    const uniqueMovingTargets = new Set(
+        MODERN_MOVING_GRAPH[sourceNumber] || []
+    );
+
+    uniqueMovingTargets.forEach(target => {
         scoreMap[target].movingScore += weight;
     });
+}
+
+function isBalancedModernCombination(numbers) {
+    if (!Array.isArray(numbers) || numbers.length !== 5) {
+        return false;
+    }
+
+    const total = numbers.reduce((sum, number) => sum + number, 0);
+    const evenCount = numbers.filter(number => number % 2 === 0).length;
+    const representedBands = new Set(
+        numbers.map(number =>
+            number <= 30
+                ? "low"
+                : number <= 60
+                    ? "middle"
+                    : "high"
+        )
+    ).size;
+
+    return (
+        total >= 140 &&
+        total <= 315 &&
+        evenCount >= 1 &&
+        evenCount <= 4 &&
+        representedBands >= 2
+    );
+}
+
+function selectBalancedModernCandidates(rankedNumbers) {
+    const leadingCandidates = rankedNumbers.slice(0, 5);
+    const leadingNumbers = leadingCandidates.map(item => item.number);
+
+    if (
+        leadingCandidates.length !== 5 ||
+        isBalancedModernCombination(leadingNumbers)
+    ) {
+        return leadingCandidates;
+    }
+
+    const fifthScore = Math.max(leadingCandidates[4]?.totalScore || 0, 0);
+    const minimumTieScore = fifthScore * 0.97;
+
+    const replacement = rankedNumbers
+        .slice(5, 15)
+        .find(candidate => {
+            if (candidate.totalScore < minimumTieScore) {
+                return false;
+            }
+
+            return isBalancedModernCombination([
+                ...leadingNumbers.slice(0, 4),
+                candidate.number
+            ]);
+        });
+
+    return replacement
+        ? [...leadingCandidates.slice(0, 4), replacement]
+        : leadingCandidates;
 }
 
 function applyModernClassificationRanking(
@@ -1886,8 +1937,11 @@ function calculateStatisticalPrediction(
 
     // Same-day results carry extra recency weight because they reflect
     // the number activity immediately before the upcoming game.
-    const todayWinningWeight = Math.max(7, results.length * 0.09);
-    const todayMachineWeight = Math.max(2, results.length * 0.025);
+    const todayWinningWeight = Math.min(
+        3.5,
+        Math.max(1.5, results.length * 0.04)
+    );
+    const todayMachineWeight = todayWinningWeight * 0.30;
 
     todayResults.forEach(result => {
         const winningNumbers = parsePredictionNumbers(result.winning);
@@ -1972,13 +2026,26 @@ function calculateStatisticalPrediction(
                 }
             );
 
+    const selectedCandidates = useModernClassification
+        ? selectBalancedModernCandidates(rankedNumbers)
+        : rankedNumbers.slice(0, 5);
+
+    const selectedNumberSet = new Set(
+        selectedCandidates.map(item => item.number)
+    );
+
+    const displayRankedNumbers = [
+        ...selectedCandidates,
+        ...rankedNumbers.filter(item =>
+            !selectedNumberSet.has(item.number)
+        )
+    ];
+
 
     return {
 
         predictedNumbers:
-            rankedNumbers
-
-                .slice(0, 5)
+            selectedCandidates
 
                 .map(
                     item =>
@@ -1991,10 +2058,15 @@ function calculateStatisticalPrediction(
                 ),
 
         rankedData:
-            rankedNumbers,
+            displayRankedNumbers,
 
         scoreMap:
-            scoreMap
+            scoreMap,
+
+        combinationAdjusted:
+            selectedCandidates.some((item, index) =>
+                item.number !== rankedNumbers[index]?.number
+            )
 
     };
 
@@ -3821,7 +3893,18 @@ document.addEventListener(
             displayGhanaPrediction()
         ]);
 
-        subscribeToModernResultUpdates();
+        await subscribeToModernResultUpdates();
+
+        window.addEventListener(
+            "pagehide",
+            function () {
+                if (modernResultsRealtimeChannel) {
+                    supabaseClient.removeChannel(modernResultsRealtimeChannel);
+                    modernResultsRealtimeChannel = null;
+                }
+            },
+            { once: true }
+        );
 
 
         // Countdown every second
