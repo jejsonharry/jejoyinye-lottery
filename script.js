@@ -295,6 +295,36 @@ const homeResultsContainer =
         "home-results-container"
     );
 
+const resultsGameDirectory =
+    document.getElementById(
+        "results-game-directory"
+    );
+
+const resultsArchiveWorkspace =
+    document.getElementById(
+        "results-archive-workspace"
+    );
+
+const resultsArchiveLottery =
+    document.getElementById(
+        "results-archive-lottery"
+    );
+
+const resultsArchiveTitle =
+    document.getElementById(
+        "results-archive-title"
+    );
+
+const resultsDirectoryBack =
+    document.getElementById(
+        "results-directory-back"
+    );
+
+const resultsGameCards =
+    document.querySelectorAll(
+        "[data-results-lottery][data-results-game]"
+    );
+
 
 // =========================================================
 // SAFE HTML
@@ -874,7 +904,7 @@ function applySupabaseFilters(
     }
 
 
-    else {
+    else if (!selectedGame) {
 
         query = query.gte(
             "draw_date",
@@ -1017,6 +1047,7 @@ function filterBundledGhanaResults(results) {
             !selectedDate &&
             !selectedEndDate &&
             !selectedYear &&
+            !selectedGame &&
             drawDate < getDefaultResultsStartDate()
         ) {
             return false;
@@ -2395,10 +2426,29 @@ function renderCurrentPage() {
         );
 
 
+    const hasCompleteHistoryFilter =
+        Boolean(gameSelect?.value) &&
+        Boolean(
+            yearSelect?.value ||
+            dateInput?.value ||
+            endDateInput?.value
+        );
+
+
+    const showCompleteModernHistory =
+        lotteryType?.value === "modern-billionaire" &&
+        hasCompleteHistoryFilter;
+
+
     const showCompleteGhanaHistory =
         lotteryType?.value === "ghana" &&
-        Boolean(gameSelect?.value) &&
-        Boolean(yearSelect?.value);
+        hasCompleteHistoryFilter;
+
+
+    const modernPageSize =
+        showCompleteModernHistory
+            ? Math.max(1, allModernResults.length)
+            : RESULTS_PER_LOTTERY_PAGE;
 
 
     const ghanaPageSize =
@@ -2412,7 +2462,7 @@ function renderCurrentPage() {
             1,
             Math.ceil(
                 allModernResults.length /
-                RESULTS_PER_LOTTERY_PAGE
+                modernPageSize
             )
         );
 
@@ -2465,7 +2515,7 @@ function renderCurrentPage() {
             modernCurrentPage -
             1
         ) *
-        RESULTS_PER_LOTTERY_PAGE;
+        modernPageSize;
 
     const ghanaStartIndex =
         (
@@ -2479,7 +2529,7 @@ function renderCurrentPage() {
         allModernResults.slice(
             modernStartIndex,
             modernStartIndex +
-                RESULTS_PER_LOTTERY_PAGE
+                modernPageSize
         );
 
 
@@ -2496,11 +2546,13 @@ function renderCurrentPage() {
         createLotteryResultsGroup(
             modernResults,
             "modern-billionaire",
-            createPagination(
-                modernTotalPages,
-                modernCurrentPage,
-                "modern-billionaire"
-            )
+            showCompleteModernHistory
+                ? ""
+                : createPagination(
+                    modernTotalPages,
+                    modernCurrentPage,
+                    "modern-billionaire"
+                )
         )
 
         +
@@ -2520,10 +2572,40 @@ function renderCurrentPage() {
 
     if (resultsDateLabel) {
 
+        const selectedLottery =
+            lotteryType?.value || "";
+
+        const selectedResults =
+            selectedLottery === "ghana"
+                ? ghanaResults
+                : modernResults;
+
+        const selectedPage =
+            selectedLottery === "ghana"
+                ? ghanaCurrentPage
+                : modernCurrentPage;
+
+        const selectedTotalPages =
+            selectedLottery === "ghana"
+                ? ghanaTotalPages
+                : modernTotalPages;
+
+        const selectedGameName =
+            getResultsArchiveGameName(
+                gameSelect?.value || ""
+            );
+
+        const periodLabel =
+            yearSelect?.value
+                ? ` for ${yearSelect.value}${monthSelect?.value ? `-${monthSelect.value}` : ""}`
+                : dateInput?.value || endDateInput?.value
+                    ? ` for the selected date range`
+                    : "";
+
         resultsDateLabel.textContent =
-            showCompleteGhanaHistory
-                ? `${ghanaResults.length} published Ghana ${normalizeGameName(gameSelect.value)} results found for ${yearSelect.value}`
-                : `${modernResults.length} Modern (page ${modernCurrentPage}/${modernTotalPages}) • ${ghanaResults.length} Ghana (page ${ghanaCurrentPage}/${ghanaTotalPages})`;
+            hasCompleteHistoryFilter
+                ? `${selectedResults.length} published ${selectedGameName} results found${periodLabel}`
+                : `${selectedGameName} • ${selectedResults.length} results on page ${selectedPage}/${selectedTotalPages}`;
     }
 
 
@@ -2736,7 +2818,9 @@ async function displayResults() {
             bundledResult
         ] = await Promise.allSettled([
             fetchAllFilteredSupabaseResults(),
-            fetchBundledGhanaResults()
+            lotteryType?.value === "ghana"
+                ? fetchBundledGhanaResults()
+                : Promise.resolve([])
         ]);
 
         const liveResults =
@@ -3860,6 +3944,298 @@ async function displayHomepageResults() {
 // RESULTS PAGE EVENTS
 // =========================================================
 
+function getResultsArchiveGameName(game) {
+    const normalized =
+        normalizeGameName(game);
+
+    if (normalized === "Golden") {
+        return "Golden Night";
+    }
+
+    if (normalized === "ASEDA") {
+        return "Aseda";
+    }
+
+    return normalized || "Game";
+}
+
+
+function getResultsArchiveLotteryName(lottery) {
+    return lottery === "ghana"
+        ? "Ghana Games"
+        : "Modern Billionaire";
+}
+
+
+function clearResultsArchiveDates() {
+    if (yearSelect) {
+        yearSelect.value = "";
+    }
+
+    if (monthSelect) {
+        monthSelect.value = "";
+    }
+
+    if (dateInput) {
+        dateInput.value = "";
+        dateInput.max = "2026-12-31";
+    }
+
+    if (endDateInput) {
+        endDateInput.value = "";
+        endDateInput.min = "2023-01-01";
+    }
+}
+
+
+function updateResultsArchiveURL() {
+    if (!lotteryType?.value || !gameSelect?.value) {
+        window.history.replaceState(
+            {},
+            "",
+            window.location.pathname
+        );
+        return;
+    }
+
+    const params = new URLSearchParams();
+
+    params.set("lottery", lotteryType.value);
+    params.set("game", getResultsArchiveGameName(gameSelect.value));
+
+    if (yearSelect?.value) {
+        params.set("year", yearSelect.value);
+    }
+
+    if (monthSelect?.value) {
+        params.set("month", monthSelect.value);
+    }
+
+    if (dateInput?.value) {
+        params.set("from", dateInput.value);
+    }
+
+    if (endDateInput?.value) {
+        params.set("to", endDateInput.value);
+    }
+
+    window.history.replaceState(
+        {},
+        "",
+        `${window.location.pathname}?${params.toString()}`
+    );
+}
+
+
+function setActiveResultsGameCard(lottery, game) {
+    const normalizedGame =
+        normalizeGameName(game).toUpperCase();
+
+    resultsGameCards.forEach(card => {
+        const isActive =
+            card.dataset.resultsLottery === lottery &&
+            normalizeGameName(
+                card.dataset.resultsGame
+            ).toUpperCase() === normalizedGame;
+
+        card.classList.toggle("is-active", isActive);
+        card.setAttribute(
+            "aria-pressed",
+            isActive ? "true" : "false"
+        );
+    });
+}
+
+
+function findResultsGameOption(lottery, requestedGame) {
+    const games = lotteryGames[lottery] || [];
+    const normalizedRequested =
+        normalizeGameName(requestedGame).toUpperCase();
+
+    return games.find(game =>
+        normalizeGameName(game).toUpperCase() ===
+        normalizedRequested
+    ) || "";
+}
+
+
+async function openResultsGameArchive(
+    lottery,
+    requestedGame,
+    options = {}
+) {
+    if (
+        !lotteryType ||
+        !gameSelect ||
+        !resultsArchiveWorkspace ||
+        !lotteryGames[lottery]
+    ) {
+        return false;
+    }
+
+    const game =
+        findResultsGameOption(
+            lottery,
+            requestedGame
+        );
+
+    if (!game) {
+        return false;
+    }
+
+    if (options.clearDates !== false) {
+        clearResultsArchiveDates();
+    }
+
+    lotteryType.value = lottery;
+    buildGameDropdown();
+    gameSelect.value = game;
+
+    resultsArchiveWorkspace.hidden = false;
+
+    if (resultsArchiveLottery) {
+        resultsArchiveLottery.textContent =
+            `${getResultsArchiveLotteryName(lottery)} Archive`;
+    }
+
+    if (resultsArchiveTitle) {
+        resultsArchiveTitle.textContent =
+            `${getResultsArchiveGameName(game)} Past Results`;
+    }
+
+    setActiveResultsGameCard(lottery, game);
+
+    if (options.updateURL !== false) {
+        updateResultsArchiveURL();
+    }
+
+    await displayResults();
+
+    if (options.scroll !== false) {
+        resultsArchiveWorkspace.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    return true;
+}
+
+
+async function restoreResultsArchiveFromURL() {
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const lottery =
+        params.get("lottery") || "";
+
+    const requestedGame =
+        params.get("game") || "";
+
+    const game =
+        findResultsGameOption(
+            lottery,
+            requestedGame
+        );
+
+    if (!game) {
+        if (resultsArchiveWorkspace) {
+            resultsArchiveWorkspace.hidden = true;
+        }
+
+        if (resultsContainer) {
+            resultsContainer.innerHTML = "";
+        }
+
+        return false;
+    }
+
+    const selectedYear = params.get("year") || "";
+    const selectedMonth = params.get("month") || "";
+    const fromDate = params.get("from") || "";
+    const toDate = params.get("to") || "";
+
+    if (
+        yearSelect &&
+        [...yearSelect.options].some(
+            option => option.value === selectedYear
+        )
+    ) {
+        yearSelect.value = selectedYear;
+    }
+
+    if (
+        monthSelect &&
+        [...monthSelect.options].some(
+            option => option.value === selectedMonth
+        )
+    ) {
+        monthSelect.value = selectedMonth;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(fromDate) && dateInput) {
+        dateInput.value = fromDate;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(toDate) && endDateInput) {
+        endDateInput.value = toDate;
+    }
+
+    return openResultsGameArchive(
+        lottery,
+        game,
+        {
+            clearDates: false,
+            updateURL: false,
+            scroll: false
+        }
+    );
+}
+
+
+function closeResultsGameArchive() {
+    if (resultsArchiveWorkspace) {
+        resultsArchiveWorkspace.hidden = true;
+    }
+
+    if (resultsContainer) {
+        resultsContainer.innerHTML = "";
+    }
+
+    if (lotteryType) {
+        lotteryType.value = "";
+    }
+
+    buildGameDropdown();
+    clearResultsArchiveDates();
+    setActiveResultsGameCard("", "");
+    updateResultsArchiveURL();
+
+    resultsGameDirectory?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+
+resultsGameCards.forEach(card => {
+    card.addEventListener("click", function () {
+        openResultsGameArchive(
+            card.dataset.resultsLottery,
+            card.dataset.resultsGame
+        );
+    });
+});
+
+
+resultsDirectoryBack
+    ?.addEventListener(
+        "click",
+        closeResultsGameArchive
+    );
+
 lotteryType
     ?.addEventListener(
         "change",
@@ -3995,6 +4371,7 @@ searchButton
         "click",
         function () {
 
+            updateResultsArchiveURL();
             displayResults();
         }
     );
@@ -4004,44 +4381,10 @@ resetButton
     ?.addEventListener(
         "click",
         function () {
-
-            if (lotteryType) {
-                lotteryType.value = "";
-            }
-
-
-            buildGameDropdown();
-
-
-            if (gameSelect) {
-                gameSelect.value = "";
-            }
-
-
-            if (yearSelect) {
-                yearSelect.value = "";
-            }
-
-
-            if (monthSelect) {
-                monthSelect.value = "";
-            }
-
-
-            if (dateInput) {
-                dateInput.value = "";
-                dateInput.max = "2026-12-31";
-            }
-
-
-            if (endDateInput) {
-                endDateInput.value = "";
-                endDateInput.min = "2023-01-01";
-            }
-
-
+            clearResultsArchiveDates();
             modernCurrentPage = 1;
             ghanaCurrentPage = 1;
+            updateResultsArchiveURL();
             displayResults();
         }
     );
@@ -4096,7 +4439,10 @@ function subscribeToLiveResultUpdates() {
                         setTimeout(
                             async function () {
 
-                                if (resultsContainer) {
+                                if (
+                                    resultsContainer &&
+                                    !resultsArchiveWorkspace?.hidden
+                                ) {
 
                                     await displayResults();
                                 }
@@ -4185,11 +4531,7 @@ document.addEventListener(
         // =============================================
 
         if (resultsContainer) {
-
-            buildGameDropdown();
-
-
-            await displayResults();
+            await restoreResultsArchiveFromURL();
         }
 
 

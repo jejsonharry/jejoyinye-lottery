@@ -35,7 +35,44 @@
     <!-- SUPABASE CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js"></script>
-    <script src="script.js?v=54" defer></script>
+    <script src="script.js?v=55" defer></script>
+    <style>
+        .results-game-directory{width:min(1180px,calc(100% - 32px));margin:34px auto 0}
+        .results-directory-heading{text-align:center;margin-bottom:25px}
+        .results-directory-heading span,.results-archive-kicker{color:#15803d;font-size:11px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}
+        .results-directory-heading h2{margin:8px 0;color:#0f172a;font-size:clamp(27px,4vw,39px)}
+        .results-directory-heading p{max-width:680px;margin:0 auto;color:#64748b;line-height:1.65}
+        .results-directory-groups{display:grid;grid-template-columns:1.35fr .9fr;gap:24px;align-items:start}
+        .results-directory-group{padding:25px;border:1px solid #e2e8f0;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(15,23,42,.07)}
+        .results-directory-group-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:19px}
+        .results-directory-group-header h3{margin:0 0 5px;color:#0f172a;font-size:21px}
+        .results-directory-group-header p{margin:0;color:#64748b;font-size:13px}
+        .results-directory-count{flex:0 0 auto;padding:6px 10px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11px;font-weight:900}
+        .results-directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+        .results-directory-group-ghana .results-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .results-game-card{min-width:0;display:flex;align-items:center;gap:10px;padding:13px 12px;border:1px solid #e5eaf0;border-radius:14px;background:#f8fafc;color:#0f172a;text-align:left;cursor:pointer;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+        .results-game-card:hover,.results-game-card:focus-visible,.results-game-card.is-active{border-color:#22c55e;background:#f0fdf4;transform:translateY(-2px);box-shadow:0 9px 20px rgba(21,128,61,.12);outline:0}
+        .results-game-card-icon{width:34px;height:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(145deg,#16a34a,#0f6b34);color:#fff;font-size:10px;font-weight:900;letter-spacing:.4px}
+        .results-directory-group-ghana .results-game-card-icon{background:linear-gradient(145deg,#dc2626,#991b1b)}
+        .results-game-card-copy{min-width:0;display:block}
+        .results-game-card-copy strong{display:block;overflow:hidden;color:#172033;font-size:13px;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+        .results-game-card-copy small{display:block;margin-top:4px;color:#64748b;font-size:10px;line-height:1.25}
+        #results-archive-workspace{width:min(1180px,calc(100% - 32px));margin:34px auto 0;padding:28px;border:1px solid #dbe5df;border-radius:24px;background:linear-gradient(180deg,#f8fcf9,#fff);box-shadow:0 16px 42px rgba(15,23,42,.07)}
+        #results-archive-workspace[hidden]{display:none!important}
+        .results-archive-header{display:flex;align-items:center;gap:18px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #e2e8f0}
+        .results-directory-back{flex:0 0 auto;min-height:43px;padding:10px 15px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#334155;font-weight:900;cursor:pointer}
+        .results-archive-header h2{margin:5px 0 0;color:#0f172a;font-size:clamp(23px,3vw,31px)}
+        #results-archive-workspace .result-filter,#results-archive-workspace .results-section{max-width:none;margin:0;padding:0}
+        #results-archive-workspace .filter-box{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto auto;gap:13px;padding:19px;box-shadow:none;border:1px solid #e2e8f0}
+        #results-archive-workspace .archive-source-filter{display:none}
+        #results-archive-workspace .search-result-btn,#results-archive-workspace .reset-result-btn{min-height:44px;align-self:end;white-space:nowrap}
+        #results-archive-workspace .results-section{margin-top:27px}
+        #results-archive-workspace .section-heading{text-align:left;margin-bottom:19px}
+        #results-archive-workspace .section-heading h2{font-size:21px}
+        @media(max-width:980px){.results-directory-groups{grid-template-columns:1fr}.results-directory-group-ghana .results-directory-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#results-archive-workspace .filter-box{grid-template-columns:repeat(2,minmax(0,1fr))}.search-result-btn,.reset-result-btn{width:100%}}
+        @media(max-width:650px){.results-game-directory,#results-archive-workspace{width:min(100% - 20px,1180px)}.results-game-directory{margin-top:22px}.results-directory-group,#results-archive-workspace{padding:16px;border-radius:17px}.results-directory-grid,.results-directory-group-ghana .results-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.results-game-card{padding:10px 8px;gap:8px}.results-game-card-icon{width:30px;height:30px;flex-basis:30px}.results-game-card-copy strong{font-size:11px}.results-game-card-copy small{font-size:9px}.results-archive-header{align-items:flex-start;flex-direction:column;gap:12px}#results-archive-workspace .filter-box{grid-template-columns:1fr 1fr;padding:13px;gap:10px}#results-archive-workspace .filter-box .filter-item label{font-size:11px}#results-archive-workspace .filter-box input,#results-archive-workspace .filter-box select{font-size:13px;padding:10px 7px}}
+        @media(max-width:390px){.results-directory-grid,.results-directory-group-ghana .results-directory-grid{grid-template-columns:1fr}}
+    </style>
 
   <link rel="canonical" href="https://jolslottery.com/results">
   <link rel="icon" href="Images/jols-logo.png" type="image/png">
@@ -105,11 +142,67 @@
     <small class="results-hero-responsible">18+ only • Play responsibly</small>
 </section>
 
+<section class="results-game-directory" id="results-game-directory" aria-labelledby="results-directory-title">
+    <div class="results-directory-heading">
+        <span>GAME RESULT ARCHIVES</span>
+        <h2 id="results-directory-title">Choose A Game To View Its History</h2>
+        <p>Select any Modern Billionaire or Ghana game. Only that game's published results will load, keeping the page organised and fast.</p>
+    </div>
+
+    <div class="results-directory-groups">
+        <section class="results-directory-group">
+            <div class="results-directory-group-header">
+                <div><h3>Modern Billionaire</h3><p>Daily game result archives</p></div>
+                <span class="results-directory-count">12 Games</span>
+            </div>
+            <div class="results-directory-grid">
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Powerball"><span class="results-game-card-icon">PB</span><span class="results-game-card-copy"><strong>Powerball</strong><small>Daily • 9:00 AM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Awoof"><span class="results-game-card-icon">AW</span><span class="results-game-card-copy"><strong>Awoof</strong><small>Daily • 11:00 AM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Biggest Bet"><span class="results-game-card-icon">BB</span><span class="results-game-card-copy"><strong>Biggest Bet</strong><small>Daily • 1:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Gold Rush"><span class="results-game-card-icon">GR</span><span class="results-game-card-copy"><strong>Gold Rush</strong><small>Daily • 3:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Lucky Dollar"><span class="results-game-card-icon">LD</span><span class="results-game-card-copy"><strong>Lucky Dollar</strong><small>Daily • 5:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Blessing"><span class="results-game-card-icon">BL</span><span class="results-game-card-copy"><strong>Blessing</strong><small>Daily • 6:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Owo Time"><span class="results-game-card-icon">OT</span><span class="results-game-card-copy"><strong>Owo Time</strong><small>Daily • 7:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Modern Bingo"><span class="results-game-card-icon">MB</span><span class="results-game-card-copy"><strong>Modern Bingo</strong><small>Daily • 8:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Bonus Cash"><span class="results-game-card-icon">BC</span><span class="results-game-card-copy"><strong>Bonus Cash</strong><small>Daily • 9:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Hero"><span class="results-game-card-icon">HE</span><span class="results-game-card-copy"><strong>Hero</strong><small>Daily • 10:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Golden"><span class="results-game-card-icon">GN</span><span class="results-game-card-copy"><strong>Golden Night</strong><small>Daily • 11:00 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="modern-billionaire" data-results-game="Queen"><span class="results-game-card-icon">QU</span><span class="results-game-card-copy"><strong>Queen</strong><small>Daily • 12:00 AM</small></span></button>
+            </div>
+        </section>
+
+        <section class="results-directory-group results-directory-group-ghana">
+            <div class="results-directory-group-header">
+                <div><h3>Ghana Games</h3><p>Monday to Sunday archives</p></div>
+                <span class="results-directory-count">7 Games</span>
+            </div>
+            <div class="results-directory-grid">
+                <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Monday Special"><span class="results-game-card-icon">MO</span><span class="results-game-card-copy"><strong>Monday Special</strong><small>Monday • 9:10 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Lucky Tuesday"><span class="results-game-card-icon">TU</span><span class="results-game-card-copy"><strong>Lucky Tuesday</strong><small>Tuesday • 9:10 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Mid Week"><span class="results-game-card-icon">WE</span><span class="results-game-card-copy"><strong>Mid Week</strong><small>Wednesday • 9:10 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Thursday Fortune"><span class="results-game-card-icon">TH</span><span class="results-game-card-copy"><strong>Thursday Fortune</strong><small>Thursday • 9:10 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="Friday Bonanza"><span class="results-game-card-icon">FR</span><span class="results-game-card-copy"><strong>Friday Bonanza</strong><small>Friday • 9:10 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="National"><span class="results-game-card-icon">SA</span><span class="results-game-card-copy"><strong>National</strong><small>Saturday • 9:10 PM</small></span></button>
+                <button type="button" class="results-game-card" data-results-lottery="ghana" data-results-game="ASEDA"><span class="results-game-card-icon">SU</span><span class="results-game-card-copy"><strong>Aseda</strong><small>Sunday • 7:10 PM</small></span></button>
+            </div>
+        </section>
+    </div>
+</section>
+
+<div id="results-archive-workspace" hidden>
+<div class="results-archive-header">
+    <button type="button" class="results-directory-back" id="results-directory-back">← All Games</button>
+    <div>
+        <span class="results-archive-kicker" id="results-archive-lottery">GAME ARCHIVE</span>
+        <h2 id="results-archive-title">Published Results</h2>
+    </div>
+</div>
+
 <section class="result-filter">
 
     <div class="filter-box">
 
-        <div class="filter-item">
+        <div class="filter-item archive-source-filter">
             <label for="lottery-type">Lottery</label>
             <select id="lottery-type">
                 <option value="">All Lotteries</option>
@@ -118,7 +211,7 @@
             </select>
         </div>
 
-        <div class="filter-item">
+        <div class="filter-item archive-source-filter">
             <label for="game-select">Game</label>
             <select id="game-select">
                 <option value="">All Games</option>
@@ -170,7 +263,7 @@
         </button>
 
         <button type="button" class="reset-result-btn">
-            Reset Filters
+            Clear Dates
         </button>
 
     </div>
@@ -187,6 +280,7 @@
     <div id="results-container"></div>
 
 </section>
+</div>
 
 <footer>
     <p>&copy; 2026 Jejoyinye Lottery Services. All Rights Reserved.</p>
