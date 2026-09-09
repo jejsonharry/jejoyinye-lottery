@@ -320,6 +320,11 @@ const resultsDirectoryBack =
         "results-directory-back"
     );
 
+const resultsArchiveBackLink =
+    document.getElementById(
+        "results-archive-back-link"
+    );
+
 const resultsGameCards =
     document.querySelectorAll(
         "[data-results-lottery][data-results-game]"
@@ -4327,6 +4332,18 @@ async function openResultsGameArchive(
             `${getResultsArchiveGameName(game)} Past Results`;
     }
 
+    if (resultsArchiveBackLink) {
+        const isGhana = lottery === "ghana";
+
+        resultsArchiveBackLink.href = isGhana
+            ? "ghana-results"
+            : "modern-results";
+
+        resultsArchiveBackLink.textContent = isGhana
+            ? "← Ghana Games"
+            : "← Modern Games";
+    }
+
     setActiveResultsGameCard(lottery, game);
 
     if (options.updateURL !== false) {
@@ -4759,11 +4776,22 @@ document.addEventListener(
         // RESULTS PAGE
         // =============================================
 
-        if (resultsContainer) {
-            await Promise.all([
-                displayLatestDailyModernResults(),
-                restoreResultsArchiveFromURL()
-            ]);
+        if (resultsContainer || dailyModernResultsContainer) {
+            const resultPageTasks = [];
+
+            if (dailyModernResultsContainer) {
+                resultPageTasks.push(
+                    displayLatestDailyModernResults()
+                );
+            }
+
+            if (resultsContainer) {
+                resultPageTasks.push(
+                    restoreResultsArchiveFromURL()
+                );
+            }
+
+            await Promise.all(resultPageTasks);
         }
 
 
