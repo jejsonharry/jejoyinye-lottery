@@ -21,6 +21,9 @@ const countdownTimer =
 const nextGameBalls =
     document.getElementById("next-game-balls");
 
+const modernPredictionShareButton =
+    document.querySelector('[data-share-prediction="modern"]');
+
 const upcomingGamesList =
     document.getElementById("upcoming-games-list");
 
@@ -99,6 +102,16 @@ const ghanaGeneratedTime =
 let modernPredictionDateRange = { from: "", to: "" };
 
 let ghanaPredictionDateRange = { from: "", to: "" };
+
+const PREDICTION_COOLDOWN_MS = 5 * 60 * 1000;
+
+let modernPredictionCooldownTimer = null;
+
+let modernPredictionCooldownUntil = 0;
+
+let lastObservedModernResultKey = "";
+
+let modernResultsRealtimeChannel = null;
 
 const PREDICTIONS_SHARE_URL =
     "https://jolslottery.com/predictions";
@@ -1295,18 +1308,26 @@ async function fetchGhanaFallbackHistory(
 // TODAY'S EARLIER PUBLISHED GAMES
 // =========================================================
 
+function getEarlierGameNamesForPrediction(game) {
+    if (!game) {
+        return [];
+    }
+
+    return getTodaysGames()
+        .filter(item =>
+            item.lottery === game.lottery &&
+            item.drawMinutes < game.drawMinutes
+        )
+        .flatMap(item => item.databaseNames || [item.game]);
+}
+
 async function fetchTodaysEarlierResults(game) {
 
     if (!game || game.drawDate !== getTodayDateString()) {
         return [];
     }
 
-    const earlierGameNames = getTodaysGames()
-        .filter(item =>
-            item.lottery === game.lottery &&
-            item.drawMinutes < game.drawMinutes
-        )
-        .flatMap(item => item.databaseNames || [item.game]);
+    const earlierGameNames = getEarlierGameNamesForPrediction(game);
 
     if (!earlierGameNames.length) {
         return [];
@@ -1315,7 +1336,7 @@ async function fetchTodaysEarlierResults(game) {
     try {
         const { data, error } = await supabaseClient
             .from("results")
-            .select("game, lottery, draw_date, winning, machine")
+            .select("game, lottery, draw_date, winning, machine, created_at")
             .eq("lottery", game.lottery)
             .eq("draw_date", game.drawDate)
             .in("game", [...new Set(earlierGameNames)]);
@@ -1331,6 +1352,194 @@ async function fetchTodaysEarlierResults(game) {
         console.error("Today's earlier results error:", error);
         return [];
     }
+}
+
+
+// =========================================================
+// FIVE-MINUTE POST-RESULT COOLING PERIOD
+// =========================================================
+
+function getPublishedResultKey(result) {
+    if (!result) {
+        return "";
+    }
+
+    return [
+        result.draw_date || "",
+        result.lottery || "",
+        result.game || "",
+        result.created_at || ""
+    ].join("|");
+}
+
+function getLatestPublishedResult(results) {
+    return (Array.isArray(results) ? results : [])
+        .filter(result => Number.isFinite(Date.parse(result?.created_at || "")))
+        .sort((a, b) =>
+            Date.parse(b.created_at) - Date.parse(a.created_at)
+        )[0] || null;
+}
+
+function getPredictionCooldownState(results) {
+    const latestResult = getLatestPublishedResult(results);
+    const publishedAt = Date.parse(latestResult?.created_at || "");
+    const expiresAt = Number.isFinite(publishedAt)
+        ? publishedAt + PREDICTION_COOLDOWN_MS
+        : 0;
+
+    return {
+        latestResult,
+        expiresAt,
+        active: expiresAt > Date.now()
+    };
+}
+
+function stopModernPredictionCooldown() {
+    if (modernPredictionCooldownTimer) {
+        clearInterval(modernPredictionCooldownTimer);
+        modernPredictionCooldownTimer = null;
+    }
+
+    modernPredictionCooldownUntil = 0;
+}
+
+function setModernPredictionShareDisabled(disabled) {
+    if (!modernPredictionShareButton) {
+        return;
+    }
+
+    modernPredictionShareButton.disabled = disabled;
+    modernPredictionShareButton.setAttribute(
+        "aria-disabled",
+        String(disabled)
+    );
+}
+
+function startModernPredictionCooldown(latestResult, expiresAt) {
+    stopModernPredictionCooldown();
+
+    modernPredictionCooldownUntil = expiresAt;
+    setModernPredictionShareDisabled(true);
+
+    const renderCooldown = () => {
+        const remainingMilliseconds =
+            Math.max(0, modernPredictionCooldownUntil - Date.now());
+
+        if (remainingMilliseconds <= 0) {
+            stopModernPredictionCooldown();
+            setModernPredictionShareDisabled(false);
+            displayNextGamePrediction();
+            return;
+        }
+
+        const remainingSeconds = Math.ceil(remainingMilliseconds / 1000);
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        const countdown =
+            `${String(minutes).padStart(2, "0")}:` +
+            `${String(seconds).padStart(2, "0")}`;
+
+        if (nextGameBalls) {
+            nextGameBalls.innerHTML = `
+                <div class="prediction-cooldown" role="status" aria-live="polite">
+                    <span class="prediction-cooldown-label">NEW RESULT PUBLISHED</span>
+                    <strong>Updating the next forecast</strong>
+                    <span class="prediction-cooldown-time">${countdown}</span>
+                    <small>The five predicted numbers will appear after the five-minute analysis period.</small>
+                </div>
+            `;
+        }
+
+        if (predictionAnalysisList) {
+            predictionAnalysisList.innerHTML = `
+                <p class="analysis-loading prediction-cooldown-analysis">
+                    The engine is analysing the newly published result before releasing its next five-number forecast.
+                </p>
+            `;
+        }
+
+        if (modernGeneratedTime) {
+            modernGeneratedTime.textContent = `Available in ${countdown}`;
+        }
+    };
+
+    renderCooldown();
+    modernPredictionCooldownTimer = setInterval(renderCooldown, 1000);
+
+    console.info(
+        `Prediction paused after ${latestResult?.game || "a new result"} until`,
+        new Date(expiresAt).toISOString()
+    );
+}
+
+async function checkForNewPublishedModernResult() {
+    const nextGame = getNextPredictionGame();
+
+    if (!nextGame || nextGame.lottery !== "modern-billionaire") {
+        return;
+    }
+
+    const todayResults = await fetchTodaysEarlierResults(nextGame);
+    const latestResult = getLatestPublishedResult(todayResults);
+    const latestKey = getPublishedResultKey(latestResult);
+
+    if (!latestKey) {
+        return;
+    }
+
+    if (latestKey !== lastObservedModernResultKey) {
+        lastObservedModernResultKey = latestKey;
+        await displayNextGamePrediction();
+    }
+}
+
+function subscribeToModernResultUpdates() {
+    if (!supabaseClient?.channel) {
+        return;
+    }
+
+    const handlePublishedResult = payload => {
+        const result = payload?.new;
+        const nextGame = getNextPredictionGame();
+
+        if (
+            !result ||
+            !nextGame ||
+            result.lottery !== nextGame.lottery ||
+            String(result.draw_date || "").slice(0, 10) !== nextGame.drawDate
+        ) {
+            return;
+        }
+
+        const earlierGameNames = new Set(
+            getEarlierGameNamesForPrediction(nextGame)
+        );
+
+        if (!earlierGameNames.has(result.game)) {
+            return;
+        }
+
+        const resultKey = getPublishedResultKey(result);
+
+        if (resultKey && resultKey !== lastObservedModernResultKey) {
+            lastObservedModernResultKey = resultKey;
+            displayNextGamePrediction();
+        }
+    };
+
+    modernResultsRealtimeChannel = supabaseClient
+        .channel("modern-prediction-result-updates")
+        .on(
+            "postgres_changes",
+            { event: "INSERT", schema: "public", table: "results" },
+            handlePublishedResult
+        )
+        .on(
+            "postgres_changes",
+            { event: "UPDATE", schema: "public", table: "results" },
+            handlePublishedResult
+        )
+        .subscribe();
 }
 
 
@@ -2844,6 +3053,13 @@ async function displayNextGamePrediction() {
             fetchTodaysEarlierResults(nextGame)
         ]);
 
+        const latestTodayResult = getLatestPublishedResult(todayResults);
+
+        if (latestTodayResult) {
+            lastObservedModernResultKey =
+                getPublishedResultKey(latestTodayResult);
+        }
+
 
         updatePredictionRunDetails({
             engineElement: modernEngineVersion,
@@ -2853,6 +3069,23 @@ async function displayNextGamePrediction() {
             history,
             generatedAt: null
         });
+
+        const cooldownState = getPredictionCooldownState(todayResults);
+
+        if (cooldownState.active) {
+            if (analysisTodayCount) {
+                analysisTodayCount.textContent = todayResults.length;
+            }
+
+            startModernPredictionCooldown(
+                cooldownState.latestResult,
+                cooldownState.expiresAt
+            );
+            return;
+        }
+
+        stopModernPredictionCooldown();
+        setModernPredictionShareDisabled(false);
 
 
         if (
@@ -3593,6 +3826,8 @@ document.addEventListener(
             displayGhanaPrediction()
         ]);
 
+        subscribeToModernResultUpdates();
+
 
         // Countdown every second
 
@@ -3653,6 +3888,14 @@ document.addEventListener(
                 displayGhanaPrediction();
             },
             120000
+        );
+
+
+        // Lightweight backup polling in case realtime delivery is unavailable.
+
+        setInterval(
+            checkForNewPublishedModernResult,
+            20000
         );
 
     }

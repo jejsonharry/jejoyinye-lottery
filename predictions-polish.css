@@ -457,6 +457,61 @@
     color: #1d4ed8;
 }
 
+.prediction-cooldown {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 22px 18px;
+    border: 1px solid #f5cf72;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #fffbeb, #fff7d6);
+    color: #713f12;
+    text-align: center;
+}
+
+.prediction-cooldown-label {
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.prediction-cooldown strong {
+    font-size: 15px;
+}
+
+.prediction-cooldown-time {
+    color: #b45309;
+    font-size: 30px;
+    font-weight: 950;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .04em;
+}
+
+.prediction-cooldown small {
+    max-width: 420px;
+    color: #78572a;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+.prediction-cooldown-analysis {
+    border-color: #f5cf72;
+    background: #fffbeb;
+    color: #78572a;
+}
+
+.prediction-share-btn:disabled {
+    cursor: not-allowed;
+    opacity: .48;
+    filter: grayscale(.35);
+}
+
 @media (max-width: 1050px) {
     .prediction-schedule-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
