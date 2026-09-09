@@ -198,7 +198,9 @@ async function shareGamePrediction(button) {
             ? `${activeDateRange.from || "earliest"} to ${activeDateRange.to || "latest"}`
             : "All available historical results";
 
-    const forecastLabel = "Fixed 30/50/20 forecast";
+    const forecastLabel = isGhana
+        ? "Weekday game-pattern forecast"
+        : "Fixed 60/30/10 forecast";
 
     const text = [
         `${game} Game Prediction`,
@@ -1250,60 +1252,6 @@ function filterHistoryByDateRange(
         });
 }
 
-function mapGhanaNumberField(results, field) {
-    return results
-        .filter(result =>
-            parsePredictionNumbers(result[field]).length === 5
-        )
-        .map(result => ({
-            ...result,
-            winning: result[field],
-            machine: []
-        }));
-}
-
-
-// =========================================================
-// GHANA HISTORY FALLBACK
-// Uses all Ghana winning results when a scheduled game has
-// no saved history in the selected period.
-// =========================================================
-
-async function fetchGhanaFallbackHistory(
-    dateRange = ghanaPredictionDateRange
-) {
-    try {
-        let query = supabaseClient
-            .from("results")
-            .select("game, lottery, draw_date, winning, machine")
-            .eq("lottery", "ghana");
-
-        if (dateRange.from) {
-            query = query.gte("draw_date", dateRange.from);
-        }
-
-        if (dateRange.to) {
-            query = query.lte("draw_date", dateRange.to);
-        }
-
-        const { data, error } = await query
-            .order("draw_date", { ascending: false })
-            .limit(500);
-
-        if (error) {
-            throw error;
-        }
-
-        return data || [];
-    }
-
-    catch (error) {
-        console.error("Ghana fallback history error:", error);
-        return [];
-    }
-}
-
-
 // =========================================================
 // TODAY'S EARLIER PUBLISHED GAMES
 // =========================================================
@@ -1544,17 +1492,25 @@ function subscribeToModernResultUpdates() {
 
 
 // =========================================================
-// FIXED PREDICTION METHOD
-// 30% statistics + 50% classification + 20% moving numbers
+// MODERN BILLIONAIRE PREDICTION METHOD
+// 60% statistics + 30% classification + 10% moving numbers
 // =========================================================
 
 const MODERN_PREDICTION_WEIGHTS = Object.freeze({
+    statistical: 0.60,
+    classification: 0.30,
+    moving: 0.10
+});
+
+const MODERN_PREDICTION_ENGINE_LABEL = "Fixed 60/30/10";
+
+const GHANA_GAME_PATTERN_WEIGHTS = Object.freeze({
     statistical: 0.30,
-    classification: 0.50,
+    pattern: 0.50,
     moving: 0.20
 });
 
-const FIXED_PREDICTION_ENGINE_LABEL = "Fixed 30/50/20";
+const GHANA_PREDICTION_ENGINE_LABEL = "Weekday game pattern";
 
 const MODERN_CLASSIFICATION_CATEGORY_NAMES = Object.freeze([
     "counterpart",
@@ -3065,7 +3021,7 @@ async function displayNextGamePrediction() {
             engineElement: modernEngineVersion,
             windowElement: modernDataWindow,
             generatedElement: modernGeneratedTime,
-            engineLabel: FIXED_PREDICTION_ENGINE_LABEL,
+            engineLabel: MODERN_PREDICTION_ENGINE_LABEL,
             history,
             generatedAt: null
         });
@@ -3139,7 +3095,7 @@ async function displayNextGamePrediction() {
 
         if (customRangeActive && nextGameDrawTime) {
             nextGameDrawTime.textContent =
-                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Fixed 30/50/20 range`;
+                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Fixed 60/30/10 range`;
         }
 
 
@@ -3193,86 +3149,149 @@ async function displayNextGamePrediction() {
 
 
 // =========================================================
-// GHANA FIXED PREDICTION
-// 30% statistics + 50% classification + 20% moving numbers
+// GHANA WEEKDAY GAME-PATTERN PREDICTION
+// Each scheduled game uses only its own historical results.
+// 30% own-game statistics + 50% own-game pattern + 20% movement.
 // =========================================================
 
-function calculateGhanaCombinedPrediction(
-    results,
-    contextResults = []
-) {
+function calculateGhanaGamePatternPrediction(results) {
     const scoreMap = {};
 
     for (let number = 1; number <= 90; number++) {
         scoreMap[number] = {
             number,
-            winningScore: 0,
-            machineScore: 0,
             statisticalScore: 0,
-            classificationScore: 0,
+            patternScore: 0,
             movingScore: 0,
             totalScore: 0
         };
     }
 
-    function scoreResult(result, weight) {
-        parsePredictionNumbers(result.winning).forEach(number => {
-            scoreMap[number].winningScore += weight;
-            addModernRelationshipScores(
-                scoreMap,
-                number,
-                weight
-            );
-        });
+    const orderedResults = [...results]
+        .sort((a, b) =>
+            String(b.draw_date || "").localeCompare(
+                String(a.draw_date || "")
+            )
+        );
 
-        parsePredictionNumbers(result.machine).forEach(number => {
-            scoreMap[number].machineScore += weight;
-            addModernRelationshipScores(
-                scoreMap,
-                number,
-                weight * 0.45
-            );
-        });
-    }
+    const parsedDraws = orderedResults.map(result => ({
+        winning: parsePredictionNumbers(result.winning),
+        machine: parsePredictionNumbers(result.machine)
+    }));
 
-    results.forEach((result, index) => {
+    parsedDraws.forEach((draw, index) => {
         const recencyWeight =
             Math.max(
                 0.35,
                 1 - (
                     index /
-                    Math.max(results.length, 1)
+                    Math.max(parsedDraws.length, 1)
                 ) * 0.65
             );
 
-        scoreResult(result, recencyWeight);
+        draw.winning.forEach(number => {
+            scoreMap[number].statisticalScore += 2.5 * recencyWeight;
+        });
+
+        draw.machine.forEach(number => {
+            scoreMap[number].statisticalScore += 0.75 * recencyWeight;
+        });
     });
 
-    contextResults.slice(0, 3).forEach((result, index) => {
-        scoreResult(
-            result,
-            Math.max(1, 1.6 - (index * 0.2))
-        );
+    const latestWinningNumbers = parsedDraws[0]?.winning || [];
+    const latestWinningSet = new Set(latestWinningNumbers);
+
+    // Learn recurrence gaps separately for this weekday game.
+    for (let number = 1; number <= 90; number++) {
+        const appearances = [];
+
+        parsedDraws.forEach((draw, index) => {
+            if (draw.winning.includes(number)) {
+                appearances.push(index);
+            }
+        });
+
+        if (appearances.length >= 2) {
+            const gaps = appearances
+                .slice(0, -1)
+                .map((index, position) =>
+                    appearances[position + 1] - index
+                );
+            const averageGap =
+                gaps.reduce((sum, gap) => sum + gap, 0) /
+                Math.max(gaps.length, 1);
+            const currentGap = appearances[0];
+            const distance = Math.abs(currentGap - averageGap);
+
+            scoreMap[number].patternScore +=
+                Math.max(0, 2.5 - (distance / Math.max(averageGap, 1)));
+        }
+    }
+
+    // Learn which numbers recur beside the latest game's number groups.
+    parsedDraws.slice(1).forEach((draw, index) => {
+        const recencyWeight = Math.max(0.3, 1 - (index * 0.025));
+        const exactMatches = draw.winning
+            .filter(number => latestWinningSet.has(number))
+            .length;
+
+        draw.winning.forEach(candidate => {
+            const relatedAnchors = latestWinningNumbers
+                .filter(anchor =>
+                    anchor % 10 === candidate % 10 ||
+                    Math.floor((anchor - 1) / 10) ===
+                        Math.floor((candidate - 1) / 10)
+                )
+                .length;
+
+            scoreMap[candidate].patternScore +=
+                ((exactMatches * 0.8) + (relatedAnchors * 0.2)) *
+                recencyWeight;
+        });
     });
 
-    normalizePredictionComponent(scoreMap, "winningScore");
-    normalizePredictionComponent(scoreMap, "machineScore");
-    normalizePredictionComponent(scoreMap, "classificationScore");
-    normalizePredictionComponent(scoreMap, "movingScore");
+    // Learn draw-to-draw movements from this game only, then apply the
+    // strongest historical movements to its latest winning numbers.
+    const movementFrequency = new Map();
 
-    Object.values(scoreMap).forEach(item => {
-        item.statisticalScore =
-            item.winningScoreNormalized +
-            item.machineScoreNormalized;
+    for (let index = parsedDraws.length - 1; index > 0; index--) {
+        const olderDraw = parsedDraws[index];
+        const newerDraw = parsedDraws[index - 1];
+
+        olderDraw.winning.forEach(source => {
+            newerDraw.winning.forEach(target => {
+                const movement = (target - source + 90) % 90;
+
+                if (movement > 0) {
+                    movementFrequency.set(
+                        movement,
+                        (movementFrequency.get(movement) || 0) + 1
+                    );
+                }
+            });
+        });
+    }
+
+    const strongestMovements = [...movementFrequency.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+    latestWinningNumbers.forEach(source => {
+        strongestMovements.forEach(([movement, frequency]) => {
+            const target = ((source + movement - 1) % 90) + 1;
+            scoreMap[target].movingScore += frequency;
+        });
     });
 
     normalizePredictionComponent(scoreMap, "statisticalScore");
+    normalizePredictionComponent(scoreMap, "patternScore");
+    normalizePredictionComponent(scoreMap, "movingScore");
 
     Object.values(scoreMap).forEach(item => {
         item.totalScore =
-            (item.statisticalScoreNormalized * MODERN_PREDICTION_WEIGHTS.statistical) +
-            (item.classificationScoreNormalized * MODERN_PREDICTION_WEIGHTS.classification) +
-            (item.movingScoreNormalized * MODERN_PREDICTION_WEIGHTS.moving);
+            (item.statisticalScoreNormalized * GHANA_GAME_PATTERN_WEIGHTS.statistical) +
+            (item.patternScoreNormalized * GHANA_GAME_PATTERN_WEIGHTS.pattern) +
+            (item.movingScoreNormalized * GHANA_GAME_PATTERN_WEIGHTS.moving);
     });
 
     const rankedNumbers =
@@ -3348,11 +3367,9 @@ async function displayGhanaPrediction() {
 
         const [
             databaseGameHistory,
-            databaseGhanaHistory,
             bundledGhanaHistory
         ] = await Promise.all([
             fetchPredictionHistory(ghanaGame),
-            fetchGhanaFallbackHistory(),
             fetchBundledGhanaHistory()
         ]);
 
@@ -3374,16 +3391,7 @@ async function displayGhanaPrediction() {
                 bundledGameHistory
             );
 
-        const allGhanaHistory =
-            mergeGhanaHistory(
-                databaseGhanaHistory,
-                filteredBundledGhanaHistory
-            );
-
-        const history =
-            gameHistory.length
-                ? gameHistory
-                : allGhanaHistory;
+        const history = gameHistory;
 
         const ghanaRangeActive =
             hasCustomPredictionRange(
@@ -3394,20 +3402,10 @@ async function displayGhanaPrediction() {
             engineElement: ghanaEngineVersion,
             windowElement: ghanaDataWindow,
             generatedElement: ghanaGeneratedTime,
-            engineLabel: FIXED_PREDICTION_ENGINE_LABEL,
+            engineLabel: GHANA_PREDICTION_ENGINE_LABEL,
             history,
             generatedAt: null
         });
-
-        const supportingGhanaHistory =
-            gameHistory.length
-                ? allGhanaHistory
-                    .filter(result =>
-                        String(result.game).trim().toUpperCase() !==
-                        String(ghanaGame.game).trim().toUpperCase()
-                    )
-                    .slice(0, 3)
-                : [];
 
 
         if (ghanaAnalysisDrawCount) {
@@ -3436,14 +3434,11 @@ async function displayGhanaPrediction() {
 
 
         const predictionData =
-            calculateGhanaCombinedPrediction(
-                history,
-                supportingGhanaHistory
-            );
+            calculateGhanaGamePatternPrediction(history);
 
         if (ghanaRangeActive && ghanaGameDrawTime) {
             ghanaGameDrawTime.textContent =
-                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Fixed 30/50/20 range`;
+                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Weekday game-pattern range`;
         }
 
 
@@ -3748,7 +3743,7 @@ document.addEventListener(
 
             if (modernPredictionRangeStatus) {
                 modernPredictionRangeStatus.textContent = from || to
-                    ? `Fixed 30/50/20 range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
+                    ? `Fixed 60/30/10 range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
                     : "Using all Modern history plus today's earlier Modern games.";
             }
 
@@ -3782,7 +3777,7 @@ document.addEventListener(
 
             if (ghanaPredictionRangeStatus) {
                 ghanaPredictionRangeStatus.textContent = from || to
-                    ? `Fixed 30/50/20 range: ${from || "earliest"} to ${to || "latest"}. Modern history is unchanged.`
+                    ? `${getGhanaPredictionGame()?.game || "Ghana game"} pattern range: ${from || "earliest"} to ${to || "latest"}. Modern history is unchanged.`
                     : "Using all verified results for the scheduled Ghana game.";
             }
 
