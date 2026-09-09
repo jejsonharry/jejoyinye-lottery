@@ -196,7 +196,9 @@ async function shareGamePrediction(button) {
     const period =
         activeDateRange.from || activeDateRange.to
             ? `${activeDateRange.from || "earliest"} to ${activeDateRange.to || "latest"}`
-            : "All available historical results";
+            : isGhana
+                ? "Scheduled weekday game's complete history"
+                : "Previous 7 completed days plus today's earlier games";
 
     const forecastLabel = isGhana
         ? "Weekday game-pattern forecast"
@@ -565,6 +567,26 @@ function getTomorrowDateString() {
         date.getUTCDate() + 1
     );
 
+
+    return makeDateString(
+        date.getUTCFullYear(),
+        date.getUTCMonth() + 1,
+        date.getUTCDate()
+    );
+}
+
+
+function shiftDateString(dateString, numberOfDays) {
+    const [year, month, day] = String(dateString)
+        .split("-")
+        .map(Number);
+
+    if (![year, month, day].every(Number.isFinite)) {
+        return "";
+    }
+
+    const date = new Date(Date.UTC(year, month - 1, day));
+    date.setUTCDate(date.getUTCDate() + numberOfDays);
 
     return makeDateString(
         date.getUTCFullYear(),
@@ -1068,12 +1090,30 @@ async function fetchPredictionHistory(
 
         }
 
-        if (activeDateRange.from) {
-            query = query.gte("draw_date", activeDateRange.from);
+        const customRangeActive = Boolean(
+            activeDateRange.from || activeDateRange.to
+        );
+
+        if (
+            game.lottery === "modern-billionaire" &&
+            !customRangeActive
+        ) {
+            query = query
+                .gte(
+                    "draw_date",
+                    shiftDateString(game.drawDate, -7)
+                )
+                .lt("draw_date", game.drawDate);
         }
 
-        if (activeDateRange.to) {
-            query = query.lte("draw_date", activeDateRange.to);
+        else {
+            if (activeDateRange.from) {
+                query = query.gte("draw_date", activeDateRange.from);
+            }
+
+            if (activeDateRange.to) {
+                query = query.lte("draw_date", activeDateRange.to);
+            }
         }
 
 
@@ -1487,7 +1527,7 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
     moving: 0.10
 });
 
-const MODERN_PREDICTION_ENGINE_LABEL = "Fixed 60/30/10";
+const MODERN_PREDICTION_ENGINE_LABEL = "Rolling 7-Day 60/30/10";
 
 const GHANA_GAME_PATTERN_WEIGHTS = Object.freeze({
     statistical: 0.30,
@@ -3816,7 +3856,7 @@ document.addEventListener(
             if (modernPredictionRangeStatus) {
                 modernPredictionRangeStatus.textContent = from || to
                     ? `Fixed 60/30/10 range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
-                    : "Using all Modern history plus today's earlier Modern games.";
+                    : "Using the previous 7 completed days plus today's earlier Modern games.";
             }
 
             await displayNextGamePrediction();
@@ -3827,7 +3867,7 @@ document.addEventListener(
             modernPredictionDateRange = { from: "", to: "" };
 
             if (modernPredictionRangeStatus) {
-                modernPredictionRangeStatus.textContent = "Using all Modern history plus today's earlier Modern games.";
+                modernPredictionRangeStatus.textContent = "Using the previous 7 completed days plus today's earlier Modern games.";
             }
 
             await displayNextGamePrediction();
