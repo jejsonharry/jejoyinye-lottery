@@ -51,6 +51,25 @@
         href="style.css?v=95"
     >
     <link rel="stylesheet" href="result-conversion.css?v=1">
+    <style>
+        .home-player-promo{width:min(1120px,calc(100% - 32px));display:grid;grid-template-columns:minmax(250px,330px) 1fr;gap:38px;align-items:center;margin:42px auto;padding:28px;border:1px solid #d8e5dd;border-radius:26px;background:radial-gradient(circle at 90% 10%,rgba(250,204,21,.18),transparent 30%),linear-gradient(145deg,#052718 0%,#0a5a35 100%);box-shadow:0 22px 52px rgba(15,23,42,.14);color:#fff}
+        .home-player-promo-poster{display:block;overflow:hidden;border-radius:18px;background:#08733f;box-shadow:0 16px 34px rgba(0,0,0,.24);transition:transform .2s ease}
+        .home-player-promo-poster:hover{transform:translateY(-3px)}
+        .home-player-promo-poster img{display:block;width:100%;height:auto}
+        .home-player-promo-badge{display:inline-flex;padding:7px 13px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:900;letter-spacing:1.1px}
+        .home-player-promo-copy h2{max-width:650px;margin:15px 0 13px;font-size:clamp(29px,4vw,46px);line-height:1.1;color:#fff}
+        .home-player-promo-copy>p{max-width:650px;margin:0;color:#d8e8df;font-size:16px;line-height:1.7}
+        .home-player-promo-code{display:inline-flex;align-items:center;gap:14px;margin:22px 0;padding:12px 16px;border:1px solid rgba(255,255,255,.2);border-radius:13px;background:rgba(255,255,255,.1)}
+        .home-player-promo-code span{color:#cbd5e1;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+        .home-player-promo-code strong{color:#fde047;font-size:25px;letter-spacing:2px}
+        .home-player-promo-actions{display:flex;flex-wrap:wrap;gap:12px}
+        .home-player-promo-btn,.home-player-promo-link{min-height:49px;display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:12px;font-weight:900;text-decoration:none;transition:transform .2s ease}
+        .home-player-promo-btn{background:linear-gradient(180deg,#facc15,#e3ad09);color:#172033;box-shadow:0 10px 22px rgba(0,0,0,.2)}
+        .home-player-promo-link{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff}
+        .home-player-promo-btn:hover,.home-player-promo-link:hover{transform:translateY(-2px)}
+        .home-player-promo-note{margin-top:15px!important;color:#b9cec2!important;font-size:12px!important}
+        @media(max-width:760px){.home-player-promo{grid-template-columns:1fr;gap:25px;margin:30px auto;padding:20px}.home-player-promo-poster{width:min(420px,100%);margin:0 auto}.home-player-promo-actions{flex-direction:column}.home-player-promo-btn,.home-player-promo-link{width:100%}}
+    </style>
 
 
     <!-- =========================
@@ -321,6 +340,46 @@
     </div>
 
 
+</section>
+
+
+<!-- =====================================================
+     ONLINE PLAYER PROMOTION
+===================================================== -->
+
+<section class="home-player-promo" aria-labelledby="home-player-promo-title">
+    <a class="home-player-promo-poster"
+       href="https://m.modernlotterynigeria.com/#/pages/register/register?promotionCode=549849"
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Register for Modern Lottery with referral code 549849">
+        <img src="Images/modern-online-promo-549849.webp"
+             width="1130"
+             height="1392"
+             loading="lazy"
+             alt="Modern Lottery first recharge promotion with referral code 549849">
+    </a>
+
+    <div class="home-player-promo-copy">
+        <span class="home-player-promo-badge">ONGOING ONLINE PLAYER PROMOTION</span>
+        <h2 id="home-player-promo-title">Get 30% Extra On Your First Recharge</h2>
+        <p>Register through our Modern Lottery player link. Your referral code is already included, and both QR codes in the poster open the same registration page.</p>
+
+        <div class="home-player-promo-code">
+            <span>Referral code</span>
+            <strong>549849</strong>
+        </div>
+
+        <div class="home-player-promo-actions">
+            <a class="home-player-promo-btn"
+               href="https://m.modernlotterynigeria.com/#/pages/register/register?promotionCode=549849"
+               target="_blank"
+               rel="noopener noreferrer">Register With Code 549849</a>
+            <a class="home-player-promo-link" href="play-online">View Play Online Page</a>
+        </div>
+
+        <p class="home-player-promo-note">Promotion availability and eligibility are subject to the Modern Lottery platform's terms. Adults 18+ only.</p>
+    </div>
 </section>
 
 
