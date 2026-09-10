@@ -3,10 +3,10 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
-// VERSION 33
+// VERSION 34
 // =========================================================
 
-console.log("JEJOYINYE SCRIPT VERSION 33 LOADED");
+console.log("JEJOYINYE SCRIPT VERSION 34 LOADED");
 
 
 // =========================================================
@@ -4300,12 +4300,21 @@ async function displayLatestDailyGhanaResult() {
         getTodayGhanaDrawSchedule();
 
     if (!schedule) {
+        if (dailyGhanaResultsLabel) {
+            dailyGhanaResultsLabel.textContent = "";
+        }
+
         dailyGhanaResultsContainer.innerHTML = `
             <div class="no-results" style="grid-column:1/-1">
                 <h3>No Ghana Game Scheduled</h3>
             </div>
         `;
         return;
+    }
+
+    if (dailyGhanaResultsLabel) {
+        dailyGhanaResultsLabel.textContent =
+            formatResultDate(schedule.drawDate);
     }
 
     dailyGhanaResultsContainer.innerHTML = `
@@ -4353,12 +4362,6 @@ async function displayLatestDailyGhanaResult() {
                 ? createResultCard(result)
                 : createPendingDailyGhanaResultCard(schedule);
 
-        if (dailyGhanaResultsLabel) {
-            dailyGhanaResultsLabel.textContent =
-                result
-                    ? `${getResultsArchiveGameName(schedule.game)} • ${formatResultDate(schedule.drawDate)} • Published`
-                    : `${getResultsArchiveGameName(schedule.game)} • ${formatResultDate(schedule.drawDate)} • Awaiting publication`;
-        }
     }
     catch (error) {
         console.error(
@@ -4373,10 +4376,6 @@ async function displayLatestDailyGhanaResult() {
             </div>
         `;
 
-        if (dailyGhanaResultsLabel) {
-            dailyGhanaResultsLabel.textContent =
-                "Unable to load today's Ghana game";
-        }
     }
 }
 
