@@ -3,10 +3,10 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
-// VERSION 32
+// VERSION 33
 // =========================================================
 
-console.log("JEJOYINYE SCRIPT VERSION 32 LOADED");
+console.log("JEJOYINYE SCRIPT VERSION 33 LOADED");
 
 
 // =========================================================
@@ -348,6 +348,16 @@ const dailyModernResultsContainer =
 const dailyModernResultsLabel =
     document.getElementById(
         "daily-modern-results-label"
+    );
+
+const dailyGhanaResultsContainer =
+    document.getElementById(
+        "daily-ghana-results-container"
+    );
+
+const dailyGhanaResultsLabel =
+    document.getElementById(
+        "daily-ghana-results-label"
     );
 
 
@@ -4230,6 +4240,148 @@ async function displayLatestDailyModernResults() {
 
 
 // =========================================================
+// DAILY GHANA RESULT LANDING VIEW
+// =========================================================
+
+function getTodayGhanaDrawSchedule() {
+    const lagos =
+        getLagosTimeParts();
+
+    const draw =
+        ghanaDrawSchedule[lagos.weekday];
+
+    if (!draw) {
+        return null;
+    }
+
+    return {
+        lottery: "ghana",
+        game: draw.game,
+        databaseNames:
+            getGameDatabaseNames(draw.game),
+        drawDate:
+            makeDateString(
+                lagos.year,
+                lagos.month,
+                lagos.day
+            ),
+        displayTime: draw.displayTime
+    };
+}
+
+
+function createPendingDailyGhanaResultCard(schedule) {
+    return `
+        <article class="result-card result-card-no-machine daily-result-pending">
+            <div class="result-top">
+                <div class="result-game-info">
+                    <h3>${escapeHTML(getResultsArchiveGameName(schedule.game))}</h3>
+                    <span class="lottery-name">Ghana Games • ${escapeHTML(schedule.displayTime)}</span>
+                </div>
+                <div class="result-meta">
+                    <span class="draw-time">${escapeHTML(formatResultDate(schedule.drawDate))}</span>
+                    <span class="result-status">Pending</span>
+                </div>
+            </div>
+            <div class="daily-result-pending-message">
+                Awaiting result publication
+            </div>
+        </article>
+    `;
+}
+
+
+async function displayLatestDailyGhanaResult() {
+    if (!dailyGhanaResultsContainer) {
+        return;
+    }
+
+    const schedule =
+        getTodayGhanaDrawSchedule();
+
+    if (!schedule) {
+        dailyGhanaResultsContainer.innerHTML = `
+            <div class="no-results" style="grid-column:1/-1">
+                <h3>No Ghana Game Scheduled</h3>
+            </div>
+        `;
+        return;
+    }
+
+    dailyGhanaResultsContainer.innerHTML = `
+        <p style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b">
+            Loading Ghana result...
+        </p>
+    `;
+
+    try {
+        const [liveResult, bundledResult] =
+            await Promise.allSettled([
+                fetchScheduledResult(schedule),
+                fetchBundledGhanaResults()
+            ]);
+
+        const liveResults =
+            liveResult.status === "fulfilled" && liveResult.value
+                ? [liveResult.value]
+                : [];
+
+        const bundledResults =
+            bundledResult.status === "fulfilled"
+                ? bundledResult.value.filter(result =>
+                    result.draw_date === schedule.drawDate &&
+                    normalizeGameName(result.game) ===
+                        normalizeGameName(schedule.game)
+                )
+                : [];
+
+        if (
+            liveResult.status === "rejected" &&
+            bundledResult.status === "rejected"
+        ) {
+            throw liveResult.reason;
+        }
+
+        const result =
+            mergeResultSources(
+                liveResults,
+                bundledResults
+            )[0] || null;
+
+        dailyGhanaResultsContainer.innerHTML =
+            result
+                ? createResultCard(result)
+                : createPendingDailyGhanaResultCard(schedule);
+
+        if (dailyGhanaResultsLabel) {
+            dailyGhanaResultsLabel.textContent =
+                result
+                    ? `${getResultsArchiveGameName(schedule.game)} • ${formatResultDate(schedule.drawDate)} • Published`
+                    : `${getResultsArchiveGameName(schedule.game)} • ${formatResultDate(schedule.drawDate)} • Awaiting publication`;
+        }
+    }
+    catch (error) {
+        console.error(
+            "DAILY GHANA RESULT ERROR:",
+            error
+        );
+
+        dailyGhanaResultsContainer.innerHTML = `
+            <div class="no-results" style="grid-column:1/-1">
+                <h3>Ghana Result Temporarily Unavailable</h3>
+                <p>Please refresh the page and try again.</p>
+            </div>
+        `;
+
+        if (dailyGhanaResultsLabel) {
+            dailyGhanaResultsLabel.textContent =
+                "Unable to load today's Ghana game";
+        }
+    }
+}
+
+
+// =========================================================
 // RESULTS PAGE EVENTS
 // =========================================================
 
@@ -4771,7 +4923,8 @@ function subscribeToLiveResultUpdates() {
         (
             !resultsContainer &&
             !homeResultsContainer &&
-            !dailyModernResultsContainer
+            !dailyModernResultsContainer &&
+            !dailyGhanaResultsContainer
         )
     ) {
 
@@ -4806,6 +4959,10 @@ function subscribeToLiveResultUpdates() {
 
                                 if (dailyModernResultsContainer) {
                                     await displayLatestDailyModernResults();
+                                }
+
+                                if (dailyGhanaResultsContainer) {
+                                    await displayLatestDailyGhanaResult();
                                 }
 
                                 if (
@@ -4899,12 +5056,22 @@ document.addEventListener(
         // RESULTS PAGE
         // =============================================
 
-        if (resultsContainer || dailyModernResultsContainer) {
+        if (
+            resultsContainer ||
+            dailyModernResultsContainer ||
+            dailyGhanaResultsContainer
+        ) {
             const resultPageTasks = [];
 
             if (dailyModernResultsContainer) {
                 resultPageTasks.push(
                     displayLatestDailyModernResults()
+                );
+            }
+
+            if (dailyGhanaResultsContainer) {
+                resultPageTasks.push(
+                    displayLatestDailyGhanaResult()
                 );
             }
 
