@@ -599,6 +599,46 @@
         }
 
 
+        .admin-skip-machine-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 13px 0 14px;
+            padding: 14px 16px;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #eff6ff, #ffffff);
+            color: #1e3a5f;
+            cursor: pointer;
+        }
+
+
+        .admin-skip-machine-option[hidden] {
+            display: none;
+        }
+
+
+        .admin-skip-machine-option input {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            accent-color: #15803d;
+        }
+
+
+        .admin-skip-machine-option strong,
+        .admin-skip-machine-option small {
+            display: block;
+        }
+
+
+        .admin-skip-machine-option small {
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+
         /* =====================================================
            BUTTONS
         ===================================================== */
@@ -3285,11 +3325,29 @@
                     </h3>
 
                     <p id="machine-number-help">
-                        Enter five machine numbers between
-                        1 and 90 for every result.
+                        Select a lottery to see whether
+                        machine numbers are required.
                     </p>
 
                 </div>
+
+
+                <label
+                    id="skip-machine-option"
+                    class="admin-skip-machine-option"
+                    for="skip-machine-numbers"
+                    hidden
+                >
+                    <input
+                        type="checkbox"
+                        id="skip-machine-numbers"
+                    >
+
+                    <span>
+                        <strong>Publish without machine numbers</strong>
+                        <small>Add all five later through Edit Result when available.</small>
+                    </span>
+                </label>
 
 
                 <div class="admin-number-grid">
@@ -3709,7 +3767,7 @@
 
 <script src="supabase.js"></script>
 
-<script src="admin.js?v=1405" defer></script>
+<script src="admin.js?v=1406" defer></script>
 
 </body>
 </html>

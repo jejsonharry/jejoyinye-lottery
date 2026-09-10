@@ -4,11 +4,11 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // ADMIN DASHBOARD
-// VERSION 1404
+// VERSION 1406
 // =========================================================
 
 console.log(
-    "JEJOYINYE ADMIN VERSION 1404 LOADED"
+    "JEJOYINYE ADMIN VERSION 1406 LOADED"
 );
 
 
@@ -111,6 +111,12 @@ const machineNumberHelp =
 
 const machineInputs =
     Array.from(document.querySelectorAll(".machine-input"));
+
+const skipMachineNumbers =
+    document.getElementById("skip-machine-numbers");
+
+const skipMachineOption =
+    document.getElementById("skip-machine-option");
 
 
 const publishButton =
@@ -911,15 +917,39 @@ function loadGames(lottery) {
 
 function updateMachineNumberRequirement() {
 
+    const isGhanaResult =
+        lotterySelect?.value === "ghana";
+
+    if (skipMachineOption) {
+        skipMachineOption.hidden = !isGhanaResult;
+    }
+
+    if (!isGhanaResult && skipMachineNumbers) {
+        skipMachineNumbers.checked = false;
+    }
+
+    const machineNumbersAreSkipped =
+        isGhanaResult && Boolean(skipMachineNumbers?.checked);
+
     machineInputs.forEach(input => {
-        input.required = true;
-        input.disabled = false;
-        input.placeholder = "";
+        if (machineNumbersAreSkipped) {
+            input.value = "";
+        }
+
+        input.required = !machineNumbersAreSkipped;
+        input.disabled = machineNumbersAreSkipped;
+        input.placeholder = isGhanaResult
+            ? (machineNumbersAreSkipped ? "Skipped" : "Enter number")
+            : "";
     });
 
     if (machineNumberHelp) {
         machineNumberHelp.textContent =
-            "Enter five machine numbers between 1 and 90 for Modern Billionaire or Ghana Games.";
+            isGhanaResult
+                ? (machineNumbersAreSkipped
+                    ? "Machine numbers will be omitted. Use Edit Result to add them later."
+                    : "Enter all five machine numbers, or tick Publish without machine numbers below.")
+                : "Required for Modern Billionaire: enter all five machine numbers between 1 and 90.";
     }
 }
 
@@ -1049,10 +1079,26 @@ async function saveResult(event) {
             );
 
 
-    const machine =
+    const machineValues =
         machineInputs.map(
-            input => Number(input.value)
+            input => input.value.trim()
         );
+
+
+    const isGhanaResult =
+        lotterySelect.value === "ghana";
+
+
+    const machineNumbersAreSkipped =
+        isGhanaResult && Boolean(skipMachineNumbers?.checked);
+
+
+    const machine =
+        machineNumbersAreSkipped
+            ? []
+            : machineValues
+                .filter(value => value !== "")
+                .map(Number);
 
 
     if (
@@ -1073,17 +1119,11 @@ async function saveResult(event) {
 
 
     if (
-        !numbersAreValid(
-            winning
-        )
-
-        ||
-
-        !numbersAreValid(machine)
+        !numbersAreValid(winning)
     ) {
 
         showError(
-            "Enter five valid numbers between 1 and 90."
+            "Enter five valid winning numbers between 1 and 90."
         );
 
 
@@ -1092,13 +1132,28 @@ async function saveResult(event) {
 
 
     if (
-        hasDuplicates(
-            winning
-        )
+        !machineNumbersAreSkipped
+        &&
+        !numbersAreValid(machine)
+    ) {
+
+        showError(
+            isGhanaResult
+                ? "For Ghana, enter all five machine numbers or tick Publish without machine numbers."
+                : "Enter five valid machine numbers between 1 and 90."
+        );
+
+
+        return;
+    }
+
+
+    if (
+        hasDuplicates(winning)
 
         ||
 
-        hasDuplicates(machine)
+        (machine.length > 0 && hasDuplicates(machine))
     ) {
 
         showError(
@@ -1832,6 +1887,17 @@ function startEditingResult(
 
             }
         );
+
+
+    if (skipMachineNumbers) {
+        skipMachineNumbers.checked =
+            result.lottery === "ghana"
+            &&
+            machine.length === 0;
+    }
+
+
+    updateMachineNumberRequirement();
 
 
     publishButton.textContent =
@@ -3724,6 +3790,12 @@ function attachEvents() {
         );
 
     updateMachineNumberRequirement();
+
+    skipMachineNumbers
+        ?.addEventListener(
+            "change",
+            updateMachineNumberRequirement
+        );
 
 
     resultForm
