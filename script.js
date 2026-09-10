@@ -3,10 +3,10 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
-// VERSION 31
+// VERSION 32
 // =========================================================
 
-console.log("JEJOYINYE SCRIPT VERSION 31 LOADED");
+console.log("JEJOYINYE SCRIPT VERSION 32 LOADED");
 
 
 // =========================================================
@@ -1065,7 +1065,7 @@ function parseBundledGhanaResults(csvText) {
 async function fetchBundledGhanaResults() {
     if (!bundledGhanaResultsPromise) {
         bundledGhanaResultsPromise =
-            fetch("data/ghana-history.csv?v=4", {
+            fetch("data/ghana-history.csv?v=5", {
                 cache: "no-cache"
             })
                 .then(response => {
@@ -1192,8 +1192,7 @@ function filterBundledGhanaResults(results) {
 function mergeResultSources(primaryResults, fallbackResults) {
     const merged = new Map();
 
-    [...primaryResults, ...fallbackResults]
-        .forEach(result => {
+    primaryResults.forEach(result => {
             const key = [
                 result.lottery,
                 normalizeGameName(result.game).toUpperCase(),
@@ -1207,11 +1206,6 @@ function mergeResultSources(primaryResults, fallbackResults) {
                 return;
             }
 
-            /*
-             Keep live Supabase values, but fill any missing number set from
-             the bundled Ghana archive. This prevents a winning-only live row
-             from hiding machine numbers already stored in the archive.
-            */
             merged.set(key, {
                 ...result,
                 ...existing,
@@ -1225,6 +1219,39 @@ function mergeResultSources(primaryResults, fallbackResults) {
                         : result.machine
             });
         });
+
+    fallbackResults.forEach(result => {
+        const key = [
+            result.lottery,
+            normalizeGameName(result.game).toUpperCase(),
+            result.draw_date
+        ].join("|");
+
+        const existing = merged.get(key);
+
+        if (!existing) {
+            merged.set(key, result);
+            return;
+        }
+
+        /*
+         The bundled Ghana archive contains owner-verified historical data.
+         Prefer each complete supplied number set over an older conflicting
+         live row, while retaining a live value when the archive lacks it.
+        */
+        merged.set(key, {
+            ...existing,
+            ...result,
+            winning:
+                parseJsonbBalls(result.winning).length
+                    ? result.winning
+                    : existing.winning,
+            machine:
+                parseJsonbBalls(result.machine).length
+                    ? result.machine
+                    : existing.machine
+        });
+    });
 
     return [...merged.values()];
 }
