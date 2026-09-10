@@ -3,10 +3,10 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
-// VERSION 30
+// VERSION 31
 // =========================================================
 
-console.log("JEJOYINYE SCRIPT VERSION 30 LOADED");
+console.log("JEJOYINYE SCRIPT VERSION 31 LOADED");
 
 
 // =========================================================
@@ -398,16 +398,78 @@ function normalizeGameName(game) {
         String(game).trim();
 
 
-    if (
-        clean.toLowerCase() ===
-        "golden night"
-    ) {
+    const comparable =
+        clean
+            .toLowerCase()
+            .replace(/[-_]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
 
-        return "Golden";
+
+    const canonicalNames = {
+        "power ball": "Powerball",
+        "golden": "Golden",
+        "golden night": "Golden",
+        "mid week": "Mid Week",
+        "midweek": "Mid Week",
+        "thursday fortune": "Thursday Fortune",
+        "fortune thursday": "Thursday Fortune",
+        "national": "National",
+        "national weekly": "National",
+        "national weekly lotto": "National",
+        "aseda": "ASEDA",
+        "sunday aseda": "ASEDA"
+    };
+
+
+    if (canonicalNames[comparable]) {
+
+        return canonicalNames[comparable];
     }
 
 
     return clean;
+}
+
+
+function getGameDatabaseNames(game) {
+
+    const canonical =
+        normalizeGameName(game);
+
+
+    const aliases = {
+        Powerball: [
+            "Powerball",
+            "Power Ball"
+        ],
+        Golden: [
+            "Golden",
+            "Golden Night"
+        ],
+        "Mid Week": [
+            "Mid Week",
+            "Mid-Week",
+            "Midweek"
+        ],
+        "Thursday Fortune": [
+            "Thursday Fortune",
+            "Fortune Thursday"
+        ],
+        National: [
+            "National",
+            "National Weekly",
+            "National Weekly Lotto"
+        ],
+        ASEDA: [
+            "ASEDA",
+            "Aseda",
+            "Sunday Aseda"
+        ]
+    };
+
+
+    return aliases[canonical] || [canonical];
 }
 
 
@@ -782,20 +844,20 @@ function applySupabaseFilters(
 
     if (selectedGame) {
 
-        if (
-            normalizeGameName(
+        const databaseGameNames =
+            getGameDatabaseNames(
                 selectedGame
-            ) ===
-            "Golden"
+            );
+
+
+        if (
+            databaseGameNames.length > 1
         ) {
 
             query =
                 query.in(
                     "game",
-                    [
-                        "Golden",
-                        "Golden Night"
-                    ]
+                    databaseGameNames
                 );
         }
 
@@ -804,7 +866,7 @@ function applySupabaseFilters(
             query =
                 query.eq(
                     "game",
-                    selectedGame
+                    databaseGameNames[0]
                 );
         }
     }
@@ -2317,7 +2379,9 @@ function createPagination(
 function createLotteryResultsGroup(
     results,
     lottery,
-    pagination
+    pagination,
+    totalResults = results.length,
+    startIndex = 0
 ) {
 
     if (
@@ -2346,6 +2410,16 @@ function createLotteryResultsGroup(
             : "modern-results-group";
 
 
+    const endIndex =
+        startIndex + results.length;
+
+
+    const resultsSummary =
+        resultsArchiveWorkspace
+            ? `Showing ${startIndex + 1}-${endIndex} of ${totalResults} published results`
+            : `${results.length} ${results.length === 1 ? "result" : "results"} on this page`;
+
+
     return `
 
         <section
@@ -2359,9 +2433,7 @@ function createLotteryResultsGroup(
                 </h3>
 
                 <span>
-                    ${results.length}
-                    ${results.length === 1 ? "result" : "results"}
-                    on this page
+                    ${resultsSummary}
                 </span>
 
             </div>
@@ -2577,7 +2649,9 @@ function renderCurrentPage() {
                     modernTotalPages,
                     modernCurrentPage,
                     "modern-billionaire"
-                )
+                ),
+            allModernResults.length,
+            modernStartIndex
         )
 
         +
@@ -2591,7 +2665,9 @@ function renderCurrentPage() {
                     ghanaTotalPages,
                     ghanaCurrentPage,
                     "ghana"
-                )
+                ),
+            allGhanaResults.length,
+            ghanaStartIndex
         );
 
 
@@ -2604,6 +2680,16 @@ function renderCurrentPage() {
             selectedLottery === "ghana"
                 ? ghanaResults
                 : modernResults;
+
+        const selectedAllResults =
+            selectedLottery === "ghana"
+                ? allGhanaResults
+                : allModernResults;
+
+        const selectedStartIndex =
+            selectedLottery === "ghana"
+                ? ghanaStartIndex
+                : modernStartIndex;
 
         const selectedPage =
             selectedLottery === "ghana"
@@ -2627,10 +2713,20 @@ function renderCurrentPage() {
                     ? ` for the selected date range`
                     : "";
 
+        const visibleStart =
+            selectedResults.length
+                ? selectedStartIndex + 1
+                : 0;
+
+        const visibleEnd =
+            selectedStartIndex + selectedResults.length;
+
         resultsDateLabel.textContent =
-            hasCompleteHistoryFilter
-                ? `${selectedResults.length} published ${selectedGameName} results found${periodLabel}`
-                : `${selectedGameName} • ${selectedResults.length} results on page ${selectedPage}/${selectedTotalPages}`;
+            resultsArchiveWorkspace
+                ? `${selectedGameName} • ${selectedAllResults.length} published results${periodLabel} • showing ${visibleStart}-${visibleEnd}`
+                : hasCompleteHistoryFilter
+                    ? `${selectedResults.length} published ${selectedGameName} results found${periodLabel}`
+                    : `${selectedGameName} • ${selectedResults.length} results on page ${selectedPage}/${selectedTotalPages}`;
     }
 
 
