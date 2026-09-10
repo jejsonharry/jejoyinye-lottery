@@ -18,7 +18,7 @@
 .game-folder-icon.game-logo{border:1px solid #edf1f4;background-color:#fff;background-repeat:no-repeat;box-shadow:0 5px 13px rgba(15,23,42,.1)}
 .modern-logo{background-image:url("Images/modern-game-icons.jpeg");background-size:250px 1279px}
 .modern-powerball{background-position:-10px -46px}.modern-awoof{background-position:-10px -145px}.modern-biggest-bet{background-position:-10px -244px}.modern-gold-rush{background-position:-10px -344px}.modern-lucky-dollar{background-position:-10px -444px}.modern-bingo{background-position:-10px -546px}.modern-bonus-cash{background-position:-10px -646px}.modern-hero{background-position:-10px -745px}.modern-golden-night{background-position:-10px -846px}.modern-queen{background-position:-10px -946px}.modern-blessing{background-position:-10px -1045px}.modern-owo-time{background-position:-10px -1146px}
-.ghana-logo{background-image:url("Images/ghana-game-icons.jpeg");background-size:206px 1275px}
+.ghana-grid .game-folder-icon.ghana-logo{background-color:#fff;background-image:url("Images/ghana-game-icons.jpeg");background-size:206px 1275px}
 .ghana-monday{background-position:-6px -56px}.ghana-tuesday{background-position:-6px -244px}.ghana-midweek{background-position:-6px -434px}.ghana-thursday{background-position:-6px -623px}.ghana-friday{background-position:-6px -811px}.ghana-national{background-position:-6px -995px}.ghana-aseda{background-position:-6px -1177px}
 .game-folder-copy{min-width:0;flex:1}
 .game-folder-copy strong{display:block;color:#172033;font-size:16px;line-height:1.25}
