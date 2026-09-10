@@ -39,3 +39,165 @@
 .game-archive-shell .section-heading h2{font-size:21px}
 @media(max-width:900px){.game-folder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.game-archive-shell .filter-box{grid-template-columns:repeat(2,minmax(0,1fr))}.game-archive-shell .search-result-btn,.game-archive-shell .reset-result-btn{width:100%}}
 @media(max-width:620px){.game-directory-shell,.game-archive-shell{width:min(100% - 20px,1180px);margin-top:22px}.game-directory-intro{align-items:flex-start;flex-direction:column;padding:20px}.game-folder-grid{grid-template-columns:1fr;gap:10px}.game-folder-card{min-height:82px;padding:14px}.game-directory-badge{align-self:flex-start}.game-archive-shell{padding:16px;border-radius:17px}.game-archive-header{align-items:flex-start;flex-direction:column;gap:12px}.game-archive-shell .filter-box{grid-template-columns:1fr 1fr;padding:13px;gap:10px}.game-archive-shell .filter-box .filter-item label{font-size:11px}.game-archive-shell .filter-box input,.game-archive-shell .filter-box select{font-size:13px;padding:10px 7px}}
+
+/* Dedicated game archives: keep complete winning and machine rows visible. */
+.game-results-page .game-archive-shell #results-container {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    width: 100% !important;
+}
+.game-results-page .game-archive-shell #results-container > .result-card {
+    display: grid !important;
+    grid-template-columns: minmax(190px, .8fr) minmax(190px, 1fr) minmax(190px, 1fr) !important;
+    align-items: center !important;
+    gap: 14px 22px !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 18px 20px !important;
+    overflow: hidden !important;
+}
+.game-results-page .game-archive-shell .result-top {
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.game-results-page .game-archive-shell .result-game-info,
+.game-results-page .game-archive-shell .result-number-group {
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+.game-results-page .game-archive-shell .result-top h3 {
+    margin: 0 0 4px !important;
+    overflow: visible !important;
+    color: #078f45 !important;
+    font-size: 19px !important;
+    line-height: 1.2 !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+}
+.game-results-page .game-archive-shell .result-meta {
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+}
+.game-results-page .game-archive-shell .machine-numbers,
+.game-results-page .game-archive-shell .winning-numbers {
+    display: grid !important;
+    grid-template-columns: repeat(5, 36px) !important;
+    gap: 7px !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+}
+.game-results-page .game-archive-shell .number-ball {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    font-size: 12px !important;
+    line-height: 36px !important;
+}
+.game-results-page .game-archive-shell .result-player-actions {
+    grid-column: 1 / -1 !important;
+    margin-top: 0 !important;
+}
+
+@media (max-width: 760px) {
+    .game-results-page .game-archive-shell #results-container > .result-card,
+    .game-results-page .game-archive-shell #results-container > .result-card:not(.result-card-no-machine) {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto auto auto !important;
+        gap: 13px !important;
+        padding: 15px 13px !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+    .game-results-page .game-archive-shell .result-top {
+        grid-column: 1 !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: start !important;
+        gap: 10px !important;
+        padding-bottom: 10px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+    .game-results-page .game-archive-shell .result-top h3 {
+        font-size: 18px !important;
+        overflow-wrap: normal !important;
+    }
+    .game-results-page .game-archive-shell .lottery-name {
+        display: block !important;
+        font-size: 10px !important;
+    }
+    .game-results-page .game-archive-shell .result-meta {
+        display: grid !important;
+        grid-template-columns: auto auto !important;
+        align-items: center !important;
+        justify-items: end !important;
+        gap: 5px !important;
+    }
+    .game-results-page .game-archive-shell .draw-time {
+        grid-column: 1 / -1 !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+    .game-results-page .game-archive-shell .result-status {
+        display: none !important;
+    }
+    .game-results-page .game-archive-shell .result-share-btn {
+        min-height: 30px !important;
+        padding: 6px 10px !important;
+        font-size: 9px !important;
+    }
+    .game-results-page .game-archive-shell .result-number-group,
+    .game-results-page .game-archive-shell .result-card-no-machine .result-number-group {
+        grid-column: 1 !important;
+        width: 100% !important;
+    }
+    .game-results-page .game-archive-shell .result-number-group h4 {
+        margin: 0 0 7px !important;
+        font-size: 10px !important;
+        letter-spacing: .06em !important;
+        white-space: normal !important;
+    }
+    .game-results-page .game-archive-shell .machine-numbers,
+    .game-results-page .game-archive-shell .winning-numbers,
+    .game-results-page .game-archive-shell .result-card-no-machine .winning-numbers {
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(32px, 38px)) !important;
+        justify-content: start !important;
+        gap: 7px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .game-results-page .game-archive-shell .number-ball,
+    .game-results-page .game-archive-shell .result-card-no-machine .number-ball {
+        justify-self: start !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        font-size: 12px !important;
+        line-height: 36px !important;
+    }
+    .game-results-page .game-archive-shell .result-player-actions {
+        display: none !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .game-results-page .game-archive-shell .machine-numbers,
+    .game-results-page .game-archive-shell .winning-numbers,
+    .game-results-page .game-archive-shell .result-card-no-machine .winning-numbers {
+        grid-template-columns: repeat(5, 32px) !important;
+        gap: 5px !important;
+    }
+    .game-results-page .game-archive-shell .number-ball,
+    .game-results-page .game-archive-shell .result-card-no-machine .number-ball {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        font-size: 11px !important;
+        line-height: 32px !important;
+    }
+}
