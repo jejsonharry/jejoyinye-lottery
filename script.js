@@ -3,10 +3,10 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
-// VERSION 34
+// VERSION 35
 // =========================================================
 
-console.log("JEJOYINYE SCRIPT VERSION 34 LOADED");
+console.log("JEJOYINYE SCRIPT VERSION 35 LOADED");
 
 
 // =========================================================
@@ -223,7 +223,7 @@ const ghanaDrawSchedule = {
 // RESULTS SETTINGS
 // =========================================================
 
-const RESULTS_PER_LOTTERY_PAGE = 12;
+const RESULTS_PER_LOTTERY_PAGE = 20;
 
 const DATABASE_BATCH_SIZE = 1000;
 
@@ -2435,10 +2435,18 @@ function createLotteryResultsGroup(
         "ghana";
 
 
+    const selectedArchiveGame =
+        resultsArchiveWorkspace && gameSelect?.value
+            ? getResultsArchiveGameName(gameSelect.value)
+            : "";
+
+
     const title =
-        isGhana
-            ? "Ghana Results"
-            : "Modern Billionaire Results";
+        selectedArchiveGame
+            ? `${selectedArchiveGame} Results`
+            : isGhana
+                ? "Ghana Results"
+                : "Modern Billionaire Results";
 
 
     const groupClass =
