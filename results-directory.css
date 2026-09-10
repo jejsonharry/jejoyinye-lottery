@@ -91,7 +91,7 @@
     max-width: 100% !important;
     overflow: visible !important;
 }
-.game-results-page .game-archive-shell .number-ball {
+.game-results-page .game-archive-shell #results-container .number-ball {
     width: 36px !important;
     height: 36px !important;
     min-width: 36px !important;
@@ -176,8 +176,8 @@
         width: 100% !important;
         max-width: 100% !important;
     }
-    .game-results-page .game-archive-shell .number-ball,
-    .game-results-page .game-archive-shell .result-card-no-machine .number-ball {
+    .game-results-page .game-archive-shell #results-container .number-ball,
+    .game-results-page .game-archive-shell #results-container .result-card-no-machine .number-ball {
         justify-self: center !important;
         width: clamp(24px, 7vw, 30px) !important;
         height: clamp(24px, 7vw, 30px) !important;
@@ -199,8 +199,8 @@
         grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
         gap: 2px !important;
     }
-    .game-results-page .game-archive-shell .number-ball,
-    .game-results-page .game-archive-shell .result-card-no-machine .number-ball {
+    .game-results-page .game-archive-shell #results-container .number-ball,
+    .game-results-page .game-archive-shell #results-container .result-card-no-machine .number-ball {
         width: clamp(24px, 7vw, 27px) !important;
         height: clamp(24px, 7vw, 27px) !important;
         min-width: clamp(24px, 7vw, 27px) !important;
