@@ -179,9 +179,11 @@
     .game-results-page .game-archive-shell #results-container .number-ball,
     .game-results-page .game-archive-shell #results-container .result-card-no-machine .number-ball {
         justify-self: center !important;
-        width: clamp(24px, 7vw, 30px) !important;
-        height: clamp(24px, 7vw, 30px) !important;
-        min-width: clamp(24px, 7vw, 30px) !important;
+        width: 100% !important;
+        max-width: 30px !important;
+        height: auto !important;
+        min-width: 0 !important;
+        aspect-ratio: 1 / 1 !important;
         font-size: clamp(11px, 3vw, 13px) !important;
         font-weight: 950 !important;
         line-height: 1 !important;
@@ -201,9 +203,11 @@
     }
     .game-results-page .game-archive-shell #results-container .number-ball,
     .game-results-page .game-archive-shell #results-container .result-card-no-machine .number-ball {
-        width: clamp(24px, 7vw, 27px) !important;
-        height: clamp(24px, 7vw, 27px) !important;
-        min-width: clamp(24px, 7vw, 27px) !important;
+        width: 100% !important;
+        max-width: 27px !important;
+        height: auto !important;
+        min-width: 0 !important;
+        aspect-ratio: 1 / 1 !important;
         font-size: clamp(10px, 3vw, 12px) !important;
         font-weight: 950 !important;
         line-height: 1 !important;
