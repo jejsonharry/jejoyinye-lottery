@@ -72,8 +72,12 @@
         .results-directory-folder-copy>span{display:block;color:#64748b;font-size:13px}
         .results-directory-folder-action{flex:0 0 auto;color:#15803d;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
         .results-directory-count{flex:0 0 auto;padding:6px 10px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11px;font-weight:900}
+        .results-compact-header{width:min(1180px,calc(100% - 32px));display:flex;align-items:center;justify-content:space-between;gap:24px;margin:30px auto 0;padding:22px 25px;border:1px solid rgba(34,197,94,.24);border-radius:20px;background:linear-gradient(135deg,#063d25,#078647);color:#fff;box-shadow:0 14px 36px rgba(6,95,52,.16)}
+        .results-compact-header span{display:block;margin-bottom:4px;color:#bbf7d0;font-size:10px;font-weight:900;letter-spacing:1.3px}
+        .results-compact-header h2{margin:0;color:#fff;font-size:clamp(24px,3vw,34px);line-height:1.15}
+        .results-compact-header p{max-width:430px;margin:0;color:#dcfce7;font-size:14px;line-height:1.5;text-align:right}
         @media(max-width:980px){.results-directory-groups{grid-template-columns:1fr}.daily-modern-results-grid{grid-template-columns:1fr}}
-        @media(max-width:650px){.daily-modern-results,.results-game-directory{width:min(100% - 20px,1180px)}.daily-modern-results{margin-top:22px;padding:14px;border-radius:17px}.daily-modern-results-header{align-items:flex-start;flex-direction:column;gap:8px}.daily-modern-results-label{text-align:left}.daily-modern-results-grid{gap:8px}.daily-modern-results-grid .result-card{padding:8px;gap:5px}.daily-modern-results-grid .result-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px}.daily-modern-results-grid .result-game-info h3{font-size:13px}.daily-modern-results-grid .lottery-name{font-size:8px}.daily-modern-results-grid .result-meta{gap:3px}.daily-modern-results-grid .draw-time,.daily-modern-results-grid .result-status,.daily-modern-results-grid .result-share-btn{font-size:8px;padding:4px 6px}.daily-modern-results-grid .result-number-group h4{font-size:8px}.daily-modern-results-grid .number-ball{width:22px;height:22px;min-width:22px;font-size:8px;line-height:22px}.results-game-directory{margin-top:22px}.results-directory-heading{text-align:left}.results-directory-folder{padding:18px}.results-directory-folder-icon{width:42px;height:42px;flex-basis:42px}.results-directory-folder-title{font-size:17px}.results-directory-count{display:none}.results-directory-folder-action{margin-left:auto}}
+        @media(max-width:650px){.results-page .premium-header{padding:8px 12px!important}.results-page .header-inner{min-height:58px!important}.results-page .brand-area{flex-direction:row!important;gap:9px!important;text-align:left!important}.results-page .premium-logo{width:46px!important;height:46px!important}.results-page .brand-area h1{font-size:15px!important;line-height:1.15!important}.results-page .brand-area p{margin-top:2px!important;font-size:9px!important}.results-page nav{display:flex!important;flex-wrap:nowrap!important;justify-content:flex-start!important;gap:7px!important;padding:8px 10px!important;overflow-x:auto!important;scrollbar-width:none}.results-page nav::-webkit-scrollbar{display:none}.results-page nav a{flex:0 0 auto!important;min-width:auto!important;margin:0!important;padding:9px 13px!important;border-radius:9px!important;font-size:11px!important;white-space:nowrap!important}.results-compact-header{width:min(100% - 20px,1180px);align-items:flex-start;flex-direction:column;gap:5px;margin-top:14px;padding:16px 17px;border-radius:15px}.results-compact-header span{font-size:8px}.results-compact-header h2{font-size:22px}.results-compact-header p{font-size:11px;text-align:left}.daily-modern-results,.results-game-directory{width:min(100% - 20px,1180px)}.daily-modern-results{margin-top:22px;padding:14px;border-radius:17px}.daily-modern-results-header{align-items:flex-start;flex-direction:column;gap:8px}.daily-modern-results-label{text-align:left}.daily-modern-results-grid{gap:8px}.daily-modern-results-grid .result-card{padding:8px;gap:5px}.daily-modern-results-grid .result-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px}.daily-modern-results-grid .result-game-info h3{font-size:13px}.daily-modern-results-grid .lottery-name{font-size:8px}.daily-modern-results-grid .result-meta{gap:3px}.daily-modern-results-grid .draw-time,.daily-modern-results-grid .result-status,.daily-modern-results-grid .result-share-btn{font-size:8px;padding:4px 6px}.daily-modern-results-grid .result-number-group h4{font-size:8px}.daily-modern-results-grid .number-ball{width:22px;height:22px;min-width:22px;font-size:8px;line-height:22px}.results-game-directory{margin-top:14px}.results-directory-folder{padding:15px}.results-directory-folder-icon{width:42px;height:42px;flex-basis:42px}.results-directory-folder-title{font-size:17px}.results-directory-count{display:none}.results-directory-folder-action{margin-left:auto}}
     </style>
 
   <link rel="canonical" href="https://jolslottery.com/results">
@@ -124,32 +128,15 @@
     <a href="contact">Contact</a>
 </nav>
 
-<section class="results-hero">
-    <span class="results-hero-kicker">RESULTS • PLAY • COMMUNITY</span>
-    <h2>Daily Lottery Results</h2>
-    <p>Check verified results, then get ready for the next draw.</p>
-    <div class="results-player-hero-actions" aria-label="Player options">
-        <a href="play-online" class="results-hero-play-link">
-            Play Next Draw Online
-        </a>
-        <a
-            href="https://chat.whatsapp.com/FL2C5b2emu8L50AG3qXuPw"
-            class="results-hero-community-link"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            Join Players Community
-        </a>
+<section class="results-compact-header" aria-labelledby="results-page-title">
+    <div>
+        <span>VERIFIED RESULTS</span>
+        <h2 id="results-page-title">Lottery Results Centre</h2>
     </div>
-    <small class="results-hero-responsible">18+ only • Play responsibly</small>
+    <p>Today's draws and complete Modern Billionaire and Ghana game archives.</p>
 </section>
 
-<section class="results-game-directory" aria-labelledby="results-directory-title-top">
-    <div class="results-directory-heading">
-        <span>RESULT FOLDERS</span>
-        <h2 id="results-directory-title-top">Choose Your Lottery</h2>
-        <p>Open a lottery folder to select a game and view its complete published result history.</p>
-    </div>
+<section class="results-game-directory" aria-label="Lottery result folders">
     <div class="results-directory-groups">
         <a href="modern-results" class="results-directory-folder">
             <span class="results-directory-folder-icon category-logo category-logo-modern" aria-hidden="true"></span>
