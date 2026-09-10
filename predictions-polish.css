@@ -586,3 +586,464 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* September 2026 professional predictions-page refinement */
+.prediction-premium-hero {
+    padding: 42px 20px;
+    background:
+        radial-gradient(circle at 18% 25%, rgba(74, 222, 128, .18), transparent 30%),
+        linear-gradient(125deg, #052e1b 0%, #08723d 56%, #14944f 100%);
+}
+
+.prediction-hero-title {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 900;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    text-transform: capitalize;
+}
+
+.next-prediction-section {
+    padding-inline: 0 !important;
+}
+
+.prediction-section-heading {
+    margin-bottom: 26px;
+}
+
+.prediction-section-heading > span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 6px 12px;
+    border: 1px solid #bbf7d0;
+    border-radius: 999px;
+    background: #f0fdf4;
+    color: #14783a;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .13em;
+}
+
+.prediction-section-heading h2 {
+    margin: 10px 0 0;
+}
+
+.prediction-cards-grid {
+    align-items: stretch;
+}
+
+.prediction-cards-grid .next-prediction-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(145deg, rgba(34, 197, 94, .52), rgba(203, 213, 225, .4)) border-box;
+    border: 1px solid transparent;
+}
+
+.prediction-analysis-wide {
+    max-width: 1180px;
+    margin: 34px auto 0;
+    padding: 28px;
+    border-radius: 22px;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, .07);
+}
+
+.prediction-analysis-wide .prediction-analysis-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+}
+
+.prediction-analysis-wide .prediction-analysis-heading h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(24px, 3vw, 32px);
+}
+
+.prediction-analysis-wide #prediction-analysis-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.prediction-warning {
+    max-width: 1180px;
+    margin: 24px auto 0;
+    padding: 22px 26px;
+    border: 1px solid #f4cf70;
+    border-left: 6px solid #e5a400;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #fffbeb, #fffdf7);
+    box-shadow: 0 12px 32px rgba(146, 91, 0, .07);
+}
+
+.prediction-warning h3 {
+    margin: 0 0 5px;
+}
+
+.prediction-warning p {
+    margin: 0;
+}
+
+.prediction-schedule-section {
+    position: relative;
+    overflow: hidden;
+    margin-top: 28px;
+    padding: 34px;
+    border: 1px solid #d9e6de;
+    background:
+        linear-gradient(180deg, rgba(240, 253, 244, .86), #fff 160px);
+    box-shadow: 0 20px 55px rgba(15, 23, 42, .08);
+}
+
+.prediction-schedule-section::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 5px;
+    background: linear-gradient(90deg, #0c7a37, #22c55e, #d5a10a);
+}
+
+.prediction-schedule-section .prediction-section-heading {
+    margin-bottom: 14px;
+}
+
+.prediction-schedule-list {
+    gap: 14px;
+}
+
+.prediction-schedule-card {
+    position: relative;
+    min-height: 118px;
+    border: 1px solid #dfe7ef;
+    border-left: 0;
+    border-radius: 17px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 9px 24px rgba(15, 23, 42, .06);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.prediction-schedule-card::before {
+    content: "";
+    position: absolute;
+    inset: 12px auto 12px 0;
+    width: 4px;
+    border-radius: 0 999px 999px 0;
+    background: #94a3b8;
+}
+
+.prediction-schedule-card.schedule-next::before {
+    background: #16a34a;
+}
+
+.prediction-schedule-card.schedule-upcoming::before {
+    background: #3b82f6;
+}
+
+.prediction-schedule-card:hover {
+    transform: translateY(-2px);
+    border-color: #c7d7cc;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .1);
+}
+
+.schedule-card-left h3 {
+    font-size: 16px;
+}
+
+.schedule-card-right strong {
+    padding: 5px 9px;
+    border-radius: 8px;
+    background: #f8fafc;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 700px) {
+    .prediction-page {
+        width: min(100% - 12px, 1180px);
+        padding-top: 30px;
+    }
+
+    .prediction-premium-hero {
+        padding: 28px 12px;
+    }
+
+    .prediction-hero-title {
+        font-size: clamp(25px, 7vw, 32px);
+    }
+
+    .prediction-section-heading {
+        margin-bottom: 18px;
+    }
+
+    .prediction-section-heading > span {
+        min-height: 24px;
+        padding: 5px 9px;
+        font-size: 8px;
+    }
+
+    .prediction-section-heading h2 {
+        font-size: 25px;
+    }
+
+    .prediction-cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px;
+    }
+
+    .prediction-cards-grid .next-prediction-card {
+        min-width: 0;
+        padding: 13px 7px 16px !important;
+        border-radius: 15px;
+    }
+
+    .prediction-card-top {
+        align-items: stretch;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .prediction-live-badge,
+    .prediction-system-status {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .prediction-live-badge {
+        padding: 6px 4px;
+        border-radius: 7px;
+        font-size: 7px;
+        letter-spacing: .03em;
+        line-height: 1.25;
+    }
+
+    .prediction-system-status {
+        gap: 4px;
+        font-size: 7px;
+    }
+
+    .prediction-cards-grid .next-prediction-card > h2 {
+        margin: 5px 0;
+        font-size: 15px;
+        line-height: 1.18;
+        overflow-wrap: anywhere;
+    }
+
+    #next-game-drawtime,
+    #ghana-game-drawtime {
+        min-height: 28px;
+        margin: 3px 0 9px;
+        font-size: 8px;
+        line-height: 1.35;
+    }
+
+    .prediction-run-details {
+        grid-template-columns: 1fr !important;
+        gap: 4px !important;
+        padding: 6px !important;
+        border-radius: 10px !important;
+    }
+
+    .prediction-run-details > div {
+        min-width: 0;
+        padding: 5px !important;
+    }
+
+    .prediction-run-details span {
+        font-size: 6px !important;
+    }
+
+    .prediction-run-details strong {
+        font-size: 8px !important;
+        line-height: 1.25 !important;
+        overflow-wrap: anywhere;
+    }
+
+    .prediction-range-filter.prediction-range-panel {
+        grid-template-columns: 1fr !important;
+        gap: 7px;
+        margin: 9px 0 12px;
+        padding: 8px 6px;
+        border-radius: 11px;
+    }
+
+    .prediction-range-heading {
+        gap: 3px;
+        padding-bottom: 6px;
+    }
+
+    .prediction-range-heading span,
+    .prediction-range-heading strong,
+    .prediction-range-field label {
+        font-size: 7px;
+        line-height: 1.3;
+    }
+
+    .prediction-range-field input {
+        min-width: 0;
+        min-height: 34px;
+        padding: 5px 3px;
+        border-radius: 7px;
+        font-size: 8px;
+    }
+
+    .prediction-range-actions {
+        grid-template-columns: 1fr !important;
+        gap: 5px;
+    }
+
+    .prediction-range-apply,
+    .prediction-range-reset {
+        min-height: 32px;
+        padding: 6px 3px;
+        border-radius: 7px;
+        font-size: 7px;
+    }
+
+    .prediction-range-status {
+        padding: 6px;
+        font-size: 7px;
+        line-height: 1.35;
+    }
+
+    .prediction-countdown-box {
+        margin: 12px auto;
+        padding: 10px 4px;
+        border-radius: 10px;
+    }
+
+    .prediction-countdown-box p,
+    .prediction-number-label {
+        font-size: 7px !important;
+        line-height: 1.3;
+    }
+
+    #countdown-timer,
+    #ghana-countdown-timer {
+        font-size: 20px !important;
+        letter-spacing: 0;
+    }
+
+    .prediction-balls.prediction-tier-grid {
+        grid-template-columns: 1fr !important;
+        gap: 5px;
+    }
+
+    .prediction-tier {
+        gap: 6px;
+        padding: 7px 3px;
+        border-radius: 9px;
+    }
+
+    .prediction-tier-title {
+        font-size: 6px;
+    }
+
+    #next-game-balls .number-ball,
+    .ghana-prediction-card #ghana-game-balls .number-ball {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        font-size: 10px !important;
+        border-width: 2px !important;
+    }
+
+    .prediction-share-btn {
+        min-height: 31px;
+        margin-top: 8px;
+        padding: 7px 9px;
+        font-size: 8px;
+    }
+
+    .modern-prediction-card .prediction-analysis-summary,
+    .ghana-analysis-summary {
+        grid-template-columns: 1fr !important;
+        gap: 5px;
+        margin-top: 10px !important;
+        padding: 6px;
+        border-radius: 10px;
+    }
+
+    .prediction-analysis-summary .analysis-summary-card {
+        padding: 7px 5px;
+        border-radius: 8px;
+    }
+
+    .analysis-summary-card span {
+        margin-bottom: 3px;
+        font-size: 6px;
+    }
+
+    .analysis-summary-card strong {
+        font-size: 8px;
+        line-height: 1.3;
+    }
+
+    .prediction-small-note {
+        display: none;
+    }
+
+    .prediction-analysis-wide {
+        margin-top: 20px;
+        padding: 16px 10px;
+        border-radius: 16px;
+    }
+
+    .prediction-analysis-wide .prediction-analysis-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 13px;
+        padding-bottom: 12px;
+    }
+
+    .prediction-analysis-wide .prediction-analysis-heading h2 {
+        font-size: 23px;
+    }
+
+    .prediction-analysis-wide #prediction-analysis-list {
+        grid-template-columns: 1fr;
+    }
+
+    .prediction-warning {
+        margin-top: 14px;
+        padding: 16px;
+        gap: 10px;
+        border-radius: 14px;
+    }
+
+    .prediction-warning h3 {
+        font-size: 17px;
+    }
+
+    .prediction-warning p {
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .prediction-schedule-section {
+        margin-top: 16px;
+        padding: 23px 10px 14px;
+        border-radius: 17px;
+    }
+
+    .prediction-schedule-list {
+        grid-template-columns: 1fr !important;
+        gap: 9px;
+    }
+
+    .prediction-schedule-card {
+        min-height: 88px;
+        padding: 12px 11px 12px 15px;
+        border-radius: 13px;
+    }
+
+    .schedule-card-left h3 {
+        font-size: 14px;
+    }
+}
