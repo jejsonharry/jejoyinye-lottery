@@ -201,3 +201,73 @@
         line-height: 32px !important;
     }
 }
+
+/* Folder pages open directly into the games without repeated introduction panels. */
+.game-directory-page .game-directory-shell {
+    margin-top: 22px;
+}
+.game-directory-page .game-directory-breadcrumb {
+    width: max-content;
+    max-width: 100%;
+    margin-bottom: 16px;
+    padding: 9px 13px;
+    border: 1px solid #dbe5df;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, .05);
+}
+
+@media (max-width: 650px) {
+    .game-directory-page .premium-header {
+        padding: 8px 12px !important;
+    }
+    .game-directory-page .header-inner {
+        min-height: 58px !important;
+    }
+    .game-directory-page .brand-area {
+        flex-direction: row !important;
+        gap: 9px !important;
+        text-align: left !important;
+    }
+    .game-directory-page .premium-logo {
+        width: 46px !important;
+        height: 46px !important;
+    }
+    .game-directory-page .brand-area h1 {
+        font-size: 15px !important;
+        line-height: 1.15 !important;
+    }
+    .game-directory-page .brand-area p {
+        margin-top: 2px !important;
+        font-size: 9px !important;
+    }
+    .game-directory-page nav {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        gap: 7px !important;
+        padding: 8px 10px !important;
+        overflow-x: auto !important;
+        scrollbar-width: none;
+    }
+    .game-directory-page nav::-webkit-scrollbar {
+        display: none;
+    }
+    .game-directory-page nav a {
+        flex: 0 0 auto !important;
+        min-width: auto !important;
+        margin: 0 !important;
+        padding: 9px 13px !important;
+        border-radius: 9px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+    .game-directory-page .game-directory-shell {
+        margin-top: 14px;
+    }
+    .game-directory-page .game-directory-breadcrumb {
+        margin-bottom: 11px;
+        padding: 7px 11px;
+        font-size: 10px;
+    }
+}
