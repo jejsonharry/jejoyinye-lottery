@@ -1,5 +1,6 @@
 // ==========================================
 // CONTACT FORM SUBMISSION SYSTEM
+// SECURITY-HARDENED
 // ==========================================
 
 const contactForm = document.querySelector(".contact-form");
@@ -29,10 +30,9 @@ if (contactForm) {
 
             alert("Thank you! Your message has been sent successfully. We will get back to you shortly.");
             contactForm.reset();
-
-        } catch (err) {
-            console.error("Contact submission error:", err.message);
-            alert("Message delivery failed: " + err.message);
+        } catch (_) {
+            // Do not expose provider/database errors or submitted message content in the browser.
+            alert("Message delivery failed. Please try again shortly.");
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = "Send Message";
