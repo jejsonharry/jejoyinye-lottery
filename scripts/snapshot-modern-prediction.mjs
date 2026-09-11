@@ -203,9 +203,9 @@ async function upsertSnapshot(game, prediction, historyCount) {
       totalScore: Number(x.totalScore.toFixed(4))
     })),
     weights, historical_draws: historyCount, status: 'pending', evaluated_at: null,
-    actual_winning: null, actual_machine: null, sure_winning_hits: null, direct_winning_hits: null,
-    machine_support_hits: null, total_winning_hits: null, sure_hit_count: null, direct_hit_count: null,
-    machine_support_count: null
+    actual_winning: null, actual_machine: null,
+    sure_winning_hits: [], direct_winning_hits: [], machine_support_hits: [],
+    total_winning_hits: 0, sure_hit_count: 0, direct_hit_count: 0, machine_support_count: 0
   };
   await rest('prediction_snapshots?on_conflict=lottery,game,draw_date', {
     method: 'POST',
