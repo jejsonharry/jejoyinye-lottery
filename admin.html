@@ -2918,6 +2918,8 @@
 .agent-onboarding-status-panel{margin:18px 0;padding:18px;border:1px solid #dbe5f0;border-radius:16px;background:#f8fbff}.agent-onboarding-options{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}.agent-onboarding-option{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer}.agent-onboarding-option input{width:18px;height:18px;accent-color:#2563eb}.agent-onboarding-status-panel .admin-muted{margin:10px 0 0}
 </style>
 
+    <link rel="stylesheet" href="admin-premium-v3.css?v=3">
+
 </head>
 
 
@@ -3030,7 +3032,7 @@
             <article class="admin-stat-card">
 
                 <span>
-                    Loaded Results
+                    Published Results
                 </span>
 
                 <strong id="admin-results-count">
@@ -3043,7 +3045,7 @@
             <article class="admin-stat-card">
 
                 <span>
-                    Active Applications
+                    Active Applicants
                 </span>
 
                 <strong id="admin-applications-count">
@@ -3056,7 +3058,7 @@
             <article class="admin-stat-card">
 
                 <span>
-                    Pending Applications
+                    Awaiting Decision
                 </span>
 
                 <strong id="admin-pending-count">
@@ -3069,7 +3071,7 @@
             <article class="admin-stat-card">
 
                 <span>
-                    Archived Applications
+                    Archived Records
                 </span>
 
                 <strong id="admin-archived-count">
@@ -3082,7 +3084,7 @@
             <article class="admin-stat-card">
 
                 <span>
-                    Customer Messages
+                    Support Messages
                 </span>
 
                 <strong id="admin-messages-count">
@@ -3105,14 +3107,11 @@
             </span>
 
             <h2>
-                Welcome to your dashboard
+                Operations Overview
             </h2>
 
             <p>
-                Use the shortcuts below to move
-                directly to the section you want
-                to manage. You no longer need to
-                scroll through the entire page.
+                Monitor the most important activity across lottery results, agent operations and customer support, then move directly into the management area you need.
             </p>
 
 
@@ -3126,12 +3125,11 @@
                 >
 
                     <strong>
-                        Manage Results
+                        Results Operations
                     </strong>
 
                     <span>
-                        Publish, edit and delete
-                        lottery results.
+                        Publish official draws, update records and review the result database.
                     </span>
 
                 </button>
@@ -3144,12 +3142,11 @@
                 >
 
                     <strong>
-                        Manage Agents
+                        Agent Network
                     </strong>
 
                     <span>
-                        View, approve, reject,
-                        archive and restore applicants.
+                        Review applications, track approvals and manage onboarding status.
                     </span>
 
                 </button>
@@ -3162,12 +3159,11 @@
                 >
 
                     <strong>
-                        Customer Messages
+                        Customer Support
                     </strong>
 
                     <span>
-                        View messages submitted
-                        through the contact page.
+                        Review enquiries, reply to customers and manage support records.
                     </span>
 
                 </button>
@@ -3190,8 +3186,8 @@
             <div class="analytics-heading-row">
                 <div class="admin-panel-heading">
                     <span>BUSINESS INSIGHTS</span>
-                    <h2>Analytics &amp; Reports</h2>
-                    <p>Track lottery result activity, agent applications and customer enquiries.</p>
+                    <h2>Business Intelligence &amp; Performance</h2>
+                    <p>Review publishing activity, agent pipeline performance, customer engagement and audited prediction-engine results from one reporting workspace.</p>
                 </div>
                 <div class="analytics-range" role="group" aria-label="Analytics date range">
                     <button type="button" class="analytics-range-btn" data-analytics-range="7">7 Days</button>
@@ -3280,12 +3276,11 @@
                 </span>
 
                 <h2>
-                    Publish Lottery Result
+                    Official Result Publishing
                 </h2>
 
                 <p>
-                    Add or edit an official
-                    lottery result.
+                    Publish a new draw or update an existing record with validated winning and machine numbers.
                 </p>
 
             </div>
@@ -3548,12 +3543,11 @@
                 </span>
 
                 <h2>
-                    Published Results
+                    Result Database &amp; Records
                 </h2>
 
                 <p>
-                    Recent results stored
-                    in Supabase.
+                    Search, filter and manage recent published draws stored in the secure result database.
                 </p>
 
             </div>
@@ -3608,12 +3602,11 @@
                 </span>
 
                 <h2>
-                    Agent Applications
+                    Agent Applications &amp; Onboarding
                 </h2>
 
                 <p>
-                    Review and manage
-                    prospective lottery agents.
+                    Review prospective agents, manage application decisions and track each approved agent from pending onboarding to fully onboarded status.
                 </p>
 
             </div>
@@ -3699,8 +3692,8 @@
         <section class="admin-panel">
             <div class="admin-panel-heading">
                 <span>CUSTOMER SUPPORT</span>
-                <h2>Customer Messages &amp; Enquiries</h2>
-                <p>Read, reply, archive or permanently delete enquiries submitted from the website.</p>
+                <h2>Customer Support &amp; Enquiries</h2>
+                <p>Manage website enquiries from a focused support inbox with read status, direct reply tools, archiving and controlled record management.</p>
             </div>
 
             <div class="message-toolbar">
