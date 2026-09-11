@@ -1,0 +1,35 @@
+name: Apply unified public nav and mobile grids
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-unified-public-nav-mobile-grids.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply layout changes
+        run: python scripts/apply_unified_public_nav_mobile_grids.py
+      - name: Validate
+        run: |
+          grep -q 'public-nav-and-home-mobile-v1.css?v=1' index.html
+          grep -q 'class="premium-nav"' results.html
+          grep -q 'class="premium-nav"' agent.html
+          grep -q 'class="premium-nav"' contact.html
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- index.html results.html predictions.html play-online.html agent.html contact.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html results.html predictions.html play-online.html agent.html contact.html
+          git commit -m "ui: unify public nav and keep homepage cards side by side on mobile"
+          git push
