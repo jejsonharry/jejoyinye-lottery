@@ -1,0 +1,29 @@
+name: Remove agent and support descriptions
+
+on:
+  push:
+    paths:
+      - '.github/workflows/remove-agent-support-copy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove descriptive paragraphs
+        run: python scripts/remove_agent_support_copy.py
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- admin.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html
+          git commit -m "ui: remove agent and support heading descriptions"
+          git push
