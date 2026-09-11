@@ -1,0 +1,89 @@
+name: Add agent onboarding status controls
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-agent-onboarding-status.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update admin onboarding controls
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          js_path = Path('admin.js')
+          html_path = Path('admin.html')
+          js = js_path.read_text(encoding='utf-8')
+          html = html_path.read_text(encoding='utf-8')
+
+          # Load onboarding_status from Supabase.
+          js = js.replace('                    status,\n                    archived,', '                    status,\n                    onboarding_status,\n                    archived,', 1)
+
+          # Add onboarding status card badge/details in list.
+          list_marker = '''                <p class="admin-muted">\n\n                    Submitted:'''
+          list_insert = '''                <p class="admin-muted">\n                    <strong>Agent Status:</strong>\n                    ${escapeHTML(String(application.onboarding_status || "pending").toUpperCase())}\n                </p>\n\n\n                <p class="admin-muted">\n\n                    Submitted:'''
+          js = js.replace(list_marker, list_insert, 1)
+
+          # Add onboarding status controls to modal content.
+          modal_marker = '''        <div class="agent-sensitive">'''
+          modal_insert = '''        <div class="agent-onboarding-status-panel">\n            <span class="admin-eyebrow">AGENT STATUS</span>\n            <div class="agent-onboarding-options" role="group" aria-label="Agent onboarding status">\n                <label class="agent-onboarding-option">\n                    <input type="checkbox" id="agent-status-pending" ${String(application.onboarding_status || "pending").toLowerCase() === "pending" ? "checked" : ""}>\n                    <span>Pending</span>\n                </label>\n                <label class="agent-onboarding-option">\n                    <input type="checkbox" id="agent-status-onboarded" ${String(application.onboarding_status || "pending").toLowerCase() === "onboarded" ? "checked" : ""}>\n                    <span>Onboarded</span>\n                </label>\n            </div>\n            <p class="admin-muted">Once marked Onboarded, Reject and Delete Permanently are no longer available.</p>\n        </div>\n\n\n        <div class="agent-sensitive">'''
+          js = js.replace(modal_marker, modal_insert, 1)
+
+          # Replace modal action visibility block with onboarding-aware rules and checkbox listeners.
+          old_block = '''    modalApproveButton.disabled =\n\n        archived\n\n        ||\n\n        status ===\n        "approved";\n\n\n    modalRejectButton.disabled =\n\n        archived\n\n        ||\n\n        status ===\n        "rejected";\n\n\n    modalArchiveButton.hidden =\n        archived;\n\n\n    modalRestoreButton.hidden =\n        !archived;'''
+          new_block = '''    const onboardingStatus = String(application.onboarding_status || "pending").toLowerCase();\n    const isOnboarded = onboardingStatus === "onboarded";\n\n    modalApproveButton.disabled = archived || status === "approved";\n    modalRejectButton.hidden = isOnboarded;\n    modalRejectButton.disabled = archived || status === "rejected" || isOnboarded;\n    modalDeleteButton.hidden = isOnboarded;\n    modalDeleteButton.disabled = isOnboarded;\n    modalArchiveButton.hidden = archived;\n    modalRestoreButton.hidden = !archived;\n\n    const pendingCheckbox = document.getElementById("agent-status-pending");\n    const onboardedCheckbox = document.getElementById("agent-status-onboarded");\n\n    pendingCheckbox?.addEventListener("change", async () => {\n        if (!pendingCheckbox.checked) {\n            pendingCheckbox.checked = true;\n            return;\n        }\n        if (onboardedCheckbox) onboardedCheckbox.checked = false;\n        await updateAgentOnboardingStatus(application.id, "pending");\n    });\n\n    onboardedCheckbox?.addEventListener("change", async () => {\n        if (!onboardedCheckbox.checked) {\n            onboardedCheckbox.checked = true;\n            return;\n        }\n        if (pendingCheckbox) pendingCheckbox.checked = false;\n        await updateAgentOnboardingStatus(application.id, "onboarded");\n    });'''
+          if old_block not in js:
+              raise SystemExit('Could not find modal status action block')
+          js = js.replace(old_block, new_block, 1)
+
+          # Add updater function before archive section.
+          insert_point = '// =========================================================\n// ARCHIVE APPLICATION'
+          updater = '''// =========================================================\n// UPDATE AGENT ONBOARDING STATUS\n// =========================================================\nasync function updateAgentOnboardingStatus(id, onboardingStatus) {\n    try {\n        const { error } = await supabaseClient\n            .from(TABLES.agents)\n            .update({ onboarding_status: onboardingStatus })\n            .eq("id", id);\n\n        if (error) throw error;\n\n        const item = allApplications.find(entry => String(entry.id) === String(id));\n        if (item) item.onboarding_status = onboardingStatus;\n\n        showSuccess(`Agent status updated to ${onboardingStatus}.`);\n\n        if (onboardingStatus === "onboarded") {\n            if (modalRejectButton) { modalRejectButton.hidden = true; modalRejectButton.disabled = true; }\n            if (modalDeleteButton) { modalDeleteButton.hidden = true; modalDeleteButton.disabled = true; }\n        } else {\n            if (modalRejectButton) { modalRejectButton.hidden = false; modalRejectButton.disabled = selectedApplication?.archived === true || String(selectedApplication?.status || "pending").toLowerCase() === "rejected"; }\n            if (modalDeleteButton) { modalDeleteButton.hidden = false; modalDeleteButton.disabled = false; }\n        }\n\n        await loadAgentApplications();\n    } catch (error) {\n        console.error("Agent onboarding status error:", error);\n        showError("Unable to update agent status: " + (error?.message || "Unknown error"));\n    }\n}\n\n\n'''
+          if updater not in js:
+              js = js.replace(insert_point, updater + insert_point, 1)
+
+          # Defensive guards so these actions cannot run from stale UI state.
+          reject_guard = '''async function updateAgentStatus(\n    id,\n    status\n) {\n'''
+          reject_replacement = '''async function updateAgentStatus(\n    id,\n    status\n) {\n\n    const currentApplication = allApplications.find(item => String(item.id) === String(id));\n    if (String(status).toLowerCase() === "rejected" && String(currentApplication?.onboarding_status || "pending").toLowerCase() === "onboarded") {\n        showError("Onboarded agents cannot be rejected.");\n        return;\n    }\n'''
+          js = js.replace(reject_guard, reject_replacement, 1)
+
+          delete_guard = '''async function deleteAgentApplication(id) {\n\n\n    const application ='''
+          delete_replacement = '''async function deleteAgentApplication(id) {\n\n\n    const application ='''
+          js = js.replace(delete_guard, delete_replacement, 1)
+          guard_marker = '''    const applicantName =\n        application?.full_name'''
+          guard_insert = '''    if (String(application?.onboarding_status || "pending").toLowerCase() === "onboarded") {\n        showError("Onboarded agents cannot be permanently deleted.");\n        return;\n    }\n\n\n    const applicantName =\n        application?.full_name'''
+          js = js.replace(guard_marker, guard_insert, 1)
+
+          # Style the checkbox status area and bump cache version.
+          status_css = '''\n<style id="agent-onboarding-status-style">\n.agent-onboarding-status-panel{margin:18px 0;padding:18px;border:1px solid #dbe5f0;border-radius:16px;background:#f8fbff}.agent-onboarding-options{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}.agent-onboarding-option{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer}.agent-onboarding-option input{width:18px;height:18px;accent-color:#2563eb}.agent-onboarding-status-panel .admin-muted{margin:10px 0 0}\n</style>\n'''
+          if 'id="agent-onboarding-status-style"' not in html:
+              html = html.replace('</head>', status_css + '\n</head>', 1)
+          html = re.sub(r'admin\.js\?v=\d+', 'admin.js?v=1408', html, count=1)
+
+          js_path.write_text(js, encoding='utf-8')
+          html_path.write_text(html, encoding='utf-8')
+          PY
+
+      - name: Commit onboarding status controls
+        shell: bash
+        run: |
+          if git diff --quiet -- admin.js admin.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.js admin.html
+          git commit -m "feat: add pending and onboarded agent status controls"
+          git push
