@@ -1,4 +1,4 @@
-name: Refresh three-tab mobile navigation
+name: Refresh six-tab mobile navigation
 
 on:
   push:
@@ -10,12 +10,12 @@ permissions:
   contents: write
 
 jobs:
-  refresh-three-tab-nav:
+  refresh-six-tab-nav:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bump three-tab mobile navigation stylesheet on all public pages
+      - name: Bump six-tab mobile navigation stylesheet on all public pages
         shell: python
         run: |
           from pathlib import Path
@@ -27,14 +27,14 @@ jobs:
               html = path.read_text(encoding='utf-8')
               html = re.sub(
                   r'public-mobile-nav-final-v11\.css\?v=\d+',
-                  'public-mobile-nav-final-v11.css?v=13',
+                  'public-mobile-nav-final-v11.css?v=14',
                   html,
               )
-              if 'public-mobile-nav-final-v11.css?v=13' not in html:
-                  raise SystemExit(f'Three-tab navigation stylesheet missing in {filename}')
+              if 'public-mobile-nav-final-v11.css?v=14' not in html:
+                  raise SystemExit(f'Six-tab navigation stylesheet missing in {filename}')
               path.write_text(html, encoding='utf-8')
 
-      - name: Commit three-tab navigation refresh
+      - name: Commit six-tab navigation refresh
         shell: bash
         run: |
           if git diff --quiet -- index.html results.html predictions.html play-online.html agent.html contact.html; then
@@ -44,5 +44,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html results.html predictions.html play-online.html agent.html contact.html
-          git commit -m "ui: show only Home Results Predictions in mobile navigation"
+          git commit -m "ui: arrange six mobile nav tabs in two rows of three"
           git push
