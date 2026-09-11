@@ -2066,6 +2066,7 @@ async function loadAgentApplications() {
                     lottery_experience,
                     additional_information,
                     status,
+                    onboarding_status,
                     archived,
                     created_at
 
@@ -2496,6 +2497,12 @@ function renderApplications(
 
 
                 <p class="admin-muted">
+                    <strong>Agent Status:</strong>
+                    ${escapeHTML(String(application.onboarding_status || "pending").toUpperCase())}
+                </p>
+
+
+                <p class="admin-muted">
 
                     Submitted:
 
@@ -2920,6 +2927,22 @@ function openAgentModal(id) {
 
 
 
+        <div class="agent-onboarding-status-panel">
+            <span class="admin-eyebrow">AGENT STATUS</span>
+            <div class="agent-onboarding-options" role="group" aria-label="Agent onboarding status">
+                <label class="agent-onboarding-option">
+                    <input type="checkbox" id="agent-status-pending" ${String(application.onboarding_status || "pending").toLowerCase() === "pending" ? "checked" : ""}>
+                    <span>Pending</span>
+                </label>
+                <label class="agent-onboarding-option">
+                    <input type="checkbox" id="agent-status-onboarded" ${String(application.onboarding_status || "pending").toLowerCase() === "onboarded" ? "checked" : ""}>
+                    <span>Onboarded</span>
+                </label>
+            </div>
+            <p class="admin-muted">Once marked Onboarded, Reject and Delete Permanently are no longer available.</p>
+        </div>
+
+
         <div class="agent-sensitive">
 
 
@@ -3021,32 +3044,37 @@ function openAgentModal(id) {
     `;
 
 
-    modalApproveButton.disabled =
+    const onboardingStatus = String(application.onboarding_status || "pending").toLowerCase();
+    const isOnboarded = onboardingStatus === "onboarded";
 
-        archived
+    modalApproveButton.disabled = archived || status === "approved";
+    modalRejectButton.hidden = isOnboarded;
+    modalRejectButton.disabled = archived || status === "rejected" || isOnboarded;
+    modalDeleteButton.hidden = isOnboarded;
+    modalDeleteButton.disabled = isOnboarded;
+    modalArchiveButton.hidden = archived;
+    modalRestoreButton.hidden = !archived;
 
-        ||
+    const pendingCheckbox = document.getElementById("agent-status-pending");
+    const onboardedCheckbox = document.getElementById("agent-status-onboarded");
 
-        status ===
-        "approved";
+    pendingCheckbox?.addEventListener("change", async () => {
+        if (!pendingCheckbox.checked) {
+            pendingCheckbox.checked = true;
+            return;
+        }
+        if (onboardedCheckbox) onboardedCheckbox.checked = false;
+        await updateAgentOnboardingStatus(application.id, "pending");
+    });
 
-
-    modalRejectButton.disabled =
-
-        archived
-
-        ||
-
-        status ===
-        "rejected";
-
-
-    modalArchiveButton.hidden =
-        archived;
-
-
-    modalRestoreButton.hidden =
-        !archived;
+    onboardedCheckbox?.addEventListener("change", async () => {
+        if (!onboardedCheckbox.checked) {
+            onboardedCheckbox.checked = true;
+            return;
+        }
+        if (pendingCheckbox) pendingCheckbox.checked = false;
+        await updateAgentOnboardingStatus(application.id, "onboarded");
+    });
 
 
     agentModal.classList.add(
@@ -3107,6 +3135,12 @@ async function updateAgentStatus(
     id,
     status
 ) {
+
+    const currentApplication = allApplications.find(item => String(item.id) === String(id));
+    if (String(status).toLowerCase() === "rejected" && String(currentApplication?.onboarding_status || "pending").toLowerCase() === "onboarded") {
+        showError("Onboarded agents cannot be rejected.");
+        return;
+    }
 
 
     const confirmed =
@@ -3191,6 +3225,39 @@ async function updateAgentStatus(
 
     }
 
+}
+
+
+// =========================================================
+// UPDATE AGENT ONBOARDING STATUS
+// =========================================================
+async function updateAgentOnboardingStatus(id, onboardingStatus) {
+    try {
+        const { error } = await supabaseClient
+            .from(TABLES.agents)
+            .update({ onboarding_status: onboardingStatus })
+            .eq("id", id);
+
+        if (error) throw error;
+
+        const item = allApplications.find(entry => String(entry.id) === String(id));
+        if (item) item.onboarding_status = onboardingStatus;
+
+        showSuccess(`Agent status updated to ${onboardingStatus}.`);
+
+        if (onboardingStatus === "onboarded") {
+            if (modalRejectButton) { modalRejectButton.hidden = true; modalRejectButton.disabled = true; }
+            if (modalDeleteButton) { modalDeleteButton.hidden = true; modalDeleteButton.disabled = true; }
+        } else {
+            if (modalRejectButton) { modalRejectButton.hidden = false; modalRejectButton.disabled = selectedApplication?.archived === true || String(selectedApplication?.status || "pending").toLowerCase() === "rejected"; }
+            if (modalDeleteButton) { modalDeleteButton.hidden = false; modalDeleteButton.disabled = false; }
+        }
+
+        await loadAgentApplications();
+    } catch (error) {
+        console.error("Agent onboarding status error:", error);
+        showError("Unable to update agent status: " + (error?.message || "Unknown error"));
+    }
 }
 
 
@@ -3417,6 +3484,12 @@ async function deleteAgentApplication(id) {
         allApplications.find(
             item => String(item.id) === String(id)
         );
+
+
+    if (String(application?.onboarding_status || "pending").toLowerCase() === "onboarded") {
+        showError("Onboarded agents cannot be permanently deleted.");
+        return;
+    }
 
 
     const applicantName =
