@@ -2079,13 +2079,13 @@ async function createResultShareFile({
     }
 
     context.fillStyle =
-        "rgba(255,255,255,0.68)";
+        "#ffffff";
     context.font =
-        "500 17px Arial, sans-serif";
+        "800 21px Arial, sans-serif";
     context.textAlign =
         "left";
     context.fillText(
-        "Register & play: jolslottery.com/play-online",
+        "PLAY ONLINE: jolslottery.com/play-online",
         445,
         559
     );
@@ -2262,11 +2262,7 @@ async function sharePublishedResult(
                     const imageShareData =
                         isIOSShareDevice
                             ? {
-                                files: [resultFile],
-                                title:
-                                    `${game} Lottery Result`,
-                                url:
-                                    PLAY_ONLINE_URL
+                                files: [resultFile]
                             }
                             : {
                                 files: [resultFile],
