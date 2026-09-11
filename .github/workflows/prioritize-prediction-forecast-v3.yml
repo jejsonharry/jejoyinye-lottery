@@ -1,0 +1,36 @@
+name: Prioritize prediction forecast
+
+on:
+  push:
+    paths:
+      - 'scripts/prioritize-prediction-forecast-v3.py'
+      - '.github/workflows/prioritize-prediction-forecast-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply forecast-first hierarchy
+        run: python scripts/prioritize-prediction-forecast-v3.py
+      - name: Validate
+        run: |
+          grep -q 'predictions-premium-v4.css?v=3' predictions.html
+          grep -q 'JOLS Predictions v3 — forecast-first hierarchy' predictions-premium-v4.css
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- predictions.html predictions-premium-v4.css; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions.html predictions-premium-v4.css
+          git commit -m "ui: make prediction numbers the primary visual focus"
+          git push
