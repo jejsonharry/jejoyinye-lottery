@@ -1,0 +1,32 @@
+name: Bump Public Mobile Nav V15
+
+on:
+  push:
+    paths:
+      - 'scripts/bump-public-mobile-nav-v15.py'
+      - '.github/workflows/bump-public-mobile-nav-v15.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply nav cache bump
+        run: python scripts/bump-public-mobile-nav-v15.py
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html results.html predictions.html play-online.html agent.html contact.html
+          git commit -m "ui: enable sticky public navigation on mobile"
+          git push
