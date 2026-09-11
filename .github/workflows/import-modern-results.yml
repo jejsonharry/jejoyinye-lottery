@@ -45,9 +45,9 @@ jobs:
           IMPORT_CONCURRENCY: "2"
         run: node scripts/import-modern-results.mjs
 
-      - name: Save next pre-draw prediction snapshot
+      - name: Save next Evidence Fusion pre-draw snapshot
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/snapshot-modern-prediction.mjs
+        run: node scripts/snapshot-modern-evidence-prediction.mjs
