@@ -1595,9 +1595,11 @@ function createResultCard(
 
 
     const machine =
-        parseJsonbBalls(
-            result.machine
-        );
+        result.lottery === "ghana"
+            ? []
+            : parseJsonbBalls(
+                result.machine
+            );
 
 
     const winningBalls =
@@ -3567,9 +3569,11 @@ function createHomeResultCard(
 
 
     const machine =
-        parseJsonbBalls(
-            result.machine
-        );
+        result.lottery === "ghana"
+            ? []
+            : parseJsonbBalls(
+                result.machine
+            );
 
 
     const winningBalls =
