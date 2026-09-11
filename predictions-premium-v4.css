@@ -1100,3 +1100,19 @@ body .ghana-prediction-group .prediction-balls {
     }
 }
 
+/* Mobile prediction number font v7 */
+@media (max-width: 700px) {
+    body .prediction-tier-grid .prediction-tier-balls .number-ball {
+        font-size: 34px !important;
+        font-weight: 950 !important;
+        letter-spacing: -.02em !important;
+        text-shadow: 0 2px 8px rgba(0,0,0,.16) !important;
+    }
+}
+
+@media (max-width: 390px) {
+    body .prediction-tier-grid .prediction-tier-balls .number-ball {
+        font-size: 31px !important;
+    }
+}
+
