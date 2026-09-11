@@ -12,8 +12,8 @@ PAGES = [
 for name in PAGES:
     path = Path(name)
     text = path.read_text(encoding="utf-8")
-    old = 'public-mobile-nav-final-v11.css?v=14'
-    new = 'public-mobile-nav-final-v11.css?v=15'
+    old = 'public-mobile-nav-final-v11.css?v=15'
+    new = 'public-mobile-nav-final-v11.css?v=16'
     if old in text:
         text = text.replace(old, new)
         path.write_text(text, encoding="utf-8")
