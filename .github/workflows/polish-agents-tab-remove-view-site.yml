@@ -1,4 +1,4 @@
-name: Enforce final mobile navigation stylesheet
+name: Refresh non-sticky mobile navigation
 
 on:
   push:
@@ -10,105 +10,39 @@ permissions:
   contents: write
 
 jobs:
-  final-mobile-nav:
+  refresh-mobile-nav:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Remove conflicting mobile nav links and load final stylesheet last
+      - name: Bump final mobile navigation stylesheet on all public pages
         shell: python
         run: |
           from pathlib import Path
           import re
 
-          pages = [
-              'index.html',
-              'results.html',
-              'predictions.html',
-              'play-online.html',
-              'agent.html',
-              'contact.html',
-          ]
-
-          old_nav_files = [
-              'public-nav-mobile-fit-v2.css',
-              'homepage-mobile-nav-v7.css',
-              'public-mobile-nav-compact-v8.css',
-              'public-mobile-nav-reference-v9.css',
-          ]
-
-          final_link = '    <link rel="stylesheet" href="public-mobile-nav-final-v11.css?v=11">\n'
-
+          pages = ['index.html','results.html','predictions.html','play-online.html','agent.html','contact.html']
           for filename in pages:
               path = Path(filename)
               html = path.read_text(encoding='utf-8')
-
-              # Remove old navigation-only stylesheet links.
-              for css_name in old_nav_files:
-                  html = re.sub(
-                      rf'\s*<link\s+rel="stylesheet"\s+href="{re.escape(css_name)}(?:\?v=\d+)?"\s*>\s*',
-                      '\n',
-                      html,
-                      flags=re.I,
-                  )
-
-              # Remove any previous copy of the final link before reinserting it last.
               html = re.sub(
-                  r'\s*<link\s+rel="stylesheet"\s+href="public-mobile-nav-final-v11\.css(?:\?v=\d+)?"\s*>\s*',
-                  '\n',
+                  r'public-mobile-nav-final-v11\.css\?v=\d+',
+                  'public-mobile-nav-final-v11.css?v=12',
                   html,
-                  flags=re.I,
               )
-
-              # Home alone receives the sticky marker.
-              if filename == 'index.html':
-                  body_match = re.search(r'<body(?:\s+class="([^"]*)")?\s*>', html, flags=re.I)
-                  if not body_match:
-                      raise SystemExit('Body tag missing in index.html')
-                  classes = (body_match.group(1) or '').split()
-                  if 'home-page' not in classes:
-                      classes.append('home-page')
-                  replacement = '<body class="' + ' '.join(classes) + '">'
-                  html = html[:body_match.start()] + replacement + html[body_match.end():]
-              else:
-                  body_match = re.search(r'<body(?:\s+class="([^"]*)")?\s*>', html, flags=re.I)
-                  if body_match:
-                      classes = [c for c in (body_match.group(1) or '').split() if c != 'home-page']
-                      replacement = '<body' + (f' class="{" ".join(classes)}"' if classes else '') + '>'
-                      html = html[:body_match.start()] + replacement + html[body_match.end():]
-
-              if '</head>' not in html:
-                  raise SystemExit(f'Closing head tag missing in {filename}')
-
-              html = html.replace('</head>', final_link + '</head>', 1)
+              if 'public-mobile-nav-final-v11.css?v=12' not in html:
+                  raise SystemExit(f'Final navigation stylesheet missing in {filename}')
               path.write_text(html, encoding='utf-8')
 
-          # Validate no old navigation-only CSS remains on any public page.
-          for filename in pages:
-              html = Path(filename).read_text(encoding='utf-8')
-              for css_name in old_nav_files:
-                  if css_name in html:
-                      raise SystemExit(f'Conflicting nav stylesheet {css_name} still present in {filename}')
-              if 'public-mobile-nav-final-v11.css?v=11' not in html:
-                  raise SystemExit(f'Final nav stylesheet missing in {filename}')
-
-          index_html = Path('index.html').read_text(encoding='utf-8')
-          if 'class="home-page"' not in index_html and ' home-page' not in index_html:
-              raise SystemExit('Homepage sticky marker missing')
-
-          for filename in pages[1:]:
-              if 'home-page' in Path(filename).read_text(encoding='utf-8'):
-                  raise SystemExit(f'home-page class incorrectly present in {filename}')
-
-      - name: Commit final navigation cleanup
+      - name: Commit non-sticky navigation refresh
         shell: bash
         run: |
           if git diff --quiet -- index.html results.html predictions.html play-online.html agent.html contact.html; then
-            echo "No public navigation changes detected."
+            echo "No navigation references changed."
             exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html results.html predictions.html play-online.html agent.html contact.html
-          git commit -m "ui: enforce final reference mobile navigation and home-only sticky behavior"
+          git commit -m "ui: remove sticky mobile navigation behavior across public pages"
           git push
