@@ -171,28 +171,6 @@ body {
     z-index: 2;
 }
 
-.hero-content::after {
-    content: "LIVE RESULT CENTER";
-    position: absolute;
-    right: 0;
-    top: 105px;
-    width: 320px;
-    min-height: 235px;
-    display: flex;
-    align-items: flex-end;
-    padding: 28px;
-    border: 1px solid rgba(255,255,255,.16);
-    border-radius: 28px;
-    background:
-        radial-gradient(circle at 78% 18%, rgba(244,189,45,.22), transparent 8rem),
-        linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.035));
-    color: #e6fff0;
-    font-size: 12px;
-    font-weight: 950;
-    letter-spacing: 1.55px;
-    box-shadow: 0 24px 52px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10);
-    backdrop-filter: blur(6px);
-}
 
 .hero-badge {
     display: inline-flex !important;
