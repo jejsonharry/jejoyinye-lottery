@@ -1,0 +1,106 @@
+name: Fix admin dashboard KPIs
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-admin-dashboard-kpis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix dashboard KPI cards and live counters
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html_path = Path('admin.html')
+          js_path = Path('admin.js')
+          css_path = Path('admin-premium-v3.css')
+
+          html = html_path.read_text(encoding='utf-8')
+          js = js_path.read_text(encoding='utf-8')
+          css = css_path.read_text(encoding='utf-8')
+
+          # 1) Rename Awaiting Decision to Pending Applications.
+          html = html.replace('Awaiting Decision', 'Pending Applications')
+
+          # 2) Add a dedicated Approved Applications KPI immediately after Pending.
+          if 'id="admin-approved-count"' not in html:
+              pending_card_pattern = re.compile(
+                  r'(<article class="admin-stat-card">\s*<span>\s*Pending Applications\s*</span>\s*'
+                  r'<strong id="admin-pending-count">\s*0\s*</strong>\s*</article>)',
+                  re.S,
+              )
+              approved_card = '''\n\n            <article class="admin-stat-card admin-stat-approved">\n\n                <span>\n                    Approved Applications\n                </span>\n\n                <strong id="admin-approved-count">\n                    0\n                </strong>\n\n            </article>'''
+              html, count = pending_card_pattern.subn(r'\1' + approved_card, html, count=1)
+              if count != 1:
+                  raise SystemExit('Could not insert Approved Applications KPI after Pending Applications.')
+
+          # 3) Add JS element reference for the Approved KPI.
+          if 'const approvedCount' not in js:
+              marker = '''const pendingCount =\n    document.getElementById(\n        "admin-pending-count"\n    );'''
+              replacement = marker + '''\n\n\nconst approvedCount =\n    document.getElementById(\n        "admin-approved-count"\n    );'''
+              if marker not in js:
+                  raise SystemExit('Could not find pendingCount element reference.')
+              js = js.replace(marker, replacement, 1)
+
+          # 4) Compute approved applications from active (non-archived) applications.
+          if 'const approved =' not in js:
+              archived_marker = '''    const archived =\n        allApplications.filter('''
+              approved_block = '''    const approved =\n        active.filter(\n\n            item =>\n                String(\n                    item.status\n                    ||\n                    "pending"\n                ).toLowerCase()\n                ===\n                "approved"\n\n        );\n\n\n'''
+              if archived_marker not in js:
+                  raise SystemExit('Could not find archived calculation in updateAgentStatistics.')
+              js = js.replace(archived_marker, approved_block + archived_marker, 1)
+
+          # 5) Write the approved count into the new dashboard KPI.
+          if 'approvedCount.textContent' not in js:
+              archived_if_marker = '''    if (archivedCount) {'''
+              approved_if = '''    if (approvedCount) {\n\n        approvedCount.textContent =\n            String(\n                approved.length\n            );\n    }\n\n\n'''
+              if archived_if_marker not in js:
+                  raise SystemExit('Could not find archivedCount update block.')
+              js = js.replace(archived_if_marker, approved_if + archived_if_marker, 1)
+
+          # 6) Remove all letter badges from KPI cards and rebalance the six-card layout.
+          kpi_override = '''\n\n/* Dashboard KPI cleanup: no letter badges; six live metrics */\n.admin-dashboard-body .admin-stats {\n    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;\n}\n\n.admin-dashboard-body .admin-stat-card::before {\n    display: none !important;\n    content: none !important;\n}\n\n.admin-dashboard-body .admin-stat-card {\n    min-height: 132px !important;\n    padding-top: 24px !important;\n}\n\n.admin-dashboard-body .admin-stat-card:nth-child(1)::after { background:#2563eb !important; }\n.admin-dashboard-body .admin-stat-card:nth-child(2)::after { background:#0d8b4f !important; }\n.admin-dashboard-body .admin-stat-card:nth-child(3)::after { background:#f59e0b !important; }\n.admin-dashboard-body .admin-stat-card:nth-child(4)::after { background:#16a34a !important; }\n.admin-dashboard-body .admin-stat-card:nth-child(5)::after { background:#64748b !important; }\n.admin-dashboard-body .admin-stat-card:nth-child(6)::after { background:#8b5cf6 !important; }\n\n@media (max-width: 1180px) {\n    .admin-dashboard-body .admin-stats {\n        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;\n    }\n    .admin-dashboard-body .admin-stat-card:last-child { grid-column: auto !important; }\n}\n\n@media (max-width: 760px) {\n    .admin-dashboard-body .admin-stats {\n        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;\n    }\n    .admin-dashboard-body .admin-stat-card:last-child { grid-column: auto !important; }\n}\n'''
+
+          if 'Dashboard KPI cleanup: no letter badges; six live metrics' not in css:
+              css += kpi_override
+
+          # 7) Bump admin JS and premium CSS cache versions.
+          html = re.sub(r'admin-premium-v3\.css\?v=\d+', 'admin-premium-v3.css?v=4', html, count=1)
+          html = re.sub(r'admin\.js\?v=\d+', 'admin.js?v=1409', html, count=1)
+
+          html_path.write_text(html, encoding='utf-8')
+          js_path.write_text(js, encoding='utf-8')
+          css_path.write_text(css, encoding='utf-8')
+          PY
+
+      - name: Validate required dashboard elements
+        shell: bash
+        run: |
+          grep -q 'id="admin-approved-count"' admin.html
+          grep -q 'Pending Applications' admin.html
+          grep -q 'approvedCount.textContent' admin.js
+          grep -q 'display: none !important' admin-premium-v3.css
+
+      - name: Commit dashboard KPI fixes
+        shell: bash
+        run: |
+          if git diff --quiet -- admin.html admin.js admin-premium-v3.css; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html admin.js admin-premium-v3.css
+          git commit -m "ui: add approved applications KPI and clean dashboard cards"
+          git push
