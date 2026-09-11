@@ -2762,6 +2762,109 @@
 @media(max-width:480px){.admin-control-brand-copy small{display:none}.admin-control-brand-copy strong{font-size:15px}.admin-view-site-btn{font-size:0;width:38px;padding:0}.admin-view-site-btn:before{content:"Site";font-size:10px}.admin-header-logout{padding-inline:10px}.admin-session-badge{padding:7px 9px;font-size:10px}}
 </style>
 
+<style id="admin-header-tuning">
+.admin-control-header-inner {
+    min-height: 94px !important;
+}
+
+.admin-control-brand {
+    gap: 16px !important;
+}
+
+.admin-control-logo {
+    width: 78px !important;
+    height: 78px !important;
+    object-fit: contain !important;
+    flex: 0 0 auto !important;
+    filter: drop-shadow(0 9px 18px rgba(0,0,0,.38)) contrast(1.1) saturate(1.1) !important;
+}
+
+.admin-control-brand-copy small {
+    display: block !important;
+    color: #bfdbfe !important;
+    font-size: 15px !important;
+    font-weight: 950 !important;
+    line-height: 1.05 !important;
+    letter-spacing: 1.7px !important;
+}
+
+.admin-control-brand-copy strong {
+    display: block !important;
+    margin-top: 6px !important;
+    color: #ffffff !important;
+    font-size: 22px !important;
+    font-weight: 950 !important;
+    line-height: 1.08 !important;
+    letter-spacing: .1px !important;
+    max-width: none !important;
+}
+
+.admin-dashboard-body .admin-top-compact h2 {
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 760px) {
+    .admin-control-header-inner {
+        min-height: 82px !important;
+        gap: 10px !important;
+    }
+
+    .admin-control-brand {
+        gap: 10px !important;
+    }
+
+    .admin-control-logo {
+        width: 64px !important;
+        height: 64px !important;
+    }
+
+    .admin-control-brand-copy small {
+        display: block !important;
+        font-size: 11px !important;
+        letter-spacing: 1.05px !important;
+    }
+
+    .admin-control-brand-copy strong {
+        font-size: 14px !important;
+        max-width: 205px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-control-header-inner {
+        min-height: 78px !important;
+        width: 96% !important;
+    }
+
+    .admin-control-brand {
+        gap: 7px !important;
+    }
+
+    .admin-control-logo {
+        width: 58px !important;
+        height: 58px !important;
+    }
+
+    .admin-control-brand-copy small {
+        display: block !important;
+        font-size: 10px !important;
+        letter-spacing: .7px !important;
+    }
+
+    .admin-control-brand-copy strong {
+        font-size: 11px !important;
+        max-width: 135px !important;
+        line-height: 1.1 !important;
+    }
+
+    .admin-view-site-btn,
+    .admin-header-logout {
+        min-height: 34px !important;
+        padding: 7px 8px !important;
+    }
+}
+</style>
+
 </head>
 
 
@@ -2774,11 +2877,11 @@
 
 <header class="admin-control-header">
     <div class="admin-control-header-inner">
-        <a href="/" class="admin-control-brand" aria-label="Open JOLS website">
-            <img src="Images/jols-logo.png" alt="JOLS" class="admin-control-logo">
+        <a href="/" class="admin-control-brand" aria-label="Open Jejoyinye Lottery Services website">
+            <img src="Images/jols-logo.png" alt="Jejoyinye Lottery Services" class="admin-control-logo">
             <span class="admin-control-brand-copy">
                 <small>JOLS SECURE ADMIN</small>
-                <strong>Control Center</strong>
+                <strong>JEJOYINYE LOTTERY SERVICES</strong>
             </span>
         </a>
         <div class="admin-control-actions">
@@ -2799,7 +2902,6 @@
         <div>
             <span class="admin-eyebrow">ADMINISTRATION</span>
             <h2>Administrator Dashboard</h2>
-            <p>Manage results, agents, analytics and customer enquiries from one secure workspace.</p>
         </div>
         <span class="admin-session-badge" aria-label="Secure administrator session">Secure session</span>
     </section>
