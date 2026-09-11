@@ -1,0 +1,78 @@
+name: Apply premium admin dashboard v3
+
+on:
+  push:
+    paths:
+      - 'admin-premium-v3.css'
+      - '.github/workflows/apply-premium-admin-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply premium admin styling and copy refinements
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('admin.html')
+          text = path.read_text(encoding='utf-8')
+
+          # Load the dedicated premium admin stylesheet last so it cleanly overrides legacy admin styles.
+          premium_link = '<link rel="stylesheet" href="admin-premium-v3.css?v=3">'
+          if premium_link not in text:
+              text = text.replace('</head>', f'    {premium_link}\n\n</head>', 1)
+
+          replacements = {
+              '''<span class="admin-eyebrow">\n                ADMIN CONTROL CENTRE\n            </span>\n\n            <h2>\n                Welcome to your dashboard\n            </h2>\n\n            <p>\n                Use the shortcuts below to move\n                directly to the section you want\n                to manage. You no longer need to\n                scroll through the entire page.\n            </p>''': '''<span class="admin-eyebrow">\n                ADMIN CONTROL CENTRE\n            </span>\n\n            <h2>\n                Operations Overview\n            </h2>\n\n            <p>\n                Monitor the most important activity across lottery results, agent operations and customer support, then move directly into the management area you need.\n            </p>''',
+
+              '''<strong>\n                        Manage Results\n                    </strong>\n\n                    <span>\n                        Publish, edit and delete\n                        lottery results.\n                    </span>''': '''<strong>\n                        Results Operations\n                    </strong>\n\n                    <span>\n                        Publish official draws, update records and review the result database.\n                    </span>''',
+
+              '''<strong>\n                        Manage Agents\n                    </strong>\n\n                    <span>\n                        View, approve, reject,\n                        archive and restore applicants.\n                    </span>''': '''<strong>\n                        Agent Network\n                    </strong>\n\n                    <span>\n                        Review applications, track approvals and manage onboarding status.\n                    </span>''',
+
+              '''<strong>\n                        Customer Messages\n                    </strong>\n\n                    <span>\n                        View messages submitted\n                        through the contact page.\n                    </span>''': '''<strong>\n                        Customer Support\n                    </strong>\n\n                    <span>\n                        Review enquiries, reply to customers and manage support records.\n                    </span>''',
+
+              '<h2>Analytics &amp; Reports</h2>\n                    <p>Track lottery result activity, agent applications and customer enquiries.</p>': '<h2>Business Intelligence &amp; Performance</h2>\n                    <p>Review publishing activity, agent pipeline performance, customer engagement and audited prediction-engine results from one reporting workspace.</p>',
+
+              '''<h2>\n                    Publish Lottery Result\n                </h2>\n\n                <p>\n                    Add or edit an official\n                    lottery result.\n                </p>''': '''<h2>\n                    Official Result Publishing\n                </h2>\n\n                <p>\n                    Publish a new draw or update an existing record with validated winning and machine numbers.\n                </p>''',
+
+              '''<h2>\n                    Published Results\n                </h2>\n\n                <p>\n                    Recent results stored\n                    in Supabase.\n                </p>''': '''<h2>\n                    Result Database &amp; Records\n                </h2>\n\n                <p>\n                    Search, filter and manage recent published draws stored in the secure result database.\n                </p>''',
+
+              '''<h2>\n                    Agent Applications\n                </h2>\n\n                <p>\n                    Review and manage\n                    prospective lottery agents.\n                </p>''': '''<h2>\n                    Agent Applications &amp; Onboarding\n                </h2>\n\n                <p>\n                    Review prospective agents, manage application decisions and track each approved agent from pending onboarding to fully onboarded status.\n                </p>''',
+
+              '<h2>Customer Messages &amp; Enquiries</h2>\n                <p>Read, reply, archive or permanently delete enquiries submitted from the website.</p>': '<h2>Customer Support &amp; Enquiries</h2>\n                <p>Manage website enquiries from a focused support inbox with read status, direct reply tools, archiving and controlled record management.</p>',
+          }
+
+          for old, new in replacements.items():
+              text = text.replace(old, new)
+
+          # Make operational labels a little more descriptive without changing IDs or logic.
+          text = text.replace('Loaded Results', 'Published Results', 1)
+          text = text.replace('Active Applications', 'Active Applicants', 1)
+          text = text.replace('Pending Applications', 'Awaiting Decision', 1)
+          text = text.replace('Archived Applications', 'Archived Records', 1)
+          text = text.replace('Customer Messages', 'Support Messages', 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit premium admin revamp
+        shell: bash
+        run: |
+          if git diff --quiet -- admin.html; then
+            echo "No admin.html changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html
+          git commit -m "ui: revamp all admin tabs with premium visual system"
+          git push
