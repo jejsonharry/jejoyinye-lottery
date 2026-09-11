@@ -1,9 +1,9 @@
-/* JOLS public navigation — reference layout v9 */
+/* JOLS public navigation — approved reference layout v10 */
 @media (max-width: 700px) {
     body .premium-nav.premium-nav {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 2147483000 !important;
+        position: relative !important;
+        top: auto !important;
+        z-index: 20 !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 8px 12px 10px !important;
@@ -11,6 +11,13 @@
         overflow: visible !important;
         background: linear-gradient(180deg, #09182a 0%, #061321 100%) !important;
         box-shadow: 0 8px 20px rgba(2,8,23,.20) !important;
+    }
+
+    /* Only the homepage navigation stays visible while scrolling. */
+    body.home-page .premium-nav.premium-nav {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 2147483000 !important;
     }
 
     body .premium-nav.premium-nav .nav-inner.nav-inner {
@@ -54,7 +61,7 @@
         word-break: normal !important;
     }
 
-    /* Reference structure: first two rows paired, final two tabs full width. */
+    /* Approved reference structure. */
     body .premium-nav.premium-nav .nav-inner.nav-inner a:nth-child(5),
     body .premium-nav.premium-nav .nav-inner.nav-inner a:nth-child(6) {
         grid-column: 1 / -1 !important;
