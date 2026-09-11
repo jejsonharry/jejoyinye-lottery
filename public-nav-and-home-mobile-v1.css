@@ -1,0 +1,314 @@
+/* =========================================================
+   JOLS PUBLIC NAV CONSISTENCY + HOMEPAGE MOBILE TWO-COLUMN
+========================================================= */
+
+/* One navigation system across all six public tabs. */
+.premium-nav {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2400 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background:
+        radial-gradient(circle at 85% -80%, rgba(22,168,95,.18), transparent 23rem),
+        linear-gradient(110deg, #061322, #0a1c2d 62%, #0b2b30) !important;
+    box-shadow: 0 10px 26px rgba(4,18,31,.15) !important;
+    overflow: hidden !important;
+}
+
+.premium-nav .nav-inner {
+    width: min(1040px, 100%) !important;
+    min-height: 68px !important;
+    margin: 0 auto !important;
+    padding: 0 14px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    gap: 9px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.premium-nav .nav-inner::-webkit-scrollbar {
+    display: none !important;
+}
+
+.premium-nav .nav-inner a {
+    flex: 0 0 auto !important;
+    min-width: 112px !important;
+    margin: 0 !important;
+    padding: 12px 18px !important;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(255,255,255,.13) !important;
+    border-radius: 11px !important;
+    background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025)) !important;
+    color: #e7eef5 !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+.premium-nav .nav-inner a:hover {
+    border-color: rgba(77,225,145,.40) !important;
+    background: rgba(20,139,80,.18) !important;
+}
+
+.premium-nav .nav-inner a.active,
+.premium-nav .nav-inner a[aria-current="page"] {
+    color: #fff !important;
+    border-color: #45d886 !important;
+    background: linear-gradient(135deg, #0ea657, #18bd69) !important;
+    box-shadow: 0 8px 20px rgba(14,166,87,.28) !important;
+}
+
+/* Keep the same tab list view on phones: one horizontal row, not stacked/wrapped. */
+@media (max-width: 760px) {
+    .premium-nav {
+        padding: 0 !important;
+    }
+
+    .premium-nav .nav-inner {
+        min-height: 68px !important;
+        justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
+        gap: 9px !important;
+        padding: 0 12px !important;
+    }
+
+    .premium-nav .nav-inner a {
+        min-width: 112px !important;
+        padding: 12px 18px !important;
+        border-radius: 11px !important;
+        font-size: 13px !important;
+    }
+}
+
+/* =========================================================
+   HOMEPAGE — KEEP DRAW SCHEDULE SIDE BY SIDE ON MOBILE
+========================================================= */
+@media (max-width: 700px) {
+    .home-draw-center {
+        width: calc(100% - 16px) !important;
+        padding: 10px !important;
+        margin-bottom: 30px !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    .home-draw-heading {
+        margin-bottom: 10px !important;
+    }
+
+    .home-draw-heading h2 {
+        font-size: 21px !important;
+    }
+
+    .home-draw-heading p {
+        font-size: 10px !important;
+    }
+
+    .home-draw-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+    }
+
+    .home-draw-card,
+    .home-draw-card.ghana {
+        min-width: 0 !important;
+        min-height: 142px !important;
+        padding: 11px 9px 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        gap: 7px !important;
+        border-radius: 13px !important;
+    }
+
+    .home-draw-label {
+        margin-bottom: 4px !important;
+        font-size: 7px !important;
+        line-height: 1.3 !important;
+        letter-spacing: .55px !important;
+    }
+
+    .home-draw-card h3 {
+        font-size: 13px !important;
+        line-height: 1.18 !important;
+        overflow-wrap: anywhere;
+    }
+
+    .home-draw-meta {
+        margin-top: 4px !important;
+        font-size: 8px !important;
+        line-height: 1.35 !important;
+    }
+
+    .home-draw-time {
+        min-width: 0 !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+
+    .home-draw-time strong {
+        font-size: 14px !important;
+    }
+
+    .home-draw-status {
+        margin-top: 4px !important;
+        padding: 3px 6px !important;
+        font-size: 7px !important;
+    }
+}
+
+/* =========================================================
+   HOMEPAGE — KEEP LATEST TWO RESULTS SIDE BY SIDE ON MOBILE
+========================================================= */
+@media (max-width: 700px) {
+    .home-results-section {
+        width: 100% !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        box-sizing: border-box !important;
+    }
+
+    #home-results-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+        align-items: stretch !important;
+    }
+
+    #home-results-container .home-result-card {
+        min-width: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 10px 8px !important;
+        border-radius: 14px !important;
+    }
+
+    #home-results-container .home-result-heading {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: start !important;
+        gap: 5px !important;
+        padding-bottom: 7px !important;
+        margin-bottom: 7px !important;
+    }
+
+    #home-results-container .home-result-heading > div {
+        min-width: 0 !important;
+    }
+
+    #home-results-container .home-result-heading h3 {
+        margin: 0 0 3px !important;
+        font-size: 13px !important;
+        line-height: 1.15 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #home-results-container .home-result-heading span {
+        font-size: 8px !important;
+        line-height: 1.25 !important;
+    }
+
+    #home-results-container .home-result-heading > div:last-child {
+        text-align: right !important;
+    }
+
+    #home-results-container .home-result-heading > div:last-child > div {
+        margin-top: 2px !important;
+        font-size: 8px !important;
+        line-height: 1.25 !important;
+    }
+
+    #home-results-container .home-result-share-btn {
+        margin-top: 4px !important;
+        padding: 4px 6px !important;
+        border-radius: 7px !important;
+        font-size: 8px !important;
+    }
+
+    #home-results-container .home-number-section {
+        margin-top: 7px !important;
+    }
+
+    #home-results-container .home-number-section h4 {
+        margin: 0 0 5px !important;
+        font-size: 8px !important;
+        line-height: 1.2 !important;
+        letter-spacing: .2px !important;
+    }
+
+    #home-results-container .winning-numbers,
+    #home-results-container .machine-numbers {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 3px !important;
+    }
+
+    #home-results-container .number-ball {
+        width: 25px !important;
+        height: 25px !important;
+        min-width: 25px !important;
+        font-size: 9px !important;
+        line-height: 25px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,.14) !important;
+    }
+
+    #home-results-container .home-result-player-actions {
+        margin-top: 8px !important;
+        padding: 6px !important;
+        border-radius: 9px !important;
+    }
+
+    #home-results-container .home-result-player-actions > p,
+    #home-results-container .home-result-player-actions > small {
+        display: none !important;
+    }
+
+    #home-results-container .result-player-action-links {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 4px !important;
+        width: 100% !important;
+    }
+
+    #home-results-container .result-player-action-links a {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        padding: 5px 4px !important;
+        border-radius: 6px !important;
+        box-sizing: border-box !important;
+        font-size: 7px !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        white-space: normal !important;
+    }
+}
+
+@media (max-width: 390px) {
+    #home-results-container .number-ball {
+        width: 23px !important;
+        height: 23px !important;
+        min-width: 23px !important;
+        font-size: 8px !important;
+        line-height: 23px !important;
+    }
+
+    #home-results-container .home-result-card {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
+}
