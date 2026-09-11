@@ -1,0 +1,546 @@
+/* =========================================================
+   JOLS PUBLIC PREMIUM TEXTURE V1
+   Shared visual layer for all public pages.
+   Visual-only: no functional layout or engine logic changes.
+========================================================= */
+
+:root {
+    --jols-ink: #071525;
+    --jols-navy: #071728;
+    --jols-navy-2: #0a2740;
+    --jols-emerald: #087747;
+    --jols-emerald-2: #10a45c;
+    --jols-gold: #e9b83f;
+    --jols-gold-soft: #f8d879;
+    --jols-paper: #f5f9f7;
+    --jols-line: rgba(196, 215, 207, .88);
+    --jols-card: rgba(255, 255, 255, .94);
+    --jols-shadow: 0 18px 46px rgba(7, 31, 45, .09);
+    --jols-shadow-strong: 0 26px 64px rgba(5, 25, 39, .15);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    color: var(--jols-ink);
+    background:
+        radial-gradient(circle at 7% 5%, rgba(15, 164, 92, .12), transparent 24rem),
+        radial-gradient(circle at 94% 18%, rgba(30, 91, 158, .075), transparent 26rem),
+        radial-gradient(circle at 48% 68%, rgba(233, 184, 63, .045), transparent 22rem),
+        radial-gradient(rgba(8, 119, 71, .105) .65px, transparent .7px),
+        linear-gradient(180deg, #f8fbfa 0%, #eef5f2 48%, #f8fafc 100%) !important;
+    background-size: auto, auto, auto, 24px 24px, auto !important;
+    background-attachment: fixed, fixed, fixed, fixed, fixed !important;
+}
+
+/* =========================================================
+   PUBLIC BRAND HEADER — rich emerald treatment
+========================================================= */
+.premium-header {
+    position: relative !important;
+    isolation: isolate;
+    overflow: hidden !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.14) !important;
+    background:
+        radial-gradient(circle at 15% -60%, rgba(248,216,121,.28), transparent 25rem),
+        radial-gradient(circle at 88% 145%, rgba(74,152,219,.20), transparent 27rem),
+        linear-gradient(112deg, #053824 0%, #087246 37%, #0b8b50 67%, #07654d 100%) !important;
+    box-shadow: 0 16px 38px rgba(3, 43, 28, .20) !important;
+}
+
+.premium-header::before,
+.premium-header::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 999px;
+}
+
+.premium-header::before {
+    width: 320px;
+    height: 320px;
+    right: 10%;
+    top: -270px;
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow:
+        0 0 0 45px rgba(255,255,255,.030),
+        0 0 0 92px rgba(255,255,255,.020);
+}
+
+.premium-header::after {
+    width: 160px;
+    height: 160px;
+    left: 5%;
+    bottom: -135px;
+    background: rgba(233,184,63,.12);
+}
+
+.premium-header .premium-logo {
+    filter: drop-shadow(0 12px 21px rgba(0,0,0,.28)) saturate(1.12) contrast(1.04) !important;
+}
+
+.premium-header .brand-text h1,
+.premium-header .brand-area h1,
+.premium-header h1 {
+    color: #ffffff !important;
+    text-shadow: 0 3px 14px rgba(0,0,0,.18) !important;
+}
+
+.premium-header .brand-text p,
+.premium-header .brand-area p,
+.premium-header p {
+    color: #d8f5e7 !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,.13);
+}
+
+/* =========================================================
+   NAV — same sizing/behaviour, richer surface only
+========================================================= */
+.premium-nav {
+    border-top: 1px solid rgba(248,216,121,.15) !important;
+    border-bottom: 1px solid rgba(255,255,255,.065) !important;
+    background:
+        radial-gradient(circle at 82% -130%, rgba(17,177,101,.24), transparent 25rem),
+        linear-gradient(112deg, #061321 0%, #0a1d31 58%, #092c31 100%) !important;
+    box-shadow: 0 12px 30px rgba(3,18,30,.18) !important;
+}
+
+.premium-nav .nav-inner a {
+    border-color: rgba(255,255,255,.12) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025)) !important;
+    color: #e6eef3 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+
+.premium-nav .nav-inner a:hover {
+    border-color: rgba(75,222,143,.43) !important;
+    background: linear-gradient(135deg, rgba(10,139,78,.24), rgba(255,255,255,.055)) !important;
+    color: #ffffff !important;
+}
+
+.premium-nav .nav-inner a.active {
+    border-color: rgba(139,244,184,.80) !important;
+    background:
+        radial-gradient(circle at 85% 0%, rgba(248,216,121,.14), transparent 5rem),
+        linear-gradient(135deg, #0b8b50, #16ad64) !important;
+    color: #ffffff !important;
+    box-shadow: 0 9px 23px rgba(9,145,82,.28), inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+
+/* =========================================================
+   PREMIUM CARD TEXTURE — shared surfaces
+========================================================= */
+.stat-card,
+.home-draw-center,
+.home-draw-card,
+.result-card,
+.daily-modern-results,
+.results-directory-folder,
+.next-prediction-card,
+.prediction-analysis-section,
+.prediction-range-panel,
+.analysis-summary-card,
+.play-online-copy,
+.play-online-guide,
+.online-promo,
+.play-online-step,
+.play-online-point,
+.agent-overview-card,
+.agent-details-panel,
+.agent-detail-group,
+.contact-info,
+.contact-form {
+    border-color: var(--jols-line) !important;
+    background:
+        radial-gradient(circle at 94% 5%, rgba(16,164,92,.075), transparent 9rem),
+        linear-gradient(145deg, rgba(255,255,255,.985), rgba(247,251,249,.96)) !important;
+    box-shadow: var(--jols-shadow) !important;
+}
+
+.stat-card,
+.home-draw-center,
+.home-draw-card,
+.result-card,
+.results-directory-folder,
+.next-prediction-card,
+.analysis-summary-card,
+.play-online-copy,
+.play-online-guide,
+.online-promo,
+.agent-overview-card,
+.contact-info,
+.contact-form {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after,
+.home-draw-center::after,
+.results-directory-folder::after,
+.next-prediction-card::after,
+.play-online-copy::after,
+.play-online-guide::after,
+.online-promo::after,
+.agent-overview-card::after,
+.contact-info::after,
+.contact-form::after {
+    content: "";
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    right: -82px;
+    top: -82px;
+    pointer-events: none;
+    border-radius: 50%;
+    border: 18px solid rgba(8,119,71,.030);
+    box-shadow: 0 0 0 18px rgba(233,184,63,.022);
+}
+
+/* =========================================================
+   HOME
+========================================================= */
+.home-page .premium-hero {
+    background:
+        radial-gradient(circle at 78% 34%, rgba(20,190,112,.31), transparent 25rem),
+        radial-gradient(circle at 94% 7%, rgba(248,216,121,.12), transparent 19rem),
+        radial-gradient(rgba(255,255,255,.07) .55px, transparent .6px),
+        linear-gradient(112deg, #03111f 0%, #082438 49%, #08603e 100%) !important;
+    background-size: auto, auto, 24px 24px, auto !important;
+}
+
+.home-page .hero-badge,
+.home-draw-heading-copy > span,
+.home-results-updated {
+    border-color: rgba(12,144,81,.22) !important;
+    background: linear-gradient(135deg, rgba(229,249,238,.96), rgba(255,250,232,.88)) !important;
+    color: #087747 !important;
+    box-shadow: 0 6px 16px rgba(8,119,71,.07);
+}
+
+.home-page .stat-card::before {
+    background: linear-gradient(90deg, #087747, #18ad65 66%, #e8bb47) !important;
+}
+
+.home-page .home-draw-center {
+    box-shadow: 0 20px 48px rgba(6,36,48,.09) !important;
+}
+
+.home-page .home-draw-card {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 8px 22px rgba(7,33,44,.045) !important;
+}
+
+.home-page .home-player-promo {
+    border-color: rgba(248,216,121,.18) !important;
+    background:
+        radial-gradient(circle at 88% 8%, rgba(248,216,121,.19), transparent 18rem),
+        radial-gradient(circle at 5% 100%, rgba(48,181,118,.17), transparent 15rem),
+        linear-gradient(118deg, #032719 0%, #075a37 55%, #083224 100%) !important;
+    box-shadow: 0 27px 62px rgba(5,46,31,.22) !important;
+}
+
+/* =========================================================
+   RESULTS
+========================================================= */
+.results-page .results-compact-header {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(255,255,255,.14) !important;
+    background:
+        radial-gradient(circle at 90% 0%, rgba(248,216,121,.19), transparent 13rem),
+        linear-gradient(118deg, #053821, #087847 56%, #0a6249) !important;
+    box-shadow: 0 19px 46px rgba(5,73,43,.20) !important;
+}
+
+.results-page .daily-modern-results {
+    background:
+        radial-gradient(circle at 96% 5%, rgba(16,164,92,.08), transparent 13rem),
+        linear-gradient(180deg, rgba(250,253,251,.985), rgba(255,255,255,.98)) !important;
+}
+
+.results-page .daily-ghana-results {
+    background:
+        radial-gradient(circle at 96% 5%, rgba(220,38,38,.055), transparent 13rem),
+        linear-gradient(180deg, #fffdfb, #ffffff) !important;
+}
+
+.results-page .results-directory-folder {
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease !important;
+}
+
+.results-page .results-directory-folder:hover {
+    box-shadow: var(--jols-shadow-strong) !important;
+}
+
+.results-page .result-card {
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.995), rgba(248,251,249,.96)) !important;
+}
+
+/* =========================================================
+   PREDICTIONS
+========================================================= */
+.prediction-premium-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,.10) !important;
+    background:
+        radial-gradient(circle at 82% 8%, rgba(248,216,121,.15), transparent 18rem),
+        radial-gradient(circle at 15% 120%, rgba(35,182,109,.22), transparent 20rem),
+        linear-gradient(115deg, #061522 0%, #0a263b 55%, #086140 100%) !important;
+    box-shadow: 0 18px 42px rgba(4,26,39,.16);
+}
+
+.prediction-premium-hero::after {
+    content: "";
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    right: -130px;
+    top: -180px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.16);
+    box-shadow: 0 0 0 42px rgba(255,255,255,.025), 0 0 0 82px rgba(255,255,255,.018);
+}
+
+.prediction-premium-hero .prediction-hero-title {
+    color: #ffffff !important;
+    text-shadow: 0 3px 16px rgba(0,0,0,.18);
+}
+
+.prediction-page .next-prediction-card {
+    border-color: rgba(193,215,206,.94) !important;
+    box-shadow: 0 22px 52px rgba(7,31,45,.10) !important;
+}
+
+.prediction-page .prediction-live-badge {
+    box-shadow: 0 6px 16px rgba(9,132,75,.08);
+}
+
+.prediction-page .prediction-countdown-box {
+    border: 1px solid rgba(175,202,189,.80) !important;
+    background:
+        linear-gradient(145deg, rgba(245,250,247,.97), rgba(255,255,255,.98)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+
+.prediction-page .prediction-range-panel {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 9px 23px rgba(7,33,44,.05) !important;
+}
+
+.prediction-page .analysis-summary-card {
+    box-shadow: 0 9px 24px rgba(7,33,44,.055) !important;
+}
+
+/* =========================================================
+   PLAY ONLINE
+========================================================= */
+.play-online-page {
+    background: transparent !important;
+}
+
+.play-online-actions {
+    border-color: rgba(255,255,255,.13) !important;
+    background:
+        radial-gradient(circle at 86% 8%, rgba(248,216,121,.16), transparent 16rem),
+        radial-gradient(circle at 5% 110%, rgba(34,197,94,.18), transparent 16rem),
+        linear-gradient(145deg, #041d16 0%, #075035 57%, #071625 100%) !important;
+    box-shadow: 0 25px 58px rgba(4,37,27,.21) !important;
+}
+
+.play-online-actions .online-action-card {
+    border-color: rgba(255,255,255,.15) !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.045)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+
+.play-online-step strong,
+.play-online-point strong {
+    background: linear-gradient(145deg, #087747, #11a55c) !important;
+    box-shadow: 0 7px 17px rgba(8,119,71,.18);
+}
+
+.online-primary-btn,
+.home-player-promo-btn,
+.submit-btn {
+    background: linear-gradient(135deg, #0a8b50, #17ad63) !important;
+    box-shadow: 0 11px 25px rgba(9,137,78,.24) !important;
+}
+
+/* =========================================================
+   AGENT PAGE
+========================================================= */
+.agent-premium-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 84% 6%, rgba(248,216,121,.15), transparent 18rem),
+        radial-gradient(circle at 8% 125%, rgba(48,185,116,.20), transparent 18rem),
+        linear-gradient(115deg, #061622 0%, #0b2b3f 50%, #08603f 100%) !important;
+    box-shadow: 0 18px 42px rgba(4,26,39,.16);
+}
+
+.agent-premium-hero::after {
+    content: "";
+    position: absolute;
+    width: 270px;
+    height: 270px;
+    right: -130px;
+    top: -175px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.15);
+    box-shadow: 0 0 0 44px rgba(255,255,255,.025), 0 0 0 84px rgba(255,255,255,.018);
+}
+
+.agent-premium-hero h2,
+.agent-premium-hero p {
+    color: #ffffff !important;
+}
+
+.agent-hero-badge,
+.agent-details-label {
+    border-color: rgba(248,216,121,.22) !important;
+    background: linear-gradient(135deg, rgba(245,253,249,.95), rgba(255,247,218,.94)) !important;
+    color: #087747 !important;
+}
+
+.agent-page {
+    background: transparent !important;
+}
+
+.agent-benefit-highlights span {
+    border-color: rgba(10,139,80,.16) !important;
+    background: linear-gradient(135deg, #edf9f2, #fffaf0) !important;
+}
+
+/* =========================================================
+   CONTACT PAGE
+========================================================= */
+.contact-section {
+    background: transparent !important;
+}
+
+.contact-intro h2 {
+    color: #07192c !important;
+    letter-spacing: -.7px;
+}
+
+.contact-info {
+    color: #0f2738 !important;
+}
+
+.contact-whatsapp {
+    background: linear-gradient(135deg, #0a8b50, #18ad64) !important;
+    box-shadow: 0 10px 23px rgba(8,119,71,.20) !important;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+    border-color: #cfded7 !important;
+    background: rgba(255,255,255,.90) !important;
+    box-shadow: inset 0 1px 2px rgba(7,31,45,.035);
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+    border-color: #0f9b58 !important;
+    box-shadow: 0 0 0 3px rgba(15,155,88,.09) !important;
+}
+
+/* =========================================================
+   FOOTERS
+========================================================= */
+.premium-footer,
+.homepage-footer-v3,
+body > footer {
+    border-top: 1px solid rgba(248,216,121,.09) !important;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(20,171,99,.14), transparent 20rem),
+        radial-gradient(circle at 92% 115%, rgba(233,184,63,.08), transparent 18rem),
+        linear-gradient(118deg, #03101d 0%, #071c2e 58%, #07322c 100%) !important;
+    color: #cbd8df !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+body > footer p,
+.premium-footer p {
+    color: #a9bac5 !important;
+}
+
+.legal-footer-links {
+    border-top-color: rgba(255,255,255,.06) !important;
+    background: #06131f !important;
+}
+
+.legal-footer-links a {
+    color: #b9c8d1 !important;
+}
+
+/* =========================================================
+   MICRO-INTERACTION / DEPTH
+========================================================= */
+.results-directory-folder,
+.stat-card,
+.home-draw-card,
+.next-prediction-card,
+.play-online-copy,
+.play-online-guide,
+.online-promo,
+.agent-overview-card,
+.contact-info,
+.contact-form {
+    transition: transform .20s ease, box-shadow .20s ease, border-color .20s ease !important;
+}
+
+@media (hover:hover) {
+    .results-directory-folder:hover,
+    .home-draw-card:hover,
+    .play-online-step:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--jols-shadow-strong) !important;
+    }
+}
+
+/* =========================================================
+   MOBILE — preserve existing layout; reduce decorative weight
+========================================================= */
+@media (max-width: 700px) {
+    body {
+        background:
+            radial-gradient(circle at 8% 5%, rgba(15,164,92,.10), transparent 15rem),
+            radial-gradient(rgba(8,119,71,.08) .55px, transparent .6px),
+            linear-gradient(180deg, #f8fbfa 0%, #eff5f2 52%, #f8fafc 100%) !important;
+        background-size: auto, 22px 22px, auto !important;
+    }
+
+    .premium-header::before {
+        right: -120px;
+        top: -270px;
+    }
+
+    .premium-header::after {
+        left: -70px;
+    }
+
+    .stat-card::after,
+    .home-draw-center::after,
+    .results-directory-folder::after,
+    .next-prediction-card::after,
+    .play-online-copy::after,
+    .play-online-guide::after,
+    .online-promo::after,
+    .agent-overview-card::after,
+    .contact-info::after,
+    .contact-form::after {
+        opacity: .55;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+}
