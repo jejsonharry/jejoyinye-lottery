@@ -13,15 +13,13 @@ loginForm.addEventListener("submit", async function (event) {
 
     loginButton.disabled = true;
     loginButton.textContent = "Signing in...";
-
     loginMessage.innerHTML = "";
 
     try {
-        const loginRequest =
-            supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+        const loginRequest = supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
         const timeout = new Promise(function (_, reject) {
             setTimeout(function () {
@@ -29,15 +27,9 @@ loginForm.addEventListener("submit", async function (event) {
             }, 10000);
         });
 
-        const { data, error } =
-            await Promise.race([
-                loginRequest,
-                timeout
-            ]);
+        const { data, error } = await Promise.race([loginRequest, timeout]);
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         if (data && data.session) {
             loginMessage.innerHTML = `
@@ -51,13 +43,11 @@ loginForm.addEventListener("submit", async function (event) {
         }
 
         throw new Error("No login session was returned.");
-
-    } catch (error) {
-        console.error("Login error:", error);
-
+    } catch (_) {
+        // Keep authentication details and provider error objects out of the browser console.
         loginMessage.innerHTML = `
             <div class="login-error">
-                ${error.message}
+                Unable to sign in. Check your email and password and try again.
             </div>
         `;
     } finally {
