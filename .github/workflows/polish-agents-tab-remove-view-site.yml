@@ -1,4 +1,4 @@
-name: Move live updates to draw schedule position
+name: Force fresh larger mobile navigation
 
 on:
   push:
@@ -10,63 +10,32 @@ permissions:
   contents: write
 
 jobs:
-  update-homepage:
+  update-mobile-nav:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Remove draw schedule and move live results
+      - name: Bump mobile navigation stylesheet cache version
         shell: python
         run: |
           from pathlib import Path
-          import re
+          changed = []
+          for path in Path('.').glob('*.html'):
+              text = path.read_text(encoding='utf-8')
+              new = text.replace('public-nav-mobile-fit-v2.css?v=1', 'public-nav-mobile-fit-v2.css?v=3')
+              new = new.replace('public-nav-mobile-fit-v2.css?v=2', 'public-nav-mobile-fit-v2.css?v=3')
+              if new != text:
+                  path.write_text(new, encoding='utf-8')
+                  changed.append(path.name)
+          if not changed:
+              raise SystemExit('No HTML pages referenced the mobile navigation stylesheet.')
+          print('Updated:', ', '.join(changed))
 
-          path = Path('index.html')
-          html = path.read_text(encoding='utf-8')
-
-          draw_pattern = re.compile(
-              r'<!-- =====================================================\s*TODAY\'S DRAW SCHEDULE\s*===================================================== -->.*?</section>\s*',
-              re.S,
-          )
-          html, draw_count = draw_pattern.subn('', html, count=1)
-          if draw_count != 1:
-              raise SystemExit('Draw schedule section was not found exactly once.')
-
-          results_pattern = re.compile(
-              r'(<!-- =====================================================\s*LATEST LOTTERY RESULTS\s*===================================================== -->\s*<section\s+class="\s*home-results-section\s*premium-section\s*"\s*>.*?</section>)',
-              re.S,
-          )
-          match = results_pattern.search(html)
-          if not match:
-              raise SystemExit('Latest Lottery Results section was not found.')
-
-          results_section = match.group(1)
-          html = html[:match.start()] + html[match.end():]
-
-          quick_stats_end = html.find('</section>', html.find('class="quick-stats"'))
-          if quick_stats_end == -1:
-              raise SystemExit('Quick stats section was not found.')
-          insert_at = quick_stats_end + len('</section>')
-
-          html = html[:insert_at] + '\n\n\n' + results_section + '\n' + html[insert_at:]
-
-          if 'TODAY\'S DRAW SCHEDULE' in html or 'Today’s Draw Schedule' in html:
-              raise SystemExit('Draw schedule content still exists after update.')
-
-          if html.find('LIVE UPDATES') > html.find('ONLINE PLAYER PROMOTION'):
-              raise SystemExit('Live Updates was not moved above Online Player Promotion.')
-
-          path.write_text(html, encoding='utf-8')
-
-      - name: Commit homepage layout update
+      - name: Commit cache-bust update
         shell: bash
         run: |
-          if git diff --quiet -- index.html; then
-            echo "No homepage changes detected."
-            exit 1
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git commit -m "ui: replace draw schedule with live updates on homepage"
+          git add *.html
+          git commit -m "ui: load larger mobile navigation on public pages"
           git push
