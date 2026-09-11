@@ -1,0 +1,36 @@
+name: Fix mobile run details v9
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/fix-mobile-run-details-v9.py'
+      - '.github/workflows/fix-mobile-run-details-v9.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply mobile run-details fix
+        run: python scripts/fix-mobile-run-details-v9.py
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git add predictions-premium-v4.css predictions.html
+          git commit -m "fix: improve mobile prediction run details readability"
+          git push
