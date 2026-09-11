@@ -2208,6 +2208,15 @@ async function sharePublishedResult(
     let delayedLabelReset =
         false;
 
+    const isIOSShareDevice =
+        /iPad|iPhone|iPod/.test(navigator.userAgent)
+        ||
+        (
+            navigator.platform === "MacIntel"
+            &&
+            navigator.maxTouchPoints > 1
+        );
+
     try {
 
         if (
@@ -2232,13 +2241,22 @@ async function sharePublishedResult(
                         files: [resultFile]
                     })
                 ) {
-                    await navigator.share({
-                        files: [resultFile],
-                        title:
-                            `${game} Lottery Result`,
-                        text:
-                            `${text}\n${shareUrl}`
-                    });
+                    const imageShareData =
+                        isIOSShareDevice
+                            ? {
+                                files: [resultFile]
+                            }
+                            : {
+                                files: [resultFile],
+                                title:
+                                    `${game} Lottery Result`,
+                                text:
+                                    `${text}\n${shareUrl}`
+                            };
+
+                    await navigator.share(
+                        imageShareData
+                    );
 
                     return;
                 }
