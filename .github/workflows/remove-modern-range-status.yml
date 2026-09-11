@@ -1,0 +1,30 @@
+name: Remove Modern range status helper
+
+on:
+  push:
+    paths:
+      - 'scripts/remove-modern-range-status.py'
+      - '.github/workflows/remove-modern-range-status.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove helper text
+        run: python scripts/remove-modern-range-status.py
+      - name: Commit change
+        run: |
+          if git diff --quiet -- predictions.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions.html
+          git commit -m "ui: remove Modern data range helper text"
+          git push
