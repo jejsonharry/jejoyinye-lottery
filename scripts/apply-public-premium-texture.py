@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# One-time rollout helper for the shared public premium texture layer.
 PAGES = [
     "index.html",
     "results.html",
