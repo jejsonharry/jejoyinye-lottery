@@ -1,9 +1,9 @@
-/* JOLS public navigation — six-tab mobile v14 */
+/* JOLS public navigation — six-tab mobile v15 */
 @media (max-width: 700px) {
     html body .premium-nav.premium-nav {
-        position: relative !important;
-        top: auto !important;
-        z-index: 30 !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 2500 !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 8px 12px 10px !important;
@@ -11,6 +11,8 @@
         overflow: visible !important;
         background: linear-gradient(180deg,#09182a 0%,#061321 100%) !important;
         box-shadow: 0 8px 20px rgba(2,8,23,.20) !important;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
     }
 
     html body .premium-nav.premium-nav .nav-inner.nav-inner {
