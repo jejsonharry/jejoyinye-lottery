@@ -198,11 +198,11 @@ async function shareGamePrediction(button) {
             ? `${activeDateRange.from || "earliest"} to ${activeDateRange.to || "latest"}`
             : isGhana
                 ? "Scheduled weekday game's complete history"
-                : "Previous 7 completed days plus today's earlier games";
+                : "Recent same-game evidence, machine conversion and controlled same-day context";
 
     const forecastLabel = isGhana
         ? "Weekday game-pattern forecast"
-        : "Fixed 60/30/10 forecast";
+        : "Evidence Fusion forecast";
 
     const text = [
         `${game} Game Prediction`,
@@ -1101,7 +1101,7 @@ async function fetchPredictionHistory(
             query = query
                 .gte(
                     "draw_date",
-                    shiftDateString(game.drawDate, -7)
+                    shiftDateString(game.drawDate, -90)
                 )
                 .lt("draw_date", game.drawDate);
         }
@@ -1518,8 +1518,8 @@ async function subscribeToModernResultUpdates() {
 
 
 // =========================================================
-// MODERN BILLIONAIRE PREDICTION METHOD
-// 60% statistics + 30% classification + 10% moving numbers
+// LEGACY MODERN SCORER
+// Retained only as an inactive comparison/archive. Live Modern forecasts use Evidence Fusion v1.
 // =========================================================
 
 const MODERN_PREDICTION_WEIGHTS = Object.freeze({
@@ -1528,13 +1528,11 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
     moving: 0.10
 });
 
-const MODERN_PREDICTION_ENGINE_LABEL = "Rolling 7-Day 60/30/10";
-const MODERN_RANGE_PREDICTION_ENGINE_LABEL = "Custom Range 60/30/10";
+const MODERN_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1 • EF-F";
+const MODERN_RANGE_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1 • Custom Range";
 
-// Refinement stays entirely inside the approved 60/30/10 method.
-// The latest three draws of the SAME game lead the recency signal, while
-// today's earlier games remain a smaller supporting context rather than
-// growing stronger as more games are published through the day.
+// Legacy R1 constants below are retained for historical comparison only.
+// They are no longer used by the active Modern Billionaire prediction path.
 const MODERN_RECENT_SAME_GAME_BOOSTS = Object.freeze([1.45, 1.30, 1.15]);
 const MODERN_TODAY_CONTEXT_BUDGET = Object.freeze({
     statisticalWinning: 1.20,
@@ -2144,6 +2142,40 @@ function calculateStatisticalPrediction(
 }
 
 
+
+// =========================================================
+// MODERN BILLIONAIRE — EVIDENCE FUSION v1 (ACTIVE)
+// EF-F profile selected after chronological walk-forward validation.
+// 45% recent same-game evidence
+// 20% machine -> future-winning conversion
+// 20% cross-confirmation (same-game + controlled same-day evidence)
+// 10% classification support
+// 5% moving-number support
+// plus a small multi-signal evidence-breadth bonus.
+// =========================================================
+
+function calculateModernEvidenceFusionPrediction(
+    history,
+    todayResults = [],
+    drawDate = "",
+    rangeMode = false
+) {
+    const engine = globalThis.JolsModernEvidenceEngine;
+
+    if (!engine || typeof engine.predict !== "function") {
+        throw new Error("Modern Evidence Fusion engine core is unavailable");
+    }
+
+    return engine.predict({
+        history,
+        todayResults,
+        drawDate,
+        rangeMode,
+        classificationChart: MODERN_CLASSIFICATION_CHART,
+        movingGraph: MODERN_MOVING_GRAPH
+    });
+}
+
 // =========================================================
 // STRENGTH LABEL
 // =========================================================
@@ -2477,13 +2509,35 @@ function displayPredictionAnalysis(
                                     <div>
 
                                         <span>
-                                            Recent Activity Score
+                                            Same-Game Evidence
                                         </span>
 
                                         <strong>
-                                            ${item.recentScore.toFixed(
-                                                1
-                                            )}
+                                            ${Number(item.sameGameScoreNormalized ?? item.recentScore ?? 0).toFixed(1)}
+                                        </strong>
+
+                                    </div>
+
+                                    <div>
+
+                                        <span>
+                                            Machine → Winning Conversion
+                                        </span>
+
+                                        <strong>
+                                            ${Number(item.machineConversionScoreNormalized ?? 0).toFixed(1)}
+                                        </strong>
+
+                                    </div>
+
+                                    <div>
+
+                                        <span>
+                                            Cross Confirmation
+                                        </span>
+
+                                        <strong>
+                                            ${Number(item.crossConfirmationScoreNormalized ?? 0).toFixed(1)}
                                         </strong>
 
                                     </div>
@@ -3231,16 +3285,16 @@ async function displayNextGamePrediction() {
 
 
         const predictionData =
-            calculateStatisticalPrediction(
+            calculateModernEvidenceFusionPrediction(
                 history,
                 todayResults,
-                true,
-                MODERN_PREDICTION_WEIGHTS
+                nextGame.drawDate,
+                customRangeActive
             );
 
         if (customRangeActive && nextGameDrawTime) {
             nextGameDrawTime.textContent =
-                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Fixed 60/30/10 range`;
+                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Evidence Fusion range`;
         }
 
 
@@ -3888,8 +3942,8 @@ document.addEventListener(
 
             if (modernPredictionRangeStatus) {
                 modernPredictionRangeStatus.textContent = from || to
-                    ? `Fixed 60/30/10 range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
-                    : "Using the previous 7 completed days plus today's earlier Modern games.";
+                    ? `Evidence Fusion range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
+                    : "Using recent same-game evidence, machine conversion and controlled same-day context.";
             }
 
             await displayNextGamePrediction();
@@ -3900,7 +3954,7 @@ document.addEventListener(
             modernPredictionDateRange = { from: "", to: "" };
 
             if (modernPredictionRangeStatus) {
-                modernPredictionRangeStatus.textContent = "Using the previous 7 completed days plus today's earlier Modern games.";
+                modernPredictionRangeStatus.textContent = "Using recent same-game evidence, machine conversion and controlled same-day context.";
             }
 
             await displayNextGamePrediction();
