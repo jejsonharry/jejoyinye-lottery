@@ -1,0 +1,35 @@
+name: Apply homepage premium v2
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-homepage-premium-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply homepage revamp
+        run: python scripts/revamp_homepage_v2.py
+      - name: Validate homepage files
+        run: |
+          grep -q 'homepage-premium-v2.css?v=1' index.html
+          grep -q 'Daily Lottery Results. Smarter Insights. More Opportunities.' index.html
+          grep -q 'Results, Insights &amp; Agent Access' index.html
+          grep -q 'result.lottery === "ghana"' script.js
+      - name: Commit homepage revamp
+        run: |
+          if git diff --quiet -- index.html script.js; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html script.js
+          git commit -m "ui: revamp homepage and correct Ghana result cards"
+          git push
