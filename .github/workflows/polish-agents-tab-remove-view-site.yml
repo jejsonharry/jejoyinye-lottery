@@ -1,4 +1,4 @@
-name: Force fresh larger mobile navigation
+name: Apply mobile navigation v5 across all public pages
 
 on:
   push:
@@ -15,27 +15,58 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bump mobile navigation stylesheet cache version
+      - name: Apply fresh v5 navigation stylesheet everywhere
         shell: python
         run: |
           from pathlib import Path
-          changed = []
-          for path in Path('.').glob('*.html'):
-              text = path.read_text(encoding='utf-8')
-              new = text.replace('public-nav-mobile-fit-v2.css?v=1', 'public-nav-mobile-fit-v2.css?v=3')
-              new = new.replace('public-nav-mobile-fit-v2.css?v=2', 'public-nav-mobile-fit-v2.css?v=3')
-              if new != text:
-                  path.write_text(new, encoding='utf-8')
-                  changed.append(path.name)
-          if not changed:
-              raise SystemExit('No HTML pages referenced the mobile navigation stylesheet.')
-          print('Updated:', ', '.join(changed))
+          import re
 
-      - name: Commit cache-bust update
+          public_pages = []
+          for path in Path('.').glob('*.html'):
+              if path.name in {
+                  'admin.html', 'admin-login.html', 'admin-reset-password.html',
+                  'forgot-password.html', 'reset-password.html',
+                  'agent-application.html'
+              }:
+                  continue
+
+              text = path.read_text(encoding='utf-8')
+              if 'class="premium-nav"' not in text:
+                  continue
+
+              # Remove any older cache-version references and ensure one v5 stylesheet.
+              text = re.sub(
+                  r'\s*<link\s+rel="stylesheet"\s+href="public-nav-mobile-fit-v2\.css\?v=\d+"\s*>',
+                  '',
+                  text,
+                  flags=re.I,
+              )
+
+              insert = '    <link rel="stylesheet" href="public-nav-mobile-fit-v2.css?v=5">\n'
+              head_close = text.lower().find('</head>')
+              if head_close == -1:
+                  raise SystemExit(f'Missing </head> in {path.name}')
+              text = text[:head_close] + insert + text[head_close:]
+
+              path.write_text(text, encoding='utf-8')
+              public_pages.append(path.name)
+
+          if not public_pages:
+              raise SystemExit('No public pages with premium navigation were found.')
+
+          print('Updated pages:')
+          for name in public_pages:
+              print('-', name)
+
+      - name: Commit all public-page references
         shell: bash
         run: |
+          if git diff --quiet -- '*.html'; then
+            echo "No HTML changes detected."
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add *.html
-          git commit -m "ui: load larger mobile navigation on public pages"
+          git commit -m "ui: apply larger bold mobile tabs across all public pages"
           git push
