@@ -1,0 +1,92 @@
+name: Use full admin brand name
+
+on:
+  push:
+    paths:
+      - '.github/workflows/admin-full-brand-name.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-brand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use full Jejoyinye Lottery Services brand name
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('admin.html')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = {
+              'content="JOLS Lottery"': 'content="Jejoyinye Lottery Services"',
+              'aria-label="Open JOLS website"': 'aria-label="Open Jejoyinye Lottery Services website"',
+              'alt="JOLS" class="admin-control-logo"': 'alt="Jejoyinye Lottery Services" class="admin-control-logo"',
+              '<small>JOLS SECURE ADMIN</small>\n                <strong>Control Center</strong>': '<small>SECURE ADMINISTRATION</small>\n                <strong>JEJOYINYE LOTTERY SERVICES</strong>',
+          }
+
+          for old, new in replacements.items():
+              text = text.replace(old, new)
+
+          mobile_override = '''
+<style id="admin-full-brand-mobile-fix">
+@media (max-width: 760px) {
+    .admin-control-brand-copy strong {
+        font-size: 13px;
+        line-height: 1.12;
+        max-width: 185px;
+    }
+    .admin-control-brand-copy small {
+        font-size: 7px;
+        letter-spacing: .85px;
+    }
+}
+@media (max-width: 480px) {
+    .admin-control-header-inner {
+        gap: 8px;
+    }
+    .admin-control-brand {
+        gap: 7px;
+    }
+    .admin-control-logo {
+        width: 36px;
+        height: 36px;
+    }
+    .admin-control-brand-copy small {
+        display: block;
+        font-size: 6px;
+        letter-spacing: .65px;
+    }
+    .admin-control-brand-copy strong {
+        font-size: 10px;
+        max-width: 125px;
+        line-height: 1.16;
+    }
+}
+</style>
+'''
+
+          if 'id="admin-full-brand-mobile-fix"' not in text:
+              text = text.replace('</head>', mobile_override + '\n</head>', 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit full brand name
+        shell: bash
+        run: |
+          if git diff --quiet -- admin.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html
+          git commit -m "ui: use full Jejoyinye Lottery Services admin branding"
+          git push
