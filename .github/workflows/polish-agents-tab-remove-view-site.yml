@@ -1,4 +1,4 @@
-name: Load homepage mobile navigation override last
+name: Load Results mobile premium styling last
 
 on:
   push:
@@ -10,23 +10,22 @@ permissions:
   contents: write
 
 jobs:
-  fix-home-nav-order:
+  load-results-mobile-style:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure homepage-only nav override loads after global mobile nav
+      - name: Load Results page mobile override after global nav CSS
         shell: python
         run: |
           from pathlib import Path
           import re
 
-          path = Path('index.html')
+          path = Path('results.html')
           html = path.read_text(encoding='utf-8')
 
-          # Remove any prior homepage-only override references.
           html = re.sub(
-              r'\s*<link\s+rel="stylesheet"\s+href="homepage-mobile-nav-v7\.css(?:\?v=\d+)?"\s*>',
+              r'\s*<link\s+rel="stylesheet"\s+href="results-mobile-premium-v1\.css(?:\?v=\d+)?"\s*>',
               '',
               html,
               flags=re.I,
@@ -34,28 +33,28 @@ jobs:
 
           global_link = '<link rel="stylesheet" href="public-nav-mobile-fit-v2.css?v=5">'
           if global_link not in html:
-              raise SystemExit('Global mobile navigation stylesheet link not found.')
+              raise SystemExit('Global mobile navigation stylesheet link not found in results.html')
 
           html = html.replace(
               global_link,
-              global_link + '\n    <link rel="stylesheet" href="homepage-mobile-nav-v7.css?v=7">',
+              global_link + '\n    <link rel="stylesheet" href="results-mobile-premium-v1.css?v=1">',
               1,
           )
 
-          if html.find('homepage-mobile-nav-v7.css?v=7') < html.find('public-nav-mobile-fit-v2.css?v=5'):
-              raise SystemExit('Homepage override is not loading after global mobile nav.')
+          if html.find('results-mobile-premium-v1.css?v=1') < html.find(global_link):
+              raise SystemExit('Results mobile override is not loading after global nav CSS')
 
           path.write_text(html, encoding='utf-8')
 
-      - name: Commit final homepage nav loading order
+      - name: Commit Results page mobile polish
         shell: bash
         run: |
-          if git diff --quiet -- index.html; then
-            echo "No homepage changes detected."
+          if git diff --quiet -- results.html; then
+            echo "No Results page changes detected."
             exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git commit -m "ui: make two-column sticky homepage mobile nav take precedence"
+          git add results.html
+          git commit -m "ui: apply premium mobile layout to Results page"
           git push
