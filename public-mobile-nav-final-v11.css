@@ -1,4 +1,4 @@
-/* JOLS public navigation — final mobile reference v12 */
+/* JOLS public navigation — three-tab mobile v13 */
 @media (max-width: 700px) {
     html body .premium-nav.premium-nav {
         position: relative !important;
@@ -20,8 +20,8 @@
         margin: 0 auto !important;
         padding: 0 !important;
         display: grid !important;
-        grid-template-columns: repeat(2,minmax(0,1fr)) !important;
-        gap: 7px 10px !important;
+        grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+        gap: 8px !important;
         align-items: stretch !important;
         overflow: visible !important;
     }
@@ -31,32 +31,31 @@
         width: 100% !important;
         min-width: 0 !important;
         max-width: none !important;
-        min-height: 46px !important;
+        min-height: 44px !important;
         margin: 0 !important;
-        padding: 8px 9px !important;
+        padding: 7px 5px !important;
         box-sizing: border-box !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         border: 1px solid rgba(148,163,184,.30) !important;
-        border-radius: 14px !important;
+        border-radius: 13px !important;
         background: linear-gradient(180deg,#1d293b 0%,#0a1728 100%) !important;
         color: #f8fafc !important;
         box-shadow: inset 0 1px 0 rgba(255,255,255,.06),0 5px 13px rgba(2,8,23,.16) !important;
-        font-size: clamp(12.5px,3.45vw,15px) !important;
+        font-size: clamp(11.5px,3.2vw,14px) !important;
         font-weight: 900 !important;
-        line-height: 1.08 !important;
-        letter-spacing: .15px !important;
+        line-height: 1.05 !important;
+        letter-spacing: .05px !important;
         text-align: center !important;
-        white-space: normal !important;
+        white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: clip !important;
-        word-break: normal !important;
     }
 
-    html body .premium-nav.premium-nav .nav-inner.nav-inner > a:nth-child(5),
-    html body .premium-nav.premium-nav .nav-inner.nav-inner > a:nth-child(6) {
-        grid-column: 1 / -1 !important;
+    /* Keep only the three primary mobile tabs: Home, Results, Predictions. */
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a:nth-child(n+4) {
+        display: none !important;
     }
 
     html body .premium-nav.premium-nav .nav-inner.nav-inner > a.active,
@@ -71,9 +70,9 @@
     html body .premium-nav.premium-nav .nav-inner.nav-inner > a[aria-current="page"]::after {
         content: "" !important;
         position: absolute !important;
-        left: 9% !important;
-        right: 9% !important;
-        bottom: 6px !important;
+        left: 12% !important;
+        right: 12% !important;
+        bottom: 5px !important;
         height: 2px !important;
         border-radius: 999px !important;
         background: rgba(255,255,255,.95) !important;
@@ -86,18 +85,13 @@
     }
 
     html body .premium-nav.premium-nav .nav-inner.nav-inner {
-        gap: 6px 8px !important;
+        gap: 6px !important;
     }
 
     html body .premium-nav.premium-nav .nav-inner.nav-inner > a {
-        min-height: 43px !important;
-        padding: 7px 6px !important;
-        border-radius: 12px !important;
-        font-size: 12px !important;
-    }
-
-    html body .premium-nav.premium-nav .nav-inner.nav-inner > a.active::after,
-    html body .premium-nav.premium-nav .nav-inner.nav-inner > a[aria-current="page"]::after {
-        bottom: 5px !important;
+        min-height: 41px !important;
+        padding: 6px 4px !important;
+        border-radius: 11px !important;
+        font-size: 11.5px !important;
     }
 }
