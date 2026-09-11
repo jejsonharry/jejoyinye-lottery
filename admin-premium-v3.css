@@ -912,3 +912,40 @@ html { scroll-behavior: smooth; }
     .admin-number-grid { gap:6px !important; }
     .admin-number-grid input { min-height:52px;padding:8px 2px !important;font-size:16px; }
 }
+
+
+/* Dashboard KPI cleanup: no letter badges; six live metrics */
+.admin-dashboard-body .admin-stats {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.admin-dashboard-body .admin-stat-card::before {
+    display: none !important;
+    content: none !important;
+}
+
+.admin-dashboard-body .admin-stat-card {
+    min-height: 132px !important;
+    padding-top: 24px !important;
+}
+
+.admin-dashboard-body .admin-stat-card:nth-child(1)::after { background:#2563eb !important; }
+.admin-dashboard-body .admin-stat-card:nth-child(2)::after { background:#0d8b4f !important; }
+.admin-dashboard-body .admin-stat-card:nth-child(3)::after { background:#f59e0b !important; }
+.admin-dashboard-body .admin-stat-card:nth-child(4)::after { background:#16a34a !important; }
+.admin-dashboard-body .admin-stat-card:nth-child(5)::after { background:#64748b !important; }
+.admin-dashboard-body .admin-stat-card:nth-child(6)::after { background:#8b5cf6 !important; }
+
+@media (max-width: 1180px) {
+    .admin-dashboard-body .admin-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+    .admin-dashboard-body .admin-stat-card:last-child { grid-column: auto !important; }
+}
+
+@media (max-width: 760px) {
+    .admin-dashboard-body .admin-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    .admin-dashboard-body .admin-stat-card:last-child { grid-column: auto !important; }
+}

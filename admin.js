@@ -198,6 +198,12 @@ const pendingCount =
     );
 
 
+const approvedCount =
+    document.getElementById(
+        "admin-approved-count"
+    );
+
+
 const archivedCount =
     document.getElementById(
         "admin-archived-count"
@@ -2158,6 +2164,21 @@ function updateAgentStatistics() {
         );
 
 
+    const approved =
+        active.filter(
+
+            item =>
+                String(
+                    item.status
+                    ||
+                    "pending"
+                ).toLowerCase()
+                ===
+                "approved"
+
+        );
+
+
     const archived =
         allApplications.filter(
 
@@ -2182,6 +2203,15 @@ function updateAgentStatistics() {
         pendingCount.textContent =
             String(
                 pending.length
+            );
+    }
+
+
+    if (approvedCount) {
+
+        approvedCount.textContent =
+            String(
+                approved.length
             );
     }
 
