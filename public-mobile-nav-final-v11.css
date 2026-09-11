@@ -1,4 +1,4 @@
-/* JOLS public navigation — final mobile reference v11 */
+/* JOLS public navigation — final mobile reference v12 */
 @media (max-width: 700px) {
     html body .premium-nav.premium-nav {
         position: relative !important;
@@ -11,12 +11,6 @@
         overflow: visible !important;
         background: linear-gradient(180deg,#09182a 0%,#061321 100%) !important;
         box-shadow: 0 8px 20px rgba(2,8,23,.20) !important;
-    }
-
-    html body.home-page .premium-nav.premium-nav {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 2147483000 !important;
     }
 
     html body .premium-nav.premium-nav .nav-inner.nav-inner {
