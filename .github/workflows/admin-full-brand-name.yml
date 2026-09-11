@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use full Jejoyinye Lottery Services brand name
+      - name: Use full name in admin header only
         shell: bash
         run: |
           python - <<'PY'
@@ -24,15 +24,16 @@ jobs:
           path = Path('admin.html')
           text = path.read_text(encoding='utf-8')
 
-          replacements = {
-              'content="JOLS Lottery"': 'content="Jejoyinye Lottery Services"',
-              'aria-label="Open JOLS website"': 'aria-label="Open Jejoyinye Lottery Services website"',
-              'alt="JOLS" class="admin-control-logo"': 'alt="Jejoyinye Lottery Services" class="admin-control-logo"',
-              '<small>JOLS SECURE ADMIN</small>\n                <strong>Control Center</strong>': '<small>SECURE ADMINISTRATION</small>\n                <strong>JEJOYINYE LOTTERY SERVICES</strong>',
-          }
+          # Keep non-header metadata unchanged.
+          text = text.replace('content="Jejoyinye Lottery Services"', 'content="JOLS Lottery"')
 
-          for old, new in replacements.items():
-              text = text.replace(old, new)
+          # Only update the dedicated admin header branding.
+          text = text.replace('aria-label="Open JOLS website"', 'aria-label="Open Jejoyinye Lottery Services website"')
+          text = text.replace('alt="JOLS" class="admin-control-logo"', 'alt="Jejoyinye Lottery Services" class="admin-control-logo"')
+          text = text.replace(
+              '<small>JOLS SECURE ADMIN</small>\n                <strong>Control Center</strong>',
+              '<small>SECURE ADMINISTRATION</small>\n                <strong>JEJOYINYE LOTTERY SERVICES</strong>'
+          )
 
           mobile_override = '''
 <style id="admin-full-brand-mobile-fix">
@@ -48,16 +49,9 @@ jobs:
     }
 }
 @media (max-width: 480px) {
-    .admin-control-header-inner {
-        gap: 8px;
-    }
-    .admin-control-brand {
-        gap: 7px;
-    }
-    .admin-control-logo {
-        width: 36px;
-        height: 36px;
-    }
+    .admin-control-header-inner { gap: 8px; }
+    .admin-control-brand { gap: 7px; }
+    .admin-control-logo { width: 36px; height: 36px; }
     .admin-control-brand-copy small {
         display: block;
         font-size: 6px;
@@ -78,7 +72,7 @@ jobs:
           path.write_text(text, encoding='utf-8')
           PY
 
-      - name: Commit full brand name
+      - name: Commit header-only brand update
         shell: bash
         run: |
           if git diff --quiet -- admin.html; then
@@ -88,5 +82,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add admin.html
-          git commit -m "ui: use full Jejoyinye Lottery Services admin branding"
+          git commit -m "ui: use full company name in admin header only"
           git push
