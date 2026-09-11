@@ -1,0 +1,29 @@
+name: Clean results tab copy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/clean-results-tab-copy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove results-tab helper copy
+        run: python scripts/clean_results_tab_copy.py
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- admin.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html
+          git commit -m "ui: remove helper copy from results management"
+          git push
