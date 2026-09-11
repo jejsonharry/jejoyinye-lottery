@@ -4,25 +4,19 @@ import re
 path = Path("admin.html")
 text = path.read_text(encoding="utf-8")
 
-text = text.replace('<body>', '<body class="admin-dashboard-body">', 1)
-
-body_shell_pattern = re.compile(
-    r'<!-- =====================================================\s*HEADER\s*===================================================== -->.*?'
-    r'<!-- =====================================================\s*ADMIN PAGE\s*===================================================== -->',
+# Update only the dedicated admin header branding.
+header_pattern = re.compile(
+    r'<header class="admin-control-header">.*?</header>',
     re.S,
 )
 
-admin_shell = '''<!-- =====================================================
-     ADMIN CONTROL HEADER
-===================================================== -->
-
-<header class="admin-control-header">
+header = '''<header class="admin-control-header">
     <div class="admin-control-header-inner">
-        <a href="/" class="admin-control-brand" aria-label="Open JOLS website">
-            <img src="Images/jols-logo.png" alt="JOLS" class="admin-control-logo">
+        <a href="/" class="admin-control-brand" aria-label="Open Jejoyinye Lottery Services website">
+            <img src="Images/jols-logo.png" alt="Jejoyinye Lottery Services" class="admin-control-logo">
             <span class="admin-control-brand-copy">
                 <small>JOLS SECURE ADMIN</small>
-                <strong>Control Center</strong>
+                <strong>JEJOYINYE LOTTERY SERVICES</strong>
             </span>
         </a>
         <div class="admin-control-actions">
@@ -30,67 +24,134 @@ admin_shell = '''<!-- =====================================================
             <button type="button" id="logout-btn" class="admin-header-logout">Logout</button>
         </div>
     </div>
-</header>
+</header>'''
 
-<!-- =====================================================
-     ADMIN PAGE
-===================================================== -->'''
+text, header_count = header_pattern.subn(header, text, count=1)
+if header_count != 1:
+    raise SystemExit("Could not find the dedicated admin header.")
 
-text, shell_count = body_shell_pattern.subn(admin_shell, text, count=1)
-if shell_count != 1:
-    raise SystemExit("Could not replace the public admin header/navigation block.")
-
-heading_pattern = re.compile(
-    r'\s*<!-- ADMIN HEADING -->.*?'
-    r'<!-- =================================================\s*TAB NAVIGATION\s*================================================= -->',
-    re.S,
+# Remove the descriptive sentence below Administrator Dashboard.
+text = re.sub(
+    r'(<h2>\s*Administrator Dashboard\s*</h2>)\s*<p>.*?</p>',
+    r'\1',
+    text,
+    count=1,
+    flags=re.S,
 )
 
-compact_heading = '''
+# Header-only visual tuning requested by the user.
+header_css = '''<style id="admin-header-tuning">
+.admin-control-header-inner {
+    min-height: 94px !important;
+}
 
-    <!-- ADMIN HEADING -->
-    <section class="admin-top admin-top-compact">
-        <div>
-            <span class="admin-eyebrow">ADMINISTRATION</span>
-            <h2>Administrator Dashboard</h2>
-            <p>Manage results, agents, analytics and customer enquiries from one secure workspace.</p>
-        </div>
-        <span class="admin-session-badge" aria-label="Secure administrator session">Secure session</span>
-    </section>
+.admin-control-brand {
+    gap: 16px !important;
+}
 
-    <!-- =================================================
-         TAB NAVIGATION
-    ================================================= -->'''
+.admin-control-logo {
+    width: 78px !important;
+    height: 78px !important;
+    object-fit: contain !important;
+    flex: 0 0 auto !important;
+    filter: drop-shadow(0 9px 18px rgba(0,0,0,.38)) contrast(1.1) saturate(1.1) !important;
+}
 
-text, heading_count = heading_pattern.subn(compact_heading, text, count=1)
-if heading_count != 1:
-    raise SystemExit("Could not replace the admin heading block.")
+.admin-control-brand-copy small {
+    display: block !important;
+    color: #bfdbfe !important;
+    font-size: 15px !important;
+    font-weight: 950 !important;
+    line-height: 1.05 !important;
+    letter-spacing: 1.7px !important;
+}
 
-text = text.replace(
-    'Messages / Enquiries\n            <span id="admin-unread-tab-count"',
-    'Messages\n            <span id="admin-unread-tab-count"',
-    1,
-)
+.admin-control-brand-copy strong {
+    display: block !important;
+    margin-top: 6px !important;
+    color: #ffffff !important;
+    font-size: 22px !important;
+    font-weight: 950 !important;
+    line-height: 1.08 !important;
+    letter-spacing: .1px !important;
+    max-width: none !important;
+}
 
-admin_css = '''
-<style id="admin-shell-revamp">
-.admin-dashboard-body{min-height:100vh;background:radial-gradient(circle at 15% 0%,rgba(37,99,235,.08),transparent 28rem),#f4f7fb}
-.admin-control-header{position:sticky;top:0;z-index:3000;background:linear-gradient(135deg,#081426 0%,#102b4f 55%,#123f66 100%);border-bottom:1px solid rgba(255,255,255,.10);box-shadow:0 10px 30px rgba(2,8,23,.18)}
-.admin-control-header-inner{width:min(1250px,94%);min-height:76px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px}
-.admin-control-brand{display:inline-flex;align-items:center;gap:12px;color:#fff;text-decoration:none;min-width:0}
-.admin-control-logo{width:48px;height:48px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.24))}
-.admin-control-brand-copy{display:flex;flex-direction:column;min-width:0}.admin-control-brand-copy small{color:#93c5fd;font-size:10px;font-weight:900;letter-spacing:1.45px}.admin-control-brand-copy strong{margin-top:2px;color:#fff;font-size:19px;line-height:1.15;letter-spacing:-.2px}
-.admin-control-actions{display:flex;align-items:center;gap:9px;flex:0 0 auto}.admin-view-site-btn,.admin-header-logout{min-height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:11px;padding:9px 14px;font-size:12px;font-weight:900;text-decoration:none;cursor:pointer;transition:transform .18s ease,background .18s ease,box-shadow .18s ease}.admin-view-site-btn{color:#e0f2fe;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18)}.admin-header-logout{color:#fff;background:linear-gradient(135deg,#dc2626,#b91c1c);border:1px solid rgba(255,255,255,.12);box-shadow:0 7px 16px rgba(185,28,28,.24)}
-.admin-dashboard-body .admin-page{width:min(1250px,94%);margin:22px auto 64px}.admin-dashboard-body .admin-top-compact{margin-bottom:16px;padding:20px 22px;border-radius:18px;background:linear-gradient(145deg,#fff,#f8fbff);border:1px solid #dbe5f0;box-shadow:0 10px 28px rgba(15,23,42,.055)}.admin-dashboard-body .admin-top-compact h2{margin:4px 0 5px;font-size:clamp(24px,3vw,34px);letter-spacing:-.6px}.admin-dashboard-body .admin-top-compact p{max-width:760px;line-height:1.55}
-.admin-session-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11px;font-weight:900;white-space:nowrap}.admin-session-badge:before{content:"";width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.13)}
-.admin-dashboard-body .admin-tabs{top:88px;grid-template-columns:repeat(5,minmax(0,1fr))!important;margin-bottom:18px;padding:7px!important;border:1px solid #dbe5f0!important;background:rgba(255,255,255,.96)!important;box-shadow:0 9px 25px rgba(15,23,42,.07)}.admin-dashboard-body .admin-tab-button{min-width:0;min-height:42px;padding:10px 9px!important;font-size:12px!important}.admin-dashboard-body .admin-tab-button.active{background:linear-gradient(135deg,#173d74,#2563eb)!important;box-shadow:0 8px 18px rgba(37,99,235,.20)!important}
-.admin-dashboard-body .admin-stats{gap:12px;margin-bottom:18px}.admin-dashboard-body .admin-stat-card{padding:18px;border-radius:16px;border-color:#dde6ef}.admin-dashboard-body .admin-stat-card strong{font-size:27px}.admin-dashboard-body .dashboard-welcome{border-radius:19px;padding:28px;background:linear-gradient(135deg,#0a1930,#123d60 58%,#0f766e)}
-@media(max-width:760px){.admin-control-header-inner{width:94%;min-height:68px}.admin-control-logo{width:41px;height:41px}.admin-control-brand-copy small{font-size:8px;letter-spacing:1px}.admin-control-brand-copy strong{font-size:16px}.admin-view-site-btn,.admin-header-logout{min-height:36px;padding:8px 10px;font-size:11px}.admin-dashboard-body .admin-page{width:94%;margin-top:14px}.admin-dashboard-body .admin-top-compact{padding:17px;margin-bottom:12px;align-items:flex-start}.admin-dashboard-body .admin-top-compact h2{font-size:25px}.admin-dashboard-body .admin-tabs{position:sticky;top:76px;display:flex!important;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;gap:6px!important;padding:6px!important}.admin-dashboard-body .admin-tabs::-webkit-scrollbar{display:none}.admin-dashboard-body .admin-tab-button{flex:0 0 auto;min-width:105px;min-height:40px;white-space:nowrap;font-size:11px!important}.admin-dashboard-body .admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.admin-dashboard-body .admin-stat-card{min-width:0;padding:15px}.admin-dashboard-body .admin-stat-card span{font-size:10px;line-height:1.35}.admin-dashboard-body .admin-stat-card strong{font-size:25px}.admin-dashboard-body .admin-stat-card:last-child{grid-column:1/-1}.admin-dashboard-body .dashboard-welcome{padding:21px;margin-bottom:18px}.admin-dashboard-body .dashboard-welcome h2{font-size:26px}.admin-dashboard-body .dashboard-shortcuts{grid-template-columns:1fr;gap:10px;margin-top:18px}.admin-dashboard-body .dashboard-shortcut{padding:17px}}
-@media(max-width:480px){.admin-control-brand-copy small{display:none}.admin-control-brand-copy strong{font-size:15px}.admin-view-site-btn{font-size:0;width:38px;padding:0}.admin-view-site-btn:before{content:"Site";font-size:10px}.admin-header-logout{padding-inline:10px}.admin-session-badge{padding:7px 9px;font-size:10px}}
-</style>
-'''
+.admin-dashboard-body .admin-top-compact h2 {
+    margin-bottom: 0 !important;
+}
 
-if 'id="admin-shell-revamp"' not in text:
-    text = text.replace('</head>', admin_css + '\n</head>', 1)
+@media (max-width: 760px) {
+    .admin-control-header-inner {
+        min-height: 82px !important;
+        gap: 10px !important;
+    }
+
+    .admin-control-brand {
+        gap: 10px !important;
+    }
+
+    .admin-control-logo {
+        width: 64px !important;
+        height: 64px !important;
+    }
+
+    .admin-control-brand-copy small {
+        display: block !important;
+        font-size: 11px !important;
+        letter-spacing: 1.05px !important;
+    }
+
+    .admin-control-brand-copy strong {
+        font-size: 14px !important;
+        max-width: 205px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-control-header-inner {
+        min-height: 78px !important;
+        width: 96% !important;
+    }
+
+    .admin-control-brand {
+        gap: 7px !important;
+    }
+
+    .admin-control-logo {
+        width: 58px !important;
+        height: 58px !important;
+    }
+
+    .admin-control-brand-copy small {
+        display: block !important;
+        font-size: 10px !important;
+        letter-spacing: .7px !important;
+    }
+
+    .admin-control-brand-copy strong {
+        font-size: 11px !important;
+        max-width: 135px !important;
+        line-height: 1.1 !important;
+    }
+
+    .admin-view-site-btn,
+    .admin-header-logout {
+        min-height: 34px !important;
+        padding: 7px 8px !important;
+    }
+}
+</style>'''
+
+if 'id="admin-header-tuning"' in text:
+    text = re.sub(
+        r'<style id="admin-header-tuning">.*?</style>',
+        header_css,
+        text,
+        count=1,
+        flags=re.S,
+    )
+else:
+    text = text.replace('</head>', header_css + '\n\n</head>', 1)
 
 path.write_text(text, encoding="utf-8")
