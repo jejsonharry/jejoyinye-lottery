@@ -1,0 +1,564 @@
+{
+  "generatedAt": "2026-09-11T23:20:06.983Z",
+  "data": {
+    "raw": 11202,
+    "canonical": 10984,
+    "aliasDuplicatesRemoved": 217,
+    "conflictingGameDatesExcluded": 1,
+    "evaluated": 10924
+  },
+  "random": {
+    "avg": 0.2777777777777778,
+    "anyRate": 0.2536504362256955
+  },
+  "ranked": [
+    {
+      "model": {
+        "id": "EF-D",
+        "w": {
+          "same": 0.5,
+          "conv": 0.15,
+          "cross": 0.15,
+          "class": 0.1,
+          "move": 0.1
+        },
+        "breadth": 2
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2156,
+        "any": 1990,
+        "two": 158,
+        "sure": 865,
+        "direct": 1291,
+        "machine": 2244,
+        "avg": 0.2733958914532082,
+        "anyRate": 0.25234592949530815,
+        "twoRate": 0.02003550595992899
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 647,
+        "any": 598,
+        "two": 44,
+        "sure": 237,
+        "direct": 410,
+        "machine": 641,
+        "avg": 0.2992599444958372,
+        "anyRate": 0.2765957446808511,
+        "twoRate": 0.020351526364477335
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 244,
+        "any": 222,
+        "two": 19,
+        "sure": 101,
+        "direct": 143,
+        "machine": 260,
+        "avg": 0.2785388127853881,
+        "anyRate": 0.2534246575342466,
+        "twoRate": 0.021689497716894976
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3047,
+        "any": 2810,
+        "two": 221,
+        "sure": 1203,
+        "direct": 1844,
+        "machine": 3145,
+        "avg": 0.2789271329183449,
+        "anyRate": 0.25723178322958623,
+        "twoRate": 0.020230684730867813
+      }
+    },
+    {
+      "model": {
+        "id": "EF-E",
+        "w": {
+          "same": 0.45,
+          "conv": 0.2,
+          "cross": 0.2,
+          "class": 0.05,
+          "move": 0.1
+        },
+        "breadth": 2
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2156,
+        "any": 1984,
+        "two": 167,
+        "sure": 851,
+        "direct": 1305,
+        "machine": 2245,
+        "avg": 0.2733958914532082,
+        "anyRate": 0.25158508749682984,
+        "twoRate": 0.02117676895764646
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 643,
+        "any": 596,
+        "two": 44,
+        "sure": 247,
+        "direct": 396,
+        "machine": 618,
+        "avg": 0.29740980573543013,
+        "anyRate": 0.27567067530064754,
+        "twoRate": 0.020351526364477335
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 241,
+        "any": 217,
+        "two": 22,
+        "sure": 103,
+        "direct": 138,
+        "machine": 249,
+        "avg": 0.2751141552511416,
+        "anyRate": 0.24771689497716895,
+        "twoRate": 0.02511415525114155
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3040,
+        "any": 2797,
+        "two": 233,
+        "sure": 1201,
+        "direct": 1839,
+        "machine": 3112,
+        "avg": 0.27828634199926766,
+        "anyRate": 0.2560417429512999,
+        "twoRate": 0.021329183449285975
+      }
+    },
+    {
+      "model": {
+        "id": "EF-H",
+        "w": {
+          "same": 0.5,
+          "conv": 0.2,
+          "cross": 0.2,
+          "class": 0.05,
+          "move": 0.05
+        },
+        "breadth": 3
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2145,
+        "any": 1976,
+        "two": 164,
+        "sure": 865,
+        "direct": 1280,
+        "machine": 2248,
+        "avg": 0.27200101445599795,
+        "anyRate": 0.2505706314988587,
+        "twoRate": 0.020796347958407305
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 642,
+        "any": 590,
+        "two": 47,
+        "sure": 250,
+        "direct": 392,
+        "machine": 623,
+        "avg": 0.2969472710453284,
+        "anyRate": 0.272895467160037,
+        "twoRate": 0.021739130434782608
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 249,
+        "any": 223,
+        "two": 24,
+        "sure": 100,
+        "direct": 149,
+        "machine": 255,
+        "avg": 0.2842465753424658,
+        "anyRate": 0.2545662100456621,
+        "twoRate": 0.0273972602739726
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3036,
+        "any": 2789,
+        "two": 235,
+        "sure": 1215,
+        "direct": 1821,
+        "machine": 3126,
+        "avg": 0.27792017575979494,
+        "anyRate": 0.25530941047235445,
+        "twoRate": 0.021512266569022335
+      }
+    },
+    {
+      "model": {
+        "id": "EF-G",
+        "w": {
+          "same": 0.45,
+          "conv": 0.2,
+          "cross": 0.15,
+          "class": 0.05,
+          "move": 0.05,
+          "day": 0.1
+        },
+        "breadth": 2
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2180,
+        "any": 1999,
+        "two": 174,
+        "sure": 853,
+        "direct": 1327,
+        "machine": 2260,
+        "avg": 0.2764392594471215,
+        "anyRate": 0.2534871924930256,
+        "twoRate": 0.022064417955871163
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 636,
+        "any": 582,
+        "two": 49,
+        "sure": 260,
+        "direct": 376,
+        "machine": 620,
+        "avg": 0.29417206290471787,
+        "anyRate": 0.26919518963922295,
+        "twoRate": 0.022664199814986123
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 252,
+        "any": 227,
+        "two": 23,
+        "sure": 108,
+        "direct": 144,
+        "machine": 244,
+        "avg": 0.2876712328767123,
+        "anyRate": 0.2591324200913242,
+        "twoRate": 0.026255707762557076
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3068,
+        "any": 2808,
+        "two": 246,
+        "sure": 1221,
+        "direct": 1847,
+        "machine": 3124,
+        "avg": 0.2808495056755767,
+        "anyRate": 0.25704870010984987,
+        "twoRate": 0.022519223727572316
+      }
+    },
+    {
+      "model": {
+        "id": "EF-C",
+        "w": {
+          "same": 0.45,
+          "conv": 0.15,
+          "cross": 0.2,
+          "class": 0.1,
+          "move": 0.1
+        },
+        "breadth": 2
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2167,
+        "any": 1994,
+        "two": 167,
+        "sure": 864,
+        "direct": 1303,
+        "machine": 2231,
+        "avg": 0.27479076845041844,
+        "anyRate": 0.2528531574942937,
+        "twoRate": 0.02117676895764646
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 635,
+        "any": 587,
+        "two": 43,
+        "sure": 244,
+        "direct": 391,
+        "machine": 655,
+        "avg": 0.2937095282146161,
+        "anyRate": 0.27150786308973174,
+        "twoRate": 0.019888991674375578
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 244,
+        "any": 221,
+        "two": 21,
+        "sure": 98,
+        "direct": 146,
+        "machine": 249,
+        "avg": 0.2785388127853881,
+        "anyRate": 0.2522831050228311,
+        "twoRate": 0.023972602739726026
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3046,
+        "any": 2802,
+        "two": 231,
+        "sure": 1206,
+        "direct": 1840,
+        "machine": 3135,
+        "avg": 0.27883559135847674,
+        "anyRate": 0.2564994507506408,
+        "twoRate": 0.021146100329549614
+      }
+    },
+    {
+      "model": {
+        "id": "EF-F",
+        "w": {
+          "same": 0.45,
+          "conv": 0.2,
+          "cross": 0.2,
+          "class": 0.1,
+          "move": 0.05
+        },
+        "breadth": 2
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2159,
+        "any": 1986,
+        "two": 166,
+        "sure": 857,
+        "direct": 1302,
+        "machine": 2259,
+        "avg": 0.2737763124524474,
+        "anyRate": 0.2518387014963226,
+        "twoRate": 0.021049961957900078
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 632,
+        "any": 582,
+        "two": 46,
+        "sure": 253,
+        "direct": 379,
+        "machine": 640,
+        "avg": 0.2923219241443108,
+        "anyRate": 0.26919518963922295,
+        "twoRate": 0.02127659574468085
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 252,
+        "any": 225,
+        "two": 25,
+        "sure": 105,
+        "direct": 147,
+        "machine": 247,
+        "avg": 0.2876712328767123,
+        "anyRate": 0.2568493150684932,
+        "twoRate": 0.028538812785388126
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3043,
+        "any": 2793,
+        "two": 237,
+        "sure": 1215,
+        "direct": 1828,
+        "machine": 3146,
+        "avg": 0.2785609666788722,
+        "anyRate": 0.25567557671182717,
+        "twoRate": 0.021695349688758695
+      }
+    },
+    {
+      "model": {
+        "id": "EF-A",
+        "w": {
+          "same": 0.45,
+          "conv": 0.2,
+          "cross": 0.15,
+          "class": 0.1,
+          "move": 0.1
+        },
+        "breadth": 2
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2142,
+        "any": 1972,
+        "two": 163,
+        "sure": 857,
+        "direct": 1285,
+        "machine": 2254,
+        "avg": 0.2716205934567588,
+        "anyRate": 0.2500634034998732,
+        "twoRate": 0.020669540958660918
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 626,
+        "any": 578,
+        "two": 44,
+        "sure": 243,
+        "direct": 383,
+        "machine": 630,
+        "avg": 0.2895467160037003,
+        "anyRate": 0.26734505087881594,
+        "twoRate": 0.020351526364477335
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 240,
+        "any": 217,
+        "two": 20,
+        "sure": 99,
+        "direct": 141,
+        "machine": 251,
+        "avg": 0.273972602739726,
+        "anyRate": 0.24771689497716895,
+        "twoRate": 0.0228310502283105
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3008,
+        "any": 2767,
+        "two": 227,
+        "sure": 1199,
+        "direct": 1809,
+        "machine": 3135,
+        "avg": 0.2753570120834859,
+        "anyRate": 0.2532954961552545,
+        "twoRate": 0.020779934090076894
+      }
+    },
+    {
+      "model": {
+        "id": "EF-B",
+        "w": {
+          "same": 0.4,
+          "conv": 0.2,
+          "cross": 0.2,
+          "class": 0.1,
+          "move": 0.1
+        },
+        "breadth": 2
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2166,
+        "any": 1985,
+        "two": 175,
+        "sure": 849,
+        "direct": 1317,
+        "machine": 2266,
+        "avg": 0.27466396145067207,
+        "anyRate": 0.2517118944965762,
+        "twoRate": 0.02219122495561755
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 617,
+        "any": 569,
+        "two": 42,
+        "sure": 250,
+        "direct": 367,
+        "machine": 621,
+        "avg": 0.28538390379278444,
+        "anyRate": 0.2631822386679001,
+        "twoRate": 0.01942645698427382
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 247,
+        "any": 221,
+        "two": 24,
+        "sure": 101,
+        "direct": 146,
+        "machine": 248,
+        "avg": 0.2819634703196347,
+        "anyRate": 0.2522831050228311,
+        "twoRate": 0.0273972602739726
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 3030,
+        "any": 2775,
+        "two": 241,
+        "sure": 1200,
+        "direct": 1830,
+        "machine": 3135,
+        "avg": 0.27737092640058586,
+        "anyRate": 0.2540278286341999,
+        "twoRate": 0.022061515928231416
+      }
+    },
+    {
+      "model": {
+        "id": "R1-60-30-10",
+        "legacy": true,
+        "w": {
+          "stat": 0.6,
+          "class": 0.3,
+          "move": 0.1
+        }
+      },
+      "development": {
+        "draws": 7886,
+        "hits": 2101,
+        "any": 1932,
+        "two": 169,
+        "sure": 822,
+        "direct": 1279,
+        "machine": 2205,
+        "avg": 0.266421506467157,
+        "anyRate": 0.24499112351001776,
+        "twoRate": 0.021430382957139234
+      },
+      "validation": {
+        "draws": 2162,
+        "hits": 604,
+        "any": 552,
+        "two": 52,
+        "sure": 234,
+        "direct": 370,
+        "machine": 601,
+        "avg": 0.2793709528214616,
+        "anyRate": 0.2553191489361702,
+        "twoRate": 0.024051803885291396
+      },
+      "holdout": {
+        "draws": 876,
+        "hits": 252,
+        "any": 225,
+        "two": 25,
+        "sure": 83,
+        "direct": 169,
+        "machine": 286,
+        "avg": 0.2876712328767123,
+        "anyRate": 0.2568493150684932,
+        "twoRate": 0.028538812785388126
+      },
+      "all": {
+        "draws": 10924,
+        "hits": 2957,
+        "any": 2709,
+        "two": 246,
+        "sure": 1139,
+        "direct": 1818,
+        "machine": 3092,
+        "avg": 0.2706883925302087,
+        "anyRate": 0.24798608568290004,
+        "twoRate": 0.022519223727572316
+      }
+    }
+  ]
+}
