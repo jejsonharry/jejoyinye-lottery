@@ -422,3 +422,105 @@
         padding: 0 14px !important;
     }
 }
+
+
+/* =========================================================
+   HOMEPAGE MOBILE RESULTS — SIDE BY SIDE V4
+========================================================= */
+@media (max-width: 700px) {
+    #home-results-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        align-items: stretch !important;
+    }
+
+    #home-results-container .home-result-card {
+        min-width: 0 !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 12px 10px !important;
+        border-radius: 14px !important;
+        box-sizing: border-box !important;
+    }
+
+    #home-results-container .home-result-heading {
+        align-items: flex-start !important;
+        gap: 5px !important;
+    }
+
+    #home-results-container .home-result-heading h3 {
+        font-size: 13px !important;
+        line-height: 1.15 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #home-results-container .home-result-heading span {
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+    }
+
+    #home-results-container .home-result-share-btn {
+        flex: 0 0 auto !important;
+        min-width: 30px !important;
+        min-height: 30px !important;
+        padding: 5px 7px !important;
+        font-size: 9px !important;
+    }
+
+    #home-results-container .home-number-section {
+        margin-top: 10px !important;
+    }
+
+    #home-results-container .home-number-section h4 {
+        margin: 0 0 6px !important;
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+    }
+
+    #home-results-container .winning-numbers,
+    #home-results-container .machine-numbers {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+    }
+
+    #home-results-container .number-ball {
+        width: 26px !important;
+        height: 26px !important;
+        min-width: 26px !important;
+        font-size: 10px !important;
+        line-height: 26px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,.14) !important;
+    }
+
+    #home-results-container .home-result-player-actions {
+        gap: 5px !important;
+        margin-top: 10px !important;
+    }
+
+    #home-results-container .home-result-player-actions a,
+    #home-results-container .home-result-player-actions button {
+        min-height: 30px !important;
+        padding: 6px 7px !important;
+        font-size: 8px !important;
+    }
+}
+
+@media (max-width: 380px) {
+    #home-results-container {
+        gap: 7px !important;
+    }
+
+    #home-results-container .home-result-card {
+        padding: 10px 8px !important;
+    }
+
+    #home-results-container .number-ball {
+        width: 23px !important;
+        height: 23px !important;
+        min-width: 23px !important;
+        font-size: 9px !important;
+        line-height: 23px !important;
+    }
+}
