@@ -604,3 +604,29 @@
         font-size: 13.5px !important;
     }
 }
+
+
+/* =========================================================
+   HOMEPAGE MOBILE NAVIGATION — STICKY V6
+========================================================= */
+@media (max-width: 700px) {
+    body .premium-nav {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 2147483000 !important;
+        width: 100% !important;
+        isolation: isolate !important;
+        box-shadow: 0 10px 26px rgba(2, 8, 23, .22) !important;
+    }
+
+    body .premium-nav::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(180deg, rgba(8,24,43,.98) 0%, rgba(6,19,34,.98) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+}
