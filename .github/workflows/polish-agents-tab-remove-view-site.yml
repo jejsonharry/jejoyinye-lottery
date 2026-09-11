@@ -1,4 +1,4 @@
-name: Apply reference-style mobile navigation across public pages
+name: Make only homepage mobile navigation sticky
 
 on:
   push:
@@ -10,12 +10,12 @@ permissions:
   contents: write
 
 jobs:
-  reference-public-nav:
+  home-only-sticky-nav:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load reference-style mobile navigation last on all public pages
+      - name: Mark homepage and refresh reference mobile nav stylesheet
         shell: python
         run: |
           from pathlib import Path
@@ -30,37 +30,48 @@ jobs:
               'contact.html',
           ]
 
-          link = '    <link rel="stylesheet" href="public-mobile-nav-reference-v9.css?v=9">\n'
-
           for filename in pages:
               path = Path(filename)
-              if not path.exists():
-                  raise SystemExit(f'Missing expected public page: {filename}')
-
               html = path.read_text(encoding='utf-8')
 
               html = re.sub(
-                  r'\s*<link\s+rel="stylesheet"\s+href="public-mobile-nav-reference-v9\.css(?:\?v=\d+)?"\s*>\s*',
-                  '\n',
+                  r'public-mobile-nav-reference-v9\.css\?v=\d+',
+                  'public-mobile-nav-reference-v9.css?v=10',
                   html,
-                  flags=re.I,
               )
 
-              if '</head>' not in html:
-                  raise SystemExit(f'No closing head tag in {filename}')
+              if filename == 'index.html':
+                  if '<body class="home-page">' not in html:
+                      html = re.sub(
+                          r'<body(?:\s+class="([^"]*)")?\s*>',
+                          lambda m: '<body class="' + ((m.group(1) + ' ') if m.group(1) else '') + 'home-page">',
+                          html,
+                          count=1,
+                      )
+              else:
+                  html = html.replace(' home-page', '').replace('home-page ', '')
+                  html = html.replace('class="home-page"', '')
 
-              html = html.replace('</head>', link + '</head>', 1)
               path.write_text(html, encoding='utf-8')
 
-      - name: Commit reference-style mobile navigation
+          index_html = Path('index.html').read_text(encoding='utf-8')
+          if '<body class="home-page">' not in index_html:
+              raise SystemExit('Homepage body class was not applied.')
+
+          for filename in pages:
+              html = Path(filename).read_text(encoding='utf-8')
+              if 'public-mobile-nav-reference-v9.css?v=10' not in html:
+                  raise SystemExit(f'New stylesheet version missing in {filename}')
+
+      - name: Commit home-only sticky navigation behavior
         shell: bash
         run: |
           if git diff --quiet -- index.html results.html predictions.html play-online.html agent.html contact.html; then
-            echo "No public-page navigation changes detected."
+            echo "No navigation changes detected."
             exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html results.html predictions.html play-online.html agent.html contact.html
-          git commit -m "ui: match reference mobile navigation across public pages"
+          git commit -m "ui: keep approved nav size and make only home sticky"
           git push
