@@ -1,4 +1,4 @@
-name: Make homepage mobile navigation sticky
+name: Load homepage mobile navigation override last
 
 on:
   push:
@@ -10,42 +10,52 @@ permissions:
   contents: write
 
 jobs:
-  sticky-home-nav:
+  fix-home-nav-order:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Keep homepage mobile navigation visible while scrolling
+      - name: Ensure homepage-only nav override loads after global mobile nav
         shell: python
         run: |
           from pathlib import Path
+          import re
 
-          css_path = Path('homepage-enhancements-v3.css')
-          css = css_path.read_text(encoding='utf-8')
-          marker = 'HOMEPAGE MOBILE NAVIGATION — STICKY V6'
+          path = Path('index.html')
+          html = path.read_text(encoding='utf-8')
 
-          if marker not in css:
-              css += '''\n\n/* =========================================================\n   HOMEPAGE MOBILE NAVIGATION — STICKY V6\n========================================================= */\n@media (max-width: 700px) {\n    body .premium-nav {\n        position: -webkit-sticky !important;\n        position: sticky !important;\n        top: 0 !important;\n        z-index: 2147483000 !important;\n        width: 100% !important;\n        isolation: isolate !important;\n        box-shadow: 0 10px 26px rgba(2, 8, 23, .22) !important;\n    }\n\n    body .premium-nav::before {\n        content: "";\n        position: absolute;\n        inset: 0;\n        z-index: -1;\n        background: linear-gradient(180deg, rgba(8,24,43,.98) 0%, rgba(6,19,34,.98) 100%);\n        backdrop-filter: blur(12px);\n        -webkit-backdrop-filter: blur(12px);\n    }\n}\n'''
-              css_path.write_text(css, encoding='utf-8')
+          # Remove any prior homepage-only override references.
+          html = re.sub(
+              r'\s*<link\s+rel="stylesheet"\s+href="homepage-mobile-nav-v7\.css(?:\?v=\d+)?"\s*>',
+              '',
+              html,
+              flags=re.I,
+          )
 
-          index_path = Path('index.html')
-          html = index_path.read_text(encoding='utf-8')
-          for version in ('5', '4', '3', '2'):
-              html = html.replace(
-                  f'homepage-enhancements-v3.css?v={version}',
-                  'homepage-enhancements-v3.css?v=6'
-              )
-          index_path.write_text(html, encoding='utf-8')
+          global_link = '<link rel="stylesheet" href="public-nav-mobile-fit-v2.css?v=5">'
+          if global_link not in html:
+              raise SystemExit('Global mobile navigation stylesheet link not found.')
 
-      - name: Commit sticky homepage navigation
+          html = html.replace(
+              global_link,
+              global_link + '\n    <link rel="stylesheet" href="homepage-mobile-nav-v7.css?v=7">',
+              1,
+          )
+
+          if html.find('homepage-mobile-nav-v7.css?v=7') < html.find('public-nav-mobile-fit-v2.css?v=5'):
+              raise SystemExit('Homepage override is not loading after global mobile nav.')
+
+          path.write_text(html, encoding='utf-8')
+
+      - name: Commit final homepage nav loading order
         shell: bash
         run: |
-          if git diff --quiet -- homepage-enhancements-v3.css index.html; then
+          if git diff --quiet -- index.html; then
             echo "No homepage changes detected."
             exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add homepage-enhancements-v3.css index.html
-          git commit -m "ui: keep homepage mobile navigation visible while scrolling"
+          git add index.html
+          git commit -m "ui: make two-column sticky homepage mobile nav take precedence"
           git push
