@@ -1,0 +1,36 @@
+name: Remove today's games schedule label
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/remove-todays-games-schedule-label-v13.py'
+      - '.github/workflows/remove-todays-games-schedule-label-v13.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Apply cleanup
+        run: python scripts/remove-todays-games-schedule-label-v13.py
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions.html
+          git commit -m "ui: remove today's games schedule label"
+          git push origin main
