@@ -1,0 +1,49 @@
+name: Fix predictions premium v4
+
+on:
+  push:
+    paths:
+      - 'scripts/fix-predictions-premium-v4.py'
+      - '.github/workflows/fix-predictions-premium-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply prediction layout correction
+        run: python scripts/fix-predictions-premium-v4.py
+      - name: Validate tier semantics and asset version
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          css = Path('predictions-premium-v4.css').read_text(encoding='utf-8')
+          html = Path('predictions.html').read_text(encoding='utf-8')
+          required = [
+              '.prediction-tier-sure .number-ball::after',
+              ".prediction-tier-direct .number-ball::after",
+              'grid-template-columns: 1fr !important;',
+              'predictions-premium-v4.css?v=2',
+          ]
+          for item in required:
+              if item not in css and item not in html:
+                  raise SystemExit(f'missing validation marker: {item}')
+          print('prediction premium correction validated')
+          PY
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- predictions-premium-v4.css predictions.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions-premium-v4.css predictions.html
+          git commit -m "fix: correct prediction tiers and responsive layout"
+          git push
