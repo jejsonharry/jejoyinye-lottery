@@ -13,7 +13,7 @@ const newBlock = `function canonical(raw){
  const grouped=new Map();
  for(const r of raw){
    const game=alias.get(r.game); if(!game) continue;
-   const row={...r,game,winning:parse(r.winning),machine:parse(r.machine)};
+   const row={...r,game,winning:parse(r.winning),machine:parse(r.machine),source_game:r.game};
    const k=\`${'${game}|${r.draw_date}'}\`;
    if(!grouped.has(k)) grouped.set(k,[]);
    grouped.get(k).push(row);
@@ -37,6 +37,7 @@ const newBlock = `function canonical(raw){
 
 if (!source.includes(oldBlock)) throw new Error('Backtest canonical block changed; clean-run patch not applied.');
 source = source.replace(oldBlock, newBlock)
+  .replace(`const conv=conversionRates(prior90.slice().reverse());`, `const conv=conversionRates(prior90);`)
   .replace(`const raw=await fetchAll(),{rows,dup}=canonical(raw),t=await tables();`, `const raw=await fetchAll(),{rows,dup,conflicts}=canonical(raw),t=await tables();`)
   .replace(`data:{raw:raw.length,canonical:rows.length,aliasDuplicatesRemoved:dup,evaluated}`, `data:{raw:raw.length,canonical:rows.length,aliasDuplicatesRemoved:dup,conflictingGameDatesExcluded:conflicts,evaluated}`)
   .replace(`Golden/Golden Night duplicates removed: **${'${dup}'}**.`, `Duplicate rows removed: **${'${dup}'}**. Ambiguous game/date conflicts excluded: **${'${conflicts}'}**.`);
