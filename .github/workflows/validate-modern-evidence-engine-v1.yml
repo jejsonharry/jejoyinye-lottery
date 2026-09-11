@@ -1,0 +1,35 @@
+name: Validate Modern Evidence Fusion v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'modern-evidence-engine-core.js'
+      - 'predictions.js'
+      - 'predictions.html'
+      - 'scripts/snapshot-modern-evidence-prediction.mjs'
+      - '.github/workflows/validate-modern-evidence-engine-v1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax checks
+        run: |
+          node --check modern-evidence-engine-core.js
+          node --check predictions.js
+          node --check scripts/snapshot-modern-evidence-prediction.mjs
+      - name: Generate next Evidence Fusion snapshot
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/snapshot-modern-evidence-prediction.mjs
