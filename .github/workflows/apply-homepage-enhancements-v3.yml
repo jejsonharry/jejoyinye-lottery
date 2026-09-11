@@ -1,0 +1,37 @@
+name: Apply homepage enhancements v3
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-homepage-enhancements-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply homepage enhancements
+        run: python scripts/apply_homepage_enhancements_v3.py
+      - name: Validate homepage
+        run: |
+          grep -q 'home-draw-center' index.html
+          grep -q 'home-results-updated' index.html
+          grep -q 'Data &amp; Number Insights' index.html
+          grep -q 'homepage-enhancements-v3.css?v=1' index.html
+          grep -q 'homepage-enhancements-v3.js?v=1' index.html
+          ! grep -q 'result.lottery === "ghana"' script.js
+      - name: Commit homepage updates
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No homepage changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "ui: add draw schedule and polish homepage utilities"
+          git push
