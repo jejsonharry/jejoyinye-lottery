@@ -1,4 +1,4 @@
-name: Keep homepage result cards side by side on mobile
+name: Apply two-column homepage mobile navigation
 
 on:
   push:
@@ -10,30 +10,32 @@ permissions:
   contents: write
 
 jobs:
-  update-home-results:
+  update-home-nav:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Apply mobile two-column latest-results layout
+      - name: Add premium two-column mobile navigation to homepage only
         shell: python
         run: |
           from pathlib import Path
 
           css_path = Path('homepage-enhancements-v3.css')
           css = css_path.read_text(encoding='utf-8')
-          marker = 'HOMEPAGE MOBILE RESULTS — SIDE BY SIDE V4'
+          marker = 'HOMEPAGE MOBILE NAVIGATION — TWO COLUMN V5'
+
           if marker not in css:
-              css += '''\n\n/* =========================================================\n   HOMEPAGE MOBILE RESULTS — SIDE BY SIDE V4\n========================================================= */\n@media (max-width: 700px) {\n    #home-results-container {\n        display: grid !important;\n        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;\n        gap: 10px !important;\n        align-items: stretch !important;\n    }\n\n    #home-results-container .home-result-card {\n        min-width: 0 !important;\n        height: 100% !important;\n        margin: 0 !important;\n        padding: 12px 10px !important;\n        border-radius: 14px !important;\n        box-sizing: border-box !important;\n    }\n\n    #home-results-container .home-result-heading {\n        align-items: flex-start !important;\n        gap: 5px !important;\n    }\n\n    #home-results-container .home-result-heading h3 {\n        font-size: 13px !important;\n        line-height: 1.15 !important;\n        overflow-wrap: anywhere !important;\n    }\n\n    #home-results-container .home-result-heading span {\n        font-size: 9px !important;\n        line-height: 1.2 !important;\n    }\n\n    #home-results-container .home-result-share-btn {\n        flex: 0 0 auto !important;\n        min-width: 30px !important;\n        min-height: 30px !important;\n        padding: 5px 7px !important;\n        font-size: 9px !important;\n    }\n\n    #home-results-container .home-number-section {\n        margin-top: 10px !important;\n    }\n\n    #home-results-container .home-number-section h4 {\n        margin: 0 0 6px !important;\n        font-size: 9px !important;\n        line-height: 1.2 !important;\n    }\n\n    #home-results-container .winning-numbers,\n    #home-results-container .machine-numbers {\n        display: flex !important;\n        flex-wrap: wrap !important;\n        gap: 4px !important;\n    }\n\n    #home-results-container .number-ball {\n        width: 26px !important;\n        height: 26px !important;\n        min-width: 26px !important;\n        font-size: 10px !important;\n        line-height: 26px !important;\n        box-shadow: 0 2px 5px rgba(0,0,0,.14) !important;\n    }\n\n    #home-results-container .home-result-player-actions {\n        gap: 5px !important;\n        margin-top: 10px !important;\n    }\n\n    #home-results-container .home-result-player-actions a,\n    #home-results-container .home-result-player-actions button {\n        min-height: 30px !important;\n        padding: 6px 7px !important;\n        font-size: 8px !important;\n    }\n}\n\n@media (max-width: 380px) {\n    #home-results-container {\n        gap: 7px !important;\n    }\n\n    #home-results-container .home-result-card {\n        padding: 10px 8px !important;\n    }\n\n    #home-results-container .number-ball {\n        width: 23px !important;\n        height: 23px !important;\n        min-width: 23px !important;\n        font-size: 9px !important;\n        line-height: 23px !important;\n    }\n}\n'''
+              css += '''\n\n/* =========================================================\n   HOMEPAGE MOBILE NAVIGATION — TWO COLUMN V5\n========================================================= */\n@media (max-width: 700px) {\n    body .premium-nav {\n        padding: 14px 16px 16px !important;\n        background: linear-gradient(180deg, #08182b 0%, #061322 100%) !important;\n        border-bottom: 1px solid rgba(148,163,184,.13) !important;\n        box-sizing: border-box !important;\n        overflow: visible !important;\n    }\n\n    body .premium-nav .nav-inner {\n        width: 100% !important;\n        max-width: 620px !important;\n        min-height: 0 !important;\n        margin: 0 auto !important;\n        padding: 0 !important;\n        display: grid !important;\n        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;\n        gap: 10px 12px !important;\n        overflow: visible !important;\n    }\n\n    body .premium-nav .nav-inner a {\n        width: 100% !important;\n        min-width: 0 !important;\n        min-height: 58px !important;\n        margin: 0 !important;\n        padding: 12px 10px !important;\n        display: flex !important;\n        align-items: center !important;\n        justify-content: center !important;\n        box-sizing: border-box !important;\n        border: 1px solid rgba(148,163,184,.28) !important;\n        border-radius: 16px !important;\n        background: linear-gradient(180deg, rgba(30,41,59,.94), rgba(10,22,38,.96)) !important;\n        color: #f8fafc !important;\n        box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 18px rgba(2,8,23,.18) !important;\n        font-size: clamp(14px, 4vw, 17px) !important;\n        font-weight: 900 !important;\n        line-height: 1.08 !important;\n        letter-spacing: .15px !important;\n        text-align: center !important;\n        white-space: normal !important;\n        overflow: visible !important;\n        transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease !important;\n    }\n\n    body .premium-nav .nav-inner a.active,\n    body .premium-nav .nav-inner a[aria-current="page"] {\n        border-color: rgba(134,239,172,.82) !important;\n        background: linear-gradient(180deg, #22c55e 0%, #0f9f4a 100%) !important;\n        color: #ffffff !important;\n        box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 0 0 1px rgba(134,239,172,.28), 0 10px 22px rgba(16,185,129,.20) !important;\n    }\n\n    body .premium-nav .nav-inner a:active {\n        transform: translateY(1px) !important;\n    }\n}\n\n@media (max-width: 390px) {\n    body .premium-nav {\n        padding: 12px 10px 14px !important;\n    }\n\n    body .premium-nav .nav-inner {\n        gap: 8px 9px !important;\n    }\n\n    body .premium-nav .nav-inner a {\n        min-height: 54px !important;\n        padding: 10px 7px !important;\n        border-radius: 14px !important;\n        font-size: 13.5px !important;\n    }\n}\n'''
               css_path.write_text(css, encoding='utf-8')
 
           index_path = Path('index.html')
           html = index_path.read_text(encoding='utf-8')
-          html = html.replace('homepage-enhancements-v3.css?v=2', 'homepage-enhancements-v3.css?v=4')
-          html = html.replace('homepage-enhancements-v3.css?v=3', 'homepage-enhancements-v3.css?v=4')
+          html = html.replace('homepage-enhancements-v3.css?v=4', 'homepage-enhancements-v3.css?v=5')
+          html = html.replace('homepage-enhancements-v3.css?v=3', 'homepage-enhancements-v3.css?v=5')
+          html = html.replace('homepage-enhancements-v3.css?v=2', 'homepage-enhancements-v3.css?v=5')
           index_path.write_text(html, encoding='utf-8')
 
-      - name: Commit homepage mobile result layout
+      - name: Commit homepage navigation update
         shell: bash
         run: |
           if git diff --quiet -- homepage-enhancements-v3.css index.html; then
@@ -43,5 +45,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add homepage-enhancements-v3.css index.html
-          git commit -m "ui: show Modern and Ghana homepage results side by side on mobile"
+          git commit -m "ui: add premium two-column mobile navigation on homepage"
           git push
