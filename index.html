@@ -54,6 +54,7 @@
     >
     <link rel="stylesheet" href="result-conversion.css?v=1">
     <link rel="stylesheet" href="homepage-premium-v2.css?v=2">
+    <link rel="stylesheet" href="homepage-enhancements-v3.css?v=1">
     <style>
         .home-player-promo{width:min(1120px,calc(100% - 32px));display:grid;grid-template-columns:minmax(250px,330px) 1fr;gap:38px;align-items:center;margin:42px auto;padding:28px;border:1px solid #d8e5dd;border-radius:26px;background:radial-gradient(circle at 90% 10%,rgba(250,204,21,.18),transparent 30%),linear-gradient(145deg,#052718 0%,#0a5a35 100%);box-shadow:0 22px 52px rgba(15,23,42,.14);color:#fff}
         .home-player-promo-poster{display:block;overflow:hidden;border-radius:18px;background:#08733f;box-shadow:0 16px 34px rgba(0,0,0,.24);transition:transform .2s ease}
@@ -95,6 +96,7 @@
     ========================== -->
 
   <script src="script.js?v=68" defer></script>
+  <script src="homepage-enhancements-v3.js?v=1" defer></script>
   
   <link rel="canonical" href="https://jolslottery.com/">
   <link rel="icon" href="Images/jols-logo.png" type="image/png">
@@ -339,6 +341,46 @@
 
 
 <!-- =====================================================
+     TODAY'S DRAW SCHEDULE
+===================================================== -->
+<section class="home-draw-center" aria-labelledby="home-draw-title">
+    <div class="home-draw-heading">
+        <div class="home-draw-heading-copy">
+            <span>DRAW SCHEDULE</span>
+            <h2 id="home-draw-title">Today’s Draw Schedule</h2>
+        </div>
+        <p>Quick Lagos-time view of the next Modern Billionaire draw and today’s Ghana game.</p>
+    </div>
+
+    <div class="home-draw-grid">
+        <article class="home-draw-card modern">
+            <div>
+                <span class="home-draw-label">Next Modern Billionaire Draw</span>
+                <h3 id="home-next-modern-game">Loading...</h3>
+                <div class="home-draw-meta">12 daily games • Lagos time</div>
+            </div>
+            <div class="home-draw-time">
+                <strong id="home-next-modern-time">--:--</strong>
+                <span id="home-next-modern-status" class="home-draw-status is-awaiting">Checking</span>
+            </div>
+        </article>
+
+        <article class="home-draw-card ghana">
+            <div>
+                <span class="home-draw-label">Today’s Ghana Game</span>
+                <h3 id="home-today-ghana-game">Loading...</h3>
+                <div class="home-draw-meta">Weekly Ghana schedule • Lagos time</div>
+            </div>
+            <div class="home-draw-time">
+                <strong id="home-today-ghana-time">--:--</strong>
+                <span id="home-today-ghana-status" class="home-draw-status is-awaiting">Checking</span>
+            </div>
+        </article>
+    </div>
+</section>
+
+
+<!-- =====================================================
      ONLINE PLAYER PROMOTION
 ===================================================== -->
 
@@ -403,7 +445,8 @@
         </h2>
 
 
-        <p>See the latest published winning numbers, with machine numbers displayed where applicable.</p>
+        <p>See the latest published winning and machine numbers from Modern Billionaire and Ghana games.</p>
+        <div id="home-results-updated" class="home-results-updated">Last updated: checking...</div>
 
 
     </div>
@@ -515,7 +558,7 @@
 
 
             <h3>
-                AI Insights
+                Data &amp; Number Insights
             </h3>
 
 
@@ -529,7 +572,7 @@
 
 
             <a href="predictions">
-                Explore Insights →
+                Explore Number Insights →
             </a>
 
 
@@ -574,7 +617,7 @@
 
 
 <!-- =====================================================
-     AI INSIGHT SECTION
+     DATA INSIGHT SECTION
 ===================================================== -->
 
 <section class="home-ai-section">
@@ -726,80 +769,47 @@
      FOOTER
 ===================================================== -->
 
-<footer class="premium-footer">
-
-
-    <div class="footer-inner">
-
-
+<footer class="premium-footer homepage-footer-v3">
+    <div class="footer-inner footer-grid">
         <div class="footer-brand">
-
-
-            <h3>
-                JEJOYINYE LOTTERY SERVICES
-            </h3>
-
-
-            <p>
-                Lottery results,
-                statistical insights
-                and agent services.
-            </p>
-
-
+            <h3>JEJOYINYE LOTTERY SERVICES</h3>
+            <p>Daily lottery results, number insights, online-player access and agent support from one focused platform.</p>
+            <a class="footer-support-link" href="contact">Contact Customer Support</a>
         </div>
 
-
-        <div class="footer-links">
-
-
-            <a href="/">
-                Home
-            </a>
-
-
-            <a href="results">
-                Results
-            </a>
-
-
-            <a href="predictions">
-                Predictions
-            </a>
-    <a href="play-online">Play Online</a>
-
-
-            <a href="agent">
-                Become an Agent
-            </a>
-
-
-            <a href="contact">
-                Contact
-            </a>
-
-
+        <div class="footer-column">
+            <h4>Explore</h4>
+            <a href="/">Home</a>
+            <a href="results">Results</a>
+            <a href="predictions">Predictions</a>
+            <a href="play-online">Play Online</a>
         </div>
 
+        <div class="footer-column">
+            <h4>Network</h4>
+            <a href="agent">Become an Agent</a>
+            <a href="contact">Contact</a>
+            <a href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer">Facebook Community</a>
+        </div>
 
+        <div class="footer-column">
+            <h4>Legal &amp; Safety</h4>
+            <a href="privacy">Privacy Policy</a>
+            <a href="terms">Terms of Use</a>
+            <a href="responsible-gaming">Responsible Gaming</a>
+            <p class="footer-responsible">Adults 18+ only. Lottery play involves risk; play responsibly.</p>
+        </div>
     </div>
-
 
     <div class="footer-bottom">
-
-        <p>
-            &copy; 2026
-            Jejoyinye Lottery Services.
-            All Rights Reserved.
-        </p>
-
+        <p>&copy; 2026 Jejoyinye Lottery Services. All Rights Reserved.</p>
     </div>
-
-
 </footer>
-<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy">Privacy Policy</a><a href="terms">Terms of Use</a><a href="responsible-gaming">Responsible Gaming</a></div>
 
-<a class="facebook-community-btn" style="position:fixed;left:18px;bottom:18px;z-index:2147483647;display:inline-flex;align-items:center;min-height:48px;padding:11px 18px;border-radius:999px;background:rgb(24,119,242);color:white;font:800 14px Arial,sans-serif;text-decoration:none;box-shadow:0 10px 26px rgba(13,95,199,.35)" href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer" aria-label="Join our Facebook group">Join Our Facebook Group</a>
+<a class="facebook-community-btn" href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer" aria-label="Open JOLS Facebook community">
+    <span class="facebook-community-icon" aria-hidden="true">f</span>
+    <strong>Facebook Group</strong>
+</a>
 
 
 </body>
