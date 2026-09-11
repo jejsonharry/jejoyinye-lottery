@@ -1197,7 +1197,7 @@ function parseGhanaHistoryCsv(csvText) {
 async function fetchBundledGhanaHistory() {
     if (!bundledGhanaHistoryPromise) {
         bundledGhanaHistoryPromise =
-            fetch("data/ghana-history.csv?v=5", { cache: "no-cache" })
+            fetch("data/ghana-history.csv?v=6", { cache: "no-cache" })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error("Bundled Ghana history could not be loaded");
@@ -1229,7 +1229,8 @@ function mergeGhanaHistory(...collections) {
             const key =
                 `${String(result.game).trim().toUpperCase()}|${result.draw_date}`;
 
-            // Supabase records take priority when the same draw exists.
+            // The first collection is authoritative for overlapping draws.
+            // Owner-verified bundled Ghana archives are passed first.
             if (!merged.has(key)) {
                 merged.set(key, result);
             }
@@ -3499,8 +3500,8 @@ async function displayGhanaPrediction() {
 
         const gameHistory =
             mergeGhanaHistory(
-                databaseGameHistory,
-                bundledGameHistory
+                bundledGameHistory,
+                databaseGameHistory
             );
 
         const history = gameHistory;
