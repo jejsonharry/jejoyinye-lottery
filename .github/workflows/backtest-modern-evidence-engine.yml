@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/backtest-modern-evidence-engine.mjs'
+      - 'scripts/run-modern-evidence-backtest-clean.mjs'
       - '.github/workflows/backtest-modern-evidence-engine.yml'
 
 permissions:
@@ -22,12 +23,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run walk-forward backtest
+      - name: Run clean walk-forward backtest
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/backtest-modern-evidence-engine.mjs
+        run: node scripts/run-modern-evidence-backtest-clean.mjs
       - name: Persist report
         run: |
           git config user.name "github-actions[bot]"
