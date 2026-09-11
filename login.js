@@ -5,6 +5,29 @@ const loginButton = document.getElementById("login-btn");
 const loginMessage = document.getElementById("login-message");
 const loginButtonDefaultContent = loginButton.innerHTML;
 
+async function checkLoginRateLimit() {
+    const response = await fetch(
+        "https://iedgznzmmfkdhgmkghwt.supabase.co/functions/v1/admin-login-gate",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: "{}"
+        }
+    );
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+
+    if (response.status === 429) {
+        const minutes = Math.max(1, Math.ceil(Number(data?.retry_after || 900) / 60));
+        throw new Error(`Too many login attempts. Please wait about ${minutes} minute${minutes === 1 ? "" : "s"} and try again.`);
+    }
+
+    if (!response.ok || data?.ok !== true) {
+        throw new Error("Login protection service is temporarily unavailable. Please try again shortly.");
+    }
+}
+
 loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
@@ -16,6 +39,8 @@ loginForm.addEventListener("submit", async function (event) {
     loginMessage.innerHTML = "";
 
     try {
+        await checkLoginRateLimit();
+
         const loginRequest = supabaseClient.auth.signInWithPassword({
             email,
             password
@@ -43,11 +68,13 @@ loginForm.addEventListener("submit", async function (event) {
         }
 
         throw new Error("No login session was returned.");
-    } catch (_) {
-        // Keep authentication details and provider error objects out of the browser console.
+    } catch (error) {
+        const safeMessage = String(error?.message || "");
+        const isRateLimit = safeMessage.startsWith("Too many login attempts") || safeMessage.startsWith("Login protection service");
+
         loginMessage.innerHTML = `
             <div class="login-error">
-                Unable to sign in. Check your email and password and try again.
+                ${isRateLimit ? safeMessage : "Unable to sign in. Check your email and password and try again."}
             </div>
         `;
     } finally {
