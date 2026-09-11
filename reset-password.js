@@ -4,14 +4,55 @@ const confirmPasswordInput = document.getElementById("confirm-password");
 const updateButton = document.getElementById("update-password-btn");
 const messageBox = document.getElementById("password-message");
 
+function showPasswordMessage(message, type = "error") {
+    messageBox.innerHTML = "";
+    const box = document.createElement("div");
+    box.className = type === "success" ? "publish-success" : "login-error";
+    box.textContent = message;
+    messageBox.appendChild(box);
+}
+
+function passwordStrengthError(password) {
+    if (password.length < 12) return "Use at least 12 characters.";
+    if (!/[a-z]/.test(password)) return "Add at least one lowercase letter.";
+    if (!/[A-Z]/.test(password)) return "Add at least one uppercase letter.";
+    if (!/\d/.test(password)) return "Add at least one number.";
+    if (!/[^A-Za-z0-9]/.test(password)) return "Add at least one symbol.";
+    return "";
+}
+
+async function sha1Hex(value) {
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest("SHA-1", bytes);
+    return Array.from(new Uint8Array(digest))
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("")
+        .toUpperCase();
+}
+
+async function checkLeakedPassword(password) {
+    const hash = await sha1Hex(password);
+    const prefix = hash.slice(0, 5);
+    const suffix = hash.slice(5);
+
+    const { data, error } = await supabaseClient.functions.invoke("pwned-password-range", {
+        body: { prefix }
+    });
+
+    if (error || data?.ok !== true) {
+        throw new Error("Password safety check is temporarily unavailable. Please try again shortly.");
+    }
+
+    return Number(data?.suffixes?.[suffix] || 0);
+}
+
 // LISTEN FOR PASSWORD RECOVERY SESSION
-supabaseClient.auth.onAuthStateChange(function (event, session) {
+supabaseClient.auth.onAuthStateChange(function (event) {
     if (event === "PASSWORD_RECOVERY") {
-        messageBox.innerHTML = `
-            <div class="publish-success">
-                Recovery link verified. Enter your new password below.
-            </div>
-        `;
+        showPasswordMessage(
+            "Recovery link verified. Choose a strong new password below.",
+            "success"
+        );
     }
 });
 
@@ -21,57 +62,58 @@ resetForm.addEventListener("submit", async function (event) {
 
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
+    const strengthError = passwordStrengthError(newPassword);
 
-    if (newPassword.length < 8) {
-        messageBox.innerHTML = `
-            <div class="login-error">
-                Password must contain at least 8 characters.
-            </div>
-        `;
+    if (strengthError) {
+        showPasswordMessage(strengthError);
         return;
     }
 
     if (newPassword !== confirmPassword) {
-        messageBox.innerHTML = `
-            <div class="login-error">
-                The passwords do not match.
-            </div>
-        `;
+        showPasswordMessage("The passwords do not match.");
         return;
     }
 
     updateButton.disabled = true;
-    updateButton.textContent = "Updating Password...";
+    updateButton.textContent = "Checking Password...";
 
     try {
+        const leakedCount = await checkLeakedPassword(newPassword);
+
+        if (leakedCount > 0) {
+            showPasswordMessage(
+                "This password has appeared in known data breaches. Choose a different password that you have never used elsewhere."
+            );
+            return;
+        }
+
+        updateButton.textContent = "Updating Password...";
+
         const { error } = await supabaseClient.auth.updateUser({
             password: newPassword
         });
 
         if (error) throw error;
 
-        messageBox.innerHTML = `
-            <div class="publish-success">
-                <h3>Password Updated Successfully</h3>
-                <p>Your administrator password has been changed.</p>
-                <p>Redirecting you to login...</p>
-            </div>
-        `;
+        showPasswordMessage(
+            "Password updated successfully. You will be returned to the secure login page.",
+            "success"
+        );
 
         resetForm.reset();
 
         setTimeout(async function () {
-            await supabaseClient.auth.signOut();
-            window.location.replace("login");
+            try {
+                await supabaseClient.auth.signOut();
+            } finally {
+                window.location.replace("login");
+            }
         }, 2000);
 
-    } catch (error) {
-        console.error("Password update error:", error);
-        messageBox.innerHTML = `
-            <div class="login-error">
-                ${error.message}
-            </div>
-        `;
+    } catch (_) {
+        showPasswordMessage(
+            "We could not update your password securely right now. Please try again shortly."
+        );
     } finally {
         updateButton.disabled = false;
         updateButton.textContent = "Update Password";
