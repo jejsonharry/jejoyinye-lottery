@@ -52,6 +52,10 @@
         return date.toISOString().slice(0, 10);
     }
 
+    function getClient() {
+        return typeof supabaseClient !== "undefined" ? supabaseClient : null;
+    }
+
     function ensureCard() {
         const oldCard = document.querySelector(".prediction-accuracy-card");
         if (!oldCard) return null;
@@ -105,9 +109,22 @@
         if (element) element.textContent = String(value);
     }
 
+    function showLoadError(message) {
+        const tbody = document.getElementById("prediction-audit-rows");
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="10">${esc(message)}</td></tr>`;
+        }
+    }
+
     async function loadAudit() {
         const card = document.querySelector(".prediction-audit-card");
-        if (!card || !window.supabaseClient) return;
+        if (!card) return;
+
+        const client = getClient();
+        if (!client) {
+            showLoadError("Prediction audit connection is not ready. Refresh this page and try again.");
+            return;
+        }
 
         const refresh = document.getElementById("prediction-audit-refresh");
         if (refresh) {
@@ -116,7 +133,7 @@
         }
 
         try {
-            let query = window.supabaseClient
+            let query = client
                 .from(TABLE)
                 .select("draw_date,draw_time,game,engine_version,engine_profile,sure_numbers,direct_numbers,all_numbers,actual_winning,actual_machine,sure_winning_hits,direct_winning_hits,machine_support_hits,total_winning_hits,sure_hit_count,direct_hit_count,machine_support_count,status,generated_at,evaluated_at")
                 .eq("lottery", "modern-billionaire")
@@ -184,10 +201,7 @@
         }
         catch (error) {
             console.error("Prediction audit load failed:", error);
-            const tbody = document.getElementById("prediction-audit-rows");
-            if (tbody) {
-                tbody.innerHTML = `<tr><td colspan="10">${esc(error.message || "Unable to load prediction audit.")}</td></tr>`;
-            }
+            showLoadError(error.message || "Unable to load prediction audit.");
         }
         finally {
             if (refresh) {
