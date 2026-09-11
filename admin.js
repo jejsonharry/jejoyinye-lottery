@@ -2583,6 +2583,15 @@ function renderApplications(
             `;
 
 
+            // Approved applications are intentionally read-only in the list.
+            // Keep only the APPROVED status badge and View Details action visible.
+            if (!archived && status === "approved") {
+                card
+                    .querySelectorAll(".archive-agent, .restore-agent, .delete-agent")
+                    .forEach(button => button.remove());
+            }
+
+
             applicationsContainer
                 .appendChild(
                     card
