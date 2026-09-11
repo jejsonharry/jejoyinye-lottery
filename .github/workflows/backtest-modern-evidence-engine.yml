@@ -9,7 +9,7 @@ on:
       - '.github/workflows/backtest-modern-evidence-engine.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   backtest:
@@ -17,6 +17,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -26,6 +28,17 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/backtest-modern-evidence-engine.mjs
+      - name: Persist report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/modern-evidence-engine-backtest.json reports/modern-evidence-engine-backtest.md
+          if git diff --cached --quiet; then
+            echo "Report unchanged."
+          else
+            git commit -m "analysis: update Modern evidence-engine backtest report"
+            git push origin main
+          fi
       - name: Upload report
         uses: actions/upload-artifact@v4
         with:
