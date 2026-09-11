@@ -2085,7 +2085,7 @@ async function createResultShareFile({
     context.textAlign =
         "left";
     context.fillText(
-        "Play next draw online • Join our WhatsApp community",
+        "Register & play: jolslottery.com/play-online",
         445,
         559
     );
@@ -2241,10 +2241,32 @@ async function sharePublishedResult(
                         files: [resultFile]
                     })
                 ) {
+                    if (
+                        isIOSShareDevice
+                        &&
+                        navigator.clipboard?.writeText
+                    ) {
+                        try {
+                            await navigator.clipboard.writeText(
+                                `${text}\n${shareUrl}`
+                            );
+                        }
+                        catch (clipboardError) {
+                            console.warn(
+                                "IOS SHARE CAPTION COPY FAILED:",
+                                clipboardError
+                            );
+                        }
+                    }
+
                     const imageShareData =
                         isIOSShareDevice
                             ? {
-                                files: [resultFile]
+                                files: [resultFile],
+                                title:
+                                    `${game} Lottery Result`,
+                                url:
+                                    PLAY_ONLINE_URL
                             }
                             : {
                                 files: [resultFile],
