@@ -1,0 +1,109 @@
+/* JOLS public navigation — final mobile reference v11 */
+@media (max-width: 700px) {
+    html body .premium-nav.premium-nav {
+        position: relative !important;
+        top: auto !important;
+        z-index: 30 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 8px 12px 10px !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+        background: linear-gradient(180deg,#09182a 0%,#061321 100%) !important;
+        box-shadow: 0 8px 20px rgba(2,8,23,.20) !important;
+    }
+
+    html body.home-page .premium-nav.premium-nav {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 2147483000 !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner {
+        width: 100% !important;
+        max-width: 640px !important;
+        min-height: 0 !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        display: grid !important;
+        grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+        gap: 7px 10px !important;
+        align-items: stretch !important;
+        overflow: visible !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a {
+        position: relative !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        min-height: 46px !important;
+        margin: 0 !important;
+        padding: 8px 9px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid rgba(148,163,184,.30) !important;
+        border-radius: 14px !important;
+        background: linear-gradient(180deg,#1d293b 0%,#0a1728 100%) !important;
+        color: #f8fafc !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.06),0 5px 13px rgba(2,8,23,.16) !important;
+        font-size: clamp(12.5px,3.45vw,15px) !important;
+        font-weight: 900 !important;
+        line-height: 1.08 !important;
+        letter-spacing: .15px !important;
+        text-align: center !important;
+        white-space: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        word-break: normal !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a:nth-child(5),
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a:nth-child(6) {
+        grid-column: 1 / -1 !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a.active,
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a[aria-current="page"] {
+        border-color: rgba(167,243,208,.88) !important;
+        background: linear-gradient(180deg,#29cc68 0%,#0ea04a 100%) !important;
+        color: #fff !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.24),0 0 0 1px rgba(134,239,172,.20),0 8px 18px rgba(16,185,129,.19) !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a.active::after,
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a[aria-current="page"]::after {
+        content: "" !important;
+        position: absolute !important;
+        left: 9% !important;
+        right: 9% !important;
+        bottom: 6px !important;
+        height: 2px !important;
+        border-radius: 999px !important;
+        background: rgba(255,255,255,.95) !important;
+    }
+}
+
+@media (max-width: 390px) {
+    html body .premium-nav.premium-nav {
+        padding: 7px 9px 9px !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner {
+        gap: 6px 8px !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a {
+        min-height: 43px !important;
+        padding: 7px 6px !important;
+        border-radius: 12px !important;
+        font-size: 12px !important;
+    }
+
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a.active::after,
+    html body .premium-nav.premium-nav .nav-inner.nav-inner > a[aria-current="page"]::after {
+        bottom: 5px !important;
+    }
+}
