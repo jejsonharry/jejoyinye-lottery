@@ -7,9 +7,9 @@
 
     .premium-nav .nav-inner {
         width: 100% !important;
-        min-height: 58px !important;
+        min-height: 66px !important;
         margin: 0 !important;
-        padding: 6px 4px !important;
+        padding: 7px 4px !important;
         box-sizing: border-box !important;
         display: grid !important;
         grid-template-columns: .75fr .9fr 1.15fr 1.05fr 1.7fr .9fr !important;
@@ -23,15 +23,16 @@
         width: 100% !important;
         min-width: 0 !important;
         max-width: none !important;
-        min-height: 42px !important;
+        min-height: 50px !important;
         margin: 0 !important;
-        padding: 8px 2px !important;
+        padding: 10px 2px !important;
         box-sizing: border-box !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border-radius: 8px !important;
-        font-size: clamp(7.5px, 2.25vw, 10px) !important;
+        border-radius: 10px !important;
+        font-size: clamp(8.5px, 2.45vw, 11px) !important;
+        font-weight: 800 !important;
         line-height: 1.05 !important;
         letter-spacing: 0 !important;
         white-space: nowrap !important;
@@ -42,14 +43,16 @@
 
 @media (max-width: 370px) {
     .premium-nav .nav-inner {
+        min-height: 62px !important;
         gap: 2px !important;
         padding-left: 3px !important;
         padding-right: 3px !important;
     }
 
     .premium-nav .nav-inner a {
+        min-height: 46px !important;
         padding-left: 1px !important;
         padding-right: 1px !important;
-        font-size: 7.4px !important;
+        font-size: 7.8px !important;
     }
 }
