@@ -1,0 +1,30 @@
+name: Lock approved agent cards
+
+on:
+  push:
+    paths:
+      - 'scripts/lock_approved_agent_cards.py'
+      - '.github/workflows/lock-approved-agent-cards.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply approved agent card rules
+        run: python scripts/lock_approved_agent_cards.py
+      - name: Commit approved agent card rules
+        run: |
+          if git diff --quiet -- admin.js admin.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.js admin.html
+          git commit -m "ui: show only approved status and view details for approved agents"
+          git push
