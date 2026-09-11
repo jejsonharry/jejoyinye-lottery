@@ -2918,7 +2918,7 @@
 .agent-onboarding-status-panel{margin:18px 0;padding:18px;border:1px solid #dbe5f0;border-radius:16px;background:#f8fbff}.agent-onboarding-options{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}.agent-onboarding-option{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer}.agent-onboarding-option input{width:18px;height:18px;accent-color:#2563eb}.agent-onboarding-status-panel .admin-muted{margin:10px 0 0}
 </style>
 
-    <link rel="stylesheet" href="admin-premium-v3.css?v=4">
+    <link rel="stylesheet" href="admin-premium-v3.css?v=5">
 
 </head>
 
@@ -2940,7 +2940,6 @@
             </span>
         </a>
         <div class="admin-control-actions">
-            <a href="/" class="admin-view-site-btn">View Website</a>
             <button type="button" id="logout-btn" class="admin-header-logout">Logout</button>
         </div>
     </div>
@@ -3625,6 +3624,29 @@
 
 
 
+            <div class="agent-network-summary" aria-label="Agent network summary">
+                <article class="agent-summary-card">
+                    <span>Active Applications</span>
+                    <strong id="agent-tab-total">0</strong>
+                    <small>Current non-archived records</small>
+                </article>
+                <article class="agent-summary-card pending">
+                    <span>Pending Applications</span>
+                    <strong id="agent-tab-pending">0</strong>
+                    <small>Awaiting an application decision</small>
+                </article>
+                <article class="agent-summary-card approved">
+                    <span>Approved Applications</span>
+                    <strong id="agent-tab-approved">0</strong>
+                    <small>Approved and ready for onboarding</small>
+                </article>
+                <article class="agent-summary-card onboarded">
+                    <span>Onboarded Agents</span>
+                    <strong id="agent-tab-onboarded">0</strong>
+                    <small>Agents already fully onboarded</small>
+                </article>
+            </div>
+
             <div class="admin-tools">
 
 
@@ -3673,6 +3695,15 @@
 
                     </select>
 
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="agent-onboarding-filter">Agent Status</label>
+                    <select id="agent-onboarding-filter">
+                        <option value="all">All Agent Status</option>
+                        <option value="pending">Pending Onboarding</option>
+                        <option value="onboarded">Onboarded</option>
+                    </select>
                 </div>
 
 
@@ -3881,7 +3912,7 @@
 
 <script src="supabase.js" defer></script>
 
-<script src="admin.js?v=1409" defer></script>
+<script src="admin.js?v=1410" defer></script>
 
 </body>
 </html>

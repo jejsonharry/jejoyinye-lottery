@@ -180,6 +180,12 @@ const agentStatusFilter =
     );
 
 
+const agentOnboardingFilter =
+    document.getElementById(
+        "agent-onboarding-filter"
+    );
+
+
 const resultsCount =
     document.getElementById(
         "admin-results-count"
@@ -2179,6 +2185,12 @@ function updateAgentStatistics() {
         );
 
 
+    const onboarded =
+        active.filter(
+            item => String(item.onboarding_status || "pending").toLowerCase() === "onboarded"
+        );
+
+
     const archived =
         allApplications.filter(
 
@@ -2187,6 +2199,17 @@ function updateAgentStatistics() {
                 true
 
         );
+
+
+    const tabTotal = document.getElementById("agent-tab-total");
+    const tabPending = document.getElementById("agent-tab-pending");
+    const tabApproved = document.getElementById("agent-tab-approved");
+    const tabOnboarded = document.getElementById("agent-tab-onboarded");
+
+    if (tabTotal) tabTotal.textContent = String(active.length);
+    if (tabPending) tabPending.textContent = String(pending.length);
+    if (tabApproved) tabApproved.textContent = String(approved.length);
+    if (tabOnboarded) tabOnboarded.textContent = String(onboarded.length);
 
 
     if (applicationsCount) {
@@ -2254,6 +2277,10 @@ function filterApplications() {
         )
 
             .toLowerCase();
+
+
+    const onboardingFilterValue =
+        String(agentOnboardingFilter?.value || "all").toLowerCase();
 
 
     const filtered =
@@ -2353,15 +2380,14 @@ function filterApplications() {
                     );
 
 
-                return (
+                const onboardingStatus =
+                    String(application.onboarding_status || "pending").toLowerCase();
 
-                    statusMatches
+                const onboardingMatches =
+                    onboardingFilterValue === "all"
+                    || onboardingStatus === onboardingFilterValue;
 
-                    &&
-
-                    searchMatches
-
-                );
+                return statusMatches && searchMatches && onboardingMatches;
 
             }
 
@@ -2432,191 +2458,66 @@ function renderApplications(
                 true;
 
 
+            const onboardingStatus =
+                String(application.onboarding_status || "pending").toLowerCase();
+
+
             const card =
                 document.createElement(
                     "article"
                 );
 
 
-            card.className =
-                "admin-card";
+            card.className = [
+                "admin-card",
+                "agent-application-card",
+                `application-${archived ? "archived" : status}`,
+                `onboarding-${onboardingStatus}`
+            ].join(" ");
 
 
             card.innerHTML = `
-
-
-                <h3>
-
-                    ${escapeHTML(
-                        application.full_name
-                    )}
-
-                </h3>
-
-
-                <p>
-
-                    <strong>
-                        Phone:
-                    </strong>
-
-                    ${escapeHTML(
-                        application.phone
-                    )}
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Email:
-                    </strong>
-
-                    ${escapeHTML(
-                        application.email
-                        ||
-                        "Not provided"
-                    )}
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Location:
-                    </strong>
-
-                    ${escapeHTML(
-                        application.city
-                    )},
-
-                    ${escapeHTML(
-                        application.state
-                    )}
-
-                </p>
-
-
-                <span
-                    class="
-                        application-status
-
-                        ${
-                            archived
-
-                                ? "status-archived"
-
-                                : `status-${escapeHTML(status)}`
-                        }
-                    "
-                >
-
-                    ${
-                        archived
-
-                            ? "ARCHIVED"
-
-                            : escapeHTML(
-                                status.toUpperCase()
-                            )
-                    }
-
-                </span>
-
-
-                <p class="admin-muted">
-                    <strong>Agent Status:</strong>
-                    ${escapeHTML(String(application.onboarding_status || "pending").toUpperCase())}
-                </p>
-
-
-                <p class="admin-muted">
-
-                    Submitted:
-
-                    ${escapeHTML(
-                        formatDateTime(
-                            application.created_at
-                        )
-                    )}
-
-                </p>
-
-
-                <div class="admin-actions">
-
-
-                    <button
-                        type="button"
-                        class="
-                            admin-dark-btn
-                            view-agent
-                        "
-                        data-id="${application.id}"
-                    >
-
-                        View Details
-
-                    </button>
-
-
-                    ${
-                        archived
-
-                            ? `
-
-                                <button
-                                    type="button"
-                                    class="
-                                        admin-restore-btn
-                                        restore-agent
-                                    "
-                                    data-id="${application.id}"
-                                >
-
-                                    Restore
-
-                                </button>
-
-                            `
-
-                            : `
-
-                                <button
-                                    type="button"
-                                    class="
-                                        admin-archive-btn
-                                        archive-agent
-                                    "
-                                    data-id="${application.id}"
-                                >
-
-                                    Archive
-
-                                </button>
-
-                            `
-                    }
-
-
-                    <button
-                        type="button"
-                        class="
-                            admin-danger-btn
-                            delete-agent
-                        "
-                        data-id="${escapeHTML(application.id)}"
-                    >
-
-                        Delete
-
-                    </button>
-
-
+                <div class="agent-card-header">
+                    <div class="agent-card-title">
+                        <span class="agent-card-kicker">AGENT APPLICATION</span>
+                        <h3>${escapeHTML(application.full_name)}</h3>
+                        <span class="agent-card-location">${escapeHTML(application.city)}, ${escapeHTML(application.state)}</span>
+                    </div>
+                    <div class="agent-card-statuses">
+                        <span class="application-status ${archived ? "status-archived" : `status-${escapeHTML(status)}`}">
+                            ${archived ? "ARCHIVED" : escapeHTML(status.toUpperCase())}
+                        </span>
+                        <span class="agent-onboarding-badge onboarding-badge-${escapeHTML(onboardingStatus)}">
+                            ${onboardingStatus === "onboarded" ? "ONBOARDED" : "PENDING ONBOARDING"}
+                        </span>
+                    </div>
                 </div>
 
+                <div class="agent-card-contact-grid">
+                    <div class="agent-card-contact"><span>Phone</span><strong>${escapeHTML(application.phone)}</strong></div>
+                    <div class="agent-card-contact"><span>Email</span><strong>${escapeHTML(application.email || "Not provided")}</strong></div>
+                    <div class="agent-card-contact"><span>Submitted</span><strong>${escapeHTML(formatDateTime(application.created_at))}</strong></div>
+                </div>
+
+                <div class="agent-card-footer">
+                    <div class="agent-card-progress">
+                        <span class="agent-progress-dot ${status === "approved" ? "complete" : ""}"></span>
+                        <span>Application ${status === "approved" ? "approved" : status === "rejected" ? "rejected" : "under review"}</span>
+                        <span class="agent-progress-line"></span>
+                        <span class="agent-progress-dot ${onboardingStatus === "onboarded" ? "complete" : ""}"></span>
+                        <span>${onboardingStatus === "onboarded" ? "Agent onboarded" : "Onboarding pending"}</span>
+                    </div>
+
+                    <div class="admin-actions agent-card-actions">
+                        <button type="button" class="admin-dark-btn view-agent" data-id="${application.id}">View Details</button>
+                        ${archived ? `
+                            <button type="button" class="admin-restore-btn restore-agent" data-id="${application.id}">Restore</button>
+                        ` : `
+                            <button type="button" class="admin-archive-btn archive-agent" data-id="${application.id}">Archive</button>
+                        `}
+                        <button type="button" class="admin-danger-btn delete-agent" data-id="${escapeHTML(application.id)}">Delete</button>
+                    </div>
+                </div>
             `;
 
 
@@ -3947,6 +3848,13 @@ function attachEvents() {
 
 
     agentStatusFilter
+        ?.addEventListener(
+            "change",
+            filterApplications
+        );
+
+
+    agentOnboardingFilter
         ?.addEventListener(
             "change",
             filterApplications
