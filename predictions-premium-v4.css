@@ -1285,3 +1285,45 @@ body .prediction-share-btn {
     }
 }
 
+/* Mobile run details readability v9 */
+@media (max-width: 700px) {
+    body .next-prediction-card > .prediction-run-details {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+        padding: 7px !important;
+        margin: 10px 0 8px !important;
+    }
+
+    body .next-prediction-card > .prediction-run-details > div,
+    body .next-prediction-card > .prediction-run-details > div:last-child {
+        display: grid !important;
+        grid-template-columns: minmax(92px, .8fr) minmax(0, 1.6fr) !important;
+        align-items: center !important;
+        gap: 12px !important;
+        min-height: 0 !important;
+        padding: 10px 12px !important;
+        text-align: left !important;
+        border-radius: 10px !important;
+    }
+
+    body .next-prediction-card > .prediction-run-details span {
+        font-size: 7px !important;
+        line-height: 1.2 !important;
+        letter-spacing: .08em !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    body .next-prediction-card > .prediction-run-details strong {
+        margin: 0 !important;
+        font-size: 10px !important;
+        line-height: 1.35 !important;
+        text-align: right !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+    }
+}
+
