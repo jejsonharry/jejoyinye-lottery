@@ -1,0 +1,30 @@
+name: Fix mobile prediction circles
+
+on:
+  push:
+    paths:
+      - 'scripts/fix-mobile-prediction-circles.py'
+      - '.github/workflows/fix-mobile-prediction-circles.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply mobile prediction circle fix
+        run: python scripts/fix-mobile-prediction-circles.py
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- predictions-premium-v4.css predictions.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions-premium-v4.css predictions.html
+          git commit -m "fix: use large circular prediction balls on mobile"
+          git push
