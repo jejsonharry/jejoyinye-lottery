@@ -1,4 +1,4 @@
-name: Load Results mobile premium styling last
+name: Standardize compact mobile navigation across public pages
 
 on:
   push:
@@ -10,51 +10,68 @@ permissions:
   contents: write
 
 jobs:
-  load-results-mobile-style:
+  compact-public-nav:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load Results page mobile override after global nav CSS
+      - name: Load shared compact mobile navigation last on all public pages
         shell: python
         run: |
           from pathlib import Path
           import re
 
-          path = Path('results.html')
-          html = path.read_text(encoding='utf-8')
+          pages = [
+              'index.html',
+              'results.html',
+              'predictions.html',
+              'play-online.html',
+              'agent.html',
+              'contact.html',
+          ]
 
-          html = re.sub(
-              r'\s*<link\s+rel="stylesheet"\s+href="results-mobile-premium-v1\.css(?:\?v=\d+)?"\s*>',
-              '',
-              html,
-              flags=re.I,
-          )
+          link = '    <link rel="stylesheet" href="public-mobile-nav-compact-v8.css?v=8">\n'
+          changed = []
 
-          global_link = '<link rel="stylesheet" href="public-nav-mobile-fit-v2.css?v=5">'
-          if global_link not in html:
-              raise SystemExit('Global mobile navigation stylesheet link not found in results.html')
+          for filename in pages:
+              path = Path(filename)
+              if not path.exists():
+                  raise SystemExit(f'Missing expected public page: {filename}')
 
-          html = html.replace(
-              global_link,
-              global_link + '\n    <link rel="stylesheet" href="results-mobile-premium-v1.css?v=1">',
-              1,
-          )
+              html = path.read_text(encoding='utf-8')
+              original = html
 
-          if html.find('results-mobile-premium-v1.css?v=1') < html.find(global_link):
-              raise SystemExit('Results mobile override is not loading after global nav CSS')
+              html = re.sub(
+                  r'\s*<link\s+rel="stylesheet"\s+href="public-mobile-nav-compact-v8\.css(?:\?v=\d+)?"\s*>\s*',
+                  '\n',
+                  html,
+                  flags=re.I,
+              )
 
-          path.write_text(html, encoding='utf-8')
+              if '</head>' not in html:
+                  raise SystemExit(f'No closing head tag in {filename}')
 
-      - name: Commit Results page mobile polish
+              html = html.replace('</head>', link + '</head>', 1)
+
+              if html.rfind('public-mobile-nav-compact-v8.css?v=8') > html.find('</head>'):
+                  raise SystemExit(f'Compact mobile nav link order failed in {filename}')
+
+              if html != original:
+                  path.write_text(html, encoding='utf-8')
+                  changed.append(filename)
+
+          if len(changed) != len(pages):
+              print('Changed pages:', ', '.join(changed))
+
+      - name: Commit shared compact mobile navigation
         shell: bash
         run: |
-          if git diff --quiet -- results.html; then
-            echo "No Results page changes detected."
+          if git diff --quiet -- index.html results.html predictions.html play-online.html agent.html contact.html; then
+            echo "No public-page navigation changes detected."
             exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add results.html
-          git commit -m "ui: apply premium mobile layout to Results page"
+          git add index.html results.html predictions.html play-online.html agent.html contact.html
+          git commit -m "ui: use compact two-column mobile navigation across public pages"
           git push
