@@ -1,0 +1,83 @@
+/* JOLS homepage-only mobile navigation v7 */
+@media (max-width: 700px) {
+    body .premium-nav {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 2147483000 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 12px 12px 14px !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+        background: linear-gradient(180deg, rgba(8,24,43,.99), rgba(6,19,34,.99)) !important;
+        box-shadow: 0 10px 26px rgba(2,8,23,.24) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+    }
+
+    body .premium-nav .nav-inner {
+        width: 100% !important;
+        max-width: 620px !important;
+        min-height: 0 !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 9px 10px !important;
+        align-items: stretch !important;
+        overflow: visible !important;
+    }
+
+    body .premium-nav .nav-inner a {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        min-height: 56px !important;
+        margin: 0 !important;
+        padding: 10px 8px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid rgba(148,163,184,.30) !important;
+        border-radius: 15px !important;
+        background: linear-gradient(180deg, #1e293b 0%, #0b1728 100%) !important;
+        color: #f8fafc !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 18px rgba(2,8,23,.18) !important;
+        font-size: clamp(14px, 4vw, 17px) !important;
+        font-weight: 900 !important;
+        line-height: 1.08 !important;
+        letter-spacing: .1px !important;
+        text-align: center !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        word-break: normal !important;
+    }
+
+    body .premium-nav .nav-inner a.active,
+    body .premium-nav .nav-inner a[aria-current="page"] {
+        border-color: rgba(134,239,172,.88) !important;
+        background: linear-gradient(180deg, #22c55e 0%, #0e9f49 100%) !important;
+        color: #fff !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 0 0 1px rgba(134,239,172,.22), 0 10px 24px rgba(16,185,129,.22) !important;
+    }
+}
+
+@media (max-width: 390px) {
+    body .premium-nav {
+        padding: 10px 9px 12px !important;
+    }
+
+    body .premium-nav .nav-inner {
+        gap: 8px !important;
+    }
+
+    body .premium-nav .nav-inner a {
+        min-height: 52px !important;
+        padding: 9px 6px !important;
+        border-radius: 13px !important;
+        font-size: 13px !important;
+    }
+}
