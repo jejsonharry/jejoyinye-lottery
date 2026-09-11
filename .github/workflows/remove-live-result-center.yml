@@ -1,0 +1,33 @@
+name: Remove live result center
+
+on:
+  push:
+    paths:
+      - '.github/workflows/remove-live-result-center.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove duplicate live result center decoration
+        run: python scripts/remove_live_result_center.py
+      - name: Validate removal
+        run: |
+          ! grep -q 'LIVE RESULT CENTER' homepage-premium-v2.css
+          grep -q 'homepage-premium-v2.css?v=2' index.html
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- homepage-premium-v2.css index.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add homepage-premium-v2.css index.html
+          git commit -m "ui: remove duplicate live result center from homepage"
+          git push
