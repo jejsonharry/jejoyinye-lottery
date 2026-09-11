@@ -27,3 +27,5 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/snapshot-modern-prediction.mjs
+
+      # Verification rerun after schema-compatible initialization fix.
