@@ -1,0 +1,32 @@
+name: Increase mobile prediction font
+
+on:
+  push:
+    paths:
+      - 'scripts/increase-mobile-prediction-font.py'
+      - '.github/workflows/increase-mobile-prediction-font.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Increase prediction number font
+        run: python scripts/increase-mobile-prediction-font.py
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- predictions-premium-v4.css predictions.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions-premium-v4.css predictions.html
+          git commit -m "ui: increase prediction number font on mobile"
+          git push
