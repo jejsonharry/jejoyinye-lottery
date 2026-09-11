@@ -21,6 +21,7 @@
         rel="stylesheet"
         href="style.css?v=95"
     >
+    <link rel="stylesheet" href="login-premium.css?v=1">
     <link rel="icon" href="Images/jols-logo.png" type="image/png">
 
 
@@ -51,114 +52,133 @@
 </head>
 
 
-<body>
+<body class="admin-login-page">
 
+<main class="admin-login-shell">
 
-<header>
+    <section class="admin-login-showcase" aria-label="Jejoyinye administration portal">
 
-    <div class="logo-section">
+        <div class="login-glow login-glow-one" aria-hidden="true"></div>
+        <div class="login-glow login-glow-two" aria-hidden="true"></div>
 
-        <img
-            src="Images/jols-logo.png"
-            alt="Jejoyinye Lottery Services logo"
-            class="logo"
-        >
+        <div class="login-number-ball login-ball-one" aria-hidden="true">07</div>
+        <div class="login-number-ball login-ball-two" aria-hidden="true">90</div>
+        <div class="login-number-ball login-ball-three" aria-hidden="true">25</div>
+        <div class="login-number-ball login-ball-four" aria-hidden="true">49</div>
 
+        <a class="admin-login-brand" href="/" aria-label="Return to Jejoyinye Lottery Services home">
+            <span class="admin-login-logo-wrap">
+                <img src="Images/jols-logo.png" alt="Jejoyinye Lottery Services logo">
+            </span>
+            <span>
+                <strong>JEJOYINYE</strong>
+                <small>LOTTERY SERVICES</small>
+            </span>
+        </a>
 
-        <div>
+        <div class="admin-login-visual-copy">
+            <span class="admin-login-eyebrow">
+                <i aria-hidden="true"></i>
+                Secure Operations Portal
+            </span>
 
-            <h1>
-                JEJOYINYE LOTTERY SERVICES
-            </h1>
+            <h1>Control your lottery operations with confidence.</h1>
 
             <p>
-                Administrator Login
+                A private workspace for publishing verified results,
+                reviewing agent applications and managing daily activity.
             </p>
+
+            <div class="admin-login-feature-grid">
+                <article>
+                    <span aria-hidden="true">✓</span>
+                    <div><strong>Verified Results</strong><small>Publish and maintain draw records</small></div>
+                </article>
+                <article>
+                    <span aria-hidden="true">↗</span>
+                    <div><strong>Agent Network</strong><small>Review applications and enquiries</small></div>
+                </article>
+                <article>
+                    <span aria-hidden="true">◆</span>
+                    <div><strong>Secure Access</strong><small>Protected administrator controls</small></div>
+                </article>
+            </div>
+        </div>
+
+        <div class="admin-login-live-status">
+            <span aria-hidden="true"></span>
+            Administration system online
+        </div>
+
+    </section>
+
+    <section class="admin-login-panel">
+
+        <div class="admin-login-card">
+
+            <div class="admin-login-card-heading">
+                <span class="admin-login-lock" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="img"><path d="M7 10V7a5 5 0 0 1 10 0v3m-9 0h8a2 2 0 0 1 2 2v7H6v-7a2 2 0 0 1 2-2Zm4 4v2"/></svg>
+                </span>
+                <span class="admin-login-kicker">ADMINISTRATOR ACCESS</span>
+                <h2>Welcome back</h2>
+                <p>Enter your secure account details to continue.</p>
+            </div>
+
+            <form id="login-form" class="admin-login-form">
+
+                <div class="admin-login-field">
+                    <label for="admin-email">Email address</label>
+                    <div class="admin-login-input-wrap">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3V6Zm1 1 8 6 8-6"/></svg>
+                        <input
+                            type="email"
+                            id="admin-email"
+                            placeholder="name@example.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="admin-login-field">
+                    <div class="admin-login-label-row">
+                        <label for="admin-password">Password</label>
+                        <a href="forgot-password">Forgot password?</a>
+                    </div>
+                    <div class="admin-login-input-wrap">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3M6 10h12v10H6V10Zm6 4v2"/></svg>
+                        <input
+                            type="password"
+                            id="admin-password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" class="admin-login-submit" id="login-btn">
+                    <span>Sign in securely</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+                </button>
+
+            </form>
+
+            <div id="login-message" class="admin-login-message" role="status" aria-live="polite"></div>
+
+            <div class="admin-login-security-note">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.8 8.1 7 10 4.2-1.9 7-5.5 7-10V6l-7-3Zm-3 9 2 2 4-4"/></svg>
+                <span><strong>Private administration area</strong> Authorised personnel only.</span>
+            </div>
 
         </div>
 
-    </div>
+        <p class="admin-login-footer">© 2026 Jejoyinye Lottery Services</p>
 
-</header>
+    </section>
 
-
-<section class="login-section">
-
-    <div class="login-box">
-
-        <h2>
-            Admin Login
-        </h2>
-
-
-        <p>
-            Sign in with your administrator
-            email and password.
-        </p>
-
-
-        <form id="login-form">
-
-
-            <div class="form-group">
-
-                <label for="admin-email">
-                    Email Address
-                </label>
-
-
-                <input
-                    type="email"
-                    id="admin-email"
-                    placeholder="Enter your email address"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="admin-password">
-                    Password
-                </label>
-
-
-                <input
-                    type="password"
-                    id="admin-password"
-                    placeholder="Enter your password"
-                    required
-                >
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="submit-btn"
-                id="login-btn"
-            >
-                Login
-            </button>
-
-
-        </form>
-
-
-        <p class="forgot-password-link">
-            <a href="forgot-password">
-                Forgot your password?
-            </a>
-        </p>
-
-
-        <div id="login-message"></div>
-
-
-    </div>
-
-</section>
+</main>
 
 
 </body>

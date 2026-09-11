@@ -3,6 +3,7 @@ const emailInput = document.getElementById("admin-email");
 const passwordInput = document.getElementById("admin-password");
 const loginButton = document.getElementById("login-btn");
 const loginMessage = document.getElementById("login-message");
+const loginButtonDefaultContent = loginButton.innerHTML;
 
 loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -61,6 +62,6 @@ loginForm.addEventListener("submit", async function (event) {
         `;
     } finally {
         loginButton.disabled = false;
-        loginButton.textContent = "Login";
+        loginButton.innerHTML = loginButtonDefaultContent;
     }
 });
