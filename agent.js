@@ -1,13 +1,18 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // AGENT APPLICATION
-// SECURITY-HARDENED VERSION 24
+// SECURITY-HARDENED VERSION 25
 // =========================================================
+
+const TURNSTILE_SITE_KEY = "0x4AAAAAAEwASh_aa_NyiR-D";
 
 const agentForm = document.getElementById("agent-application-form");
 const submitButton = document.getElementById("agent-submit-btn");
 const submitText = document.getElementById("agent-submit-text");
 const messageBox = document.getElementById("agent-form-message");
+
+let agentTurnstileToken = "";
+let agentTurnstileWidgetId = null;
 
 function showMessage(message, type = "error") {
     if (!messageBox) return;
@@ -64,9 +69,69 @@ function installHoneypot(form) {
     form.appendChild(wrap);
 }
 
+function loadTurnstileScript() {
+    if (window.turnstile) return Promise.resolve(window.turnstile);
+
+    return new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-jols-turnstile="true"]');
+        if (existing) {
+            existing.addEventListener("load", () => resolve(window.turnstile), { once: true });
+            existing.addEventListener("error", () => reject(new Error("Turnstile failed to load")), { once: true });
+            return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+        script.async = true;
+        script.defer = true;
+        script.dataset.jolsTurnstile = "true";
+        script.onload = () => resolve(window.turnstile);
+        script.onerror = () => reject(new Error("Turnstile failed to load"));
+        document.head.appendChild(script);
+    });
+}
+
+async function installAgentTurnstile() {
+    if (!agentForm || !submitButton || document.getElementById("agent-turnstile")) return;
+
+    const container = document.createElement("div");
+    container.id = "agent-turnstile";
+    container.style.display = "flex";
+    container.style.justifyContent = "center";
+    container.style.margin = "18px 0";
+    submitButton.parentNode.insertBefore(container, submitButton);
+
+    try {
+        const turnstile = await loadTurnstileScript();
+        agentTurnstileWidgetId = turnstile.render(container, {
+            sitekey: TURNSTILE_SITE_KEY,
+            action: "agent",
+            theme: "auto",
+            callback(token) {
+                agentTurnstileToken = token;
+            },
+            "expired-callback"() {
+                agentTurnstileToken = "";
+            },
+            "error-callback"() {
+                agentTurnstileToken = "";
+                showMessage("Security verification could not load. Please refresh the page and try again.");
+            }
+        });
+    } catch (_) {
+        showMessage("Security verification could not load. Please refresh the page and try again.");
+    }
+}
+
+function resetAgentTurnstile() {
+    agentTurnstileToken = "";
+    if (window.turnstile && agentTurnstileWidgetId !== null) {
+        try { window.turnstile.reset(agentTurnstileWidgetId); } catch (_) {}
+    }
+}
+
 async function submitAgentApplication(event) {
     event.preventDefault();
-    showMessage("Submitting your application...", "success");
 
     const fullname = clean(getValue("fullname"));
     const phone = clean(getValue("phone"));
@@ -93,7 +158,10 @@ async function submitAgentApplication(event) {
     if (accountName.length < 3) return showMessage("Please enter your account name.");
     if (!/^\d{10}$/.test(accountNumber)) return showMessage("Account number must contain exactly 10 digits.");
     if (!declaration || !declaration.checked) return showMessage("Please confirm the declaration.");
+    if (!agentTurnstileToken) return showMessage("Please complete the security verification before submitting.");
     if (typeof supabaseClient === "undefined") return showMessage("We could not connect to the application service. Please refresh the page and try again.");
+
+    showMessage("Submitting your application...", "success");
 
     const applicationData = {
         full_name: fullname,
@@ -114,19 +182,29 @@ async function submitAgentApplication(event) {
         setLoading(true);
         const website = agentForm?.querySelector('[name="website"]')?.value || "";
         const { data, error } = await supabaseClient.functions.invoke("public-form-submit", {
-            body: { action: "agent", payload: applicationData, website }
+            body: {
+                action: "agent",
+                payload: applicationData,
+                website,
+                turnstile_token: agentTurnstileToken
+            }
         });
         if (error) throw error;
         if (data?.ok !== true) throw new Error(data?.error || "Submission rejected");
 
         showMessage("Application submitted successfully!\n\nYour application has been received and will be reviewed.", "success");
         agentForm.reset();
+        resetAgentTurnstile();
         messageBox?.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch (error) {
-        const message = String(error?.message || "").toLowerCase().includes("too many")
+        const lower = String(error?.message || "").toLowerCase();
+        const message = lower.includes("too many")
             ? "Too many application attempts. Please wait and try again later."
-            : "We could not submit your application right now. Please try again shortly. If the problem continues, contact support.";
+            : lower.includes("security") || lower.includes("turnstile")
+                ? "Security verification failed or expired. Please verify again and resubmit."
+                : "We could not submit your application right now. Please try again shortly. If the problem continues, contact support.";
         showMessage(message, "error");
+        resetAgentTurnstile();
     } finally {
         setLoading(false);
     }
@@ -140,5 +218,6 @@ if (accountNumberInput) accountNumberInput.addEventListener("input", function ()
 
 if (agentForm) {
     installHoneypot(agentForm);
+    installAgentTurnstile();
     agentForm.addEventListener("submit", submitAgentApplication);
 }
