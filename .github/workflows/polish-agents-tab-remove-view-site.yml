@@ -1,4 +1,4 @@
-name: Standardize compact mobile navigation across public pages
+name: Apply reference-style mobile navigation across public pages
 
 on:
   push:
@@ -10,12 +10,12 @@ permissions:
   contents: write
 
 jobs:
-  compact-public-nav:
+  reference-public-nav:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load shared compact mobile navigation last on all public pages
+      - name: Load reference-style mobile navigation last on all public pages
         shell: python
         run: |
           from pathlib import Path
@@ -30,8 +30,7 @@ jobs:
               'contact.html',
           ]
 
-          link = '    <link rel="stylesheet" href="public-mobile-nav-compact-v8.css?v=8">\n'
-          changed = []
+          link = '    <link rel="stylesheet" href="public-mobile-nav-reference-v9.css?v=9">\n'
 
           for filename in pages:
               path = Path(filename)
@@ -39,10 +38,9 @@ jobs:
                   raise SystemExit(f'Missing expected public page: {filename}')
 
               html = path.read_text(encoding='utf-8')
-              original = html
 
               html = re.sub(
-                  r'\s*<link\s+rel="stylesheet"\s+href="public-mobile-nav-compact-v8\.css(?:\?v=\d+)?"\s*>\s*',
+                  r'\s*<link\s+rel="stylesheet"\s+href="public-mobile-nav-reference-v9\.css(?:\?v=\d+)?"\s*>\s*',
                   '\n',
                   html,
                   flags=re.I,
@@ -52,18 +50,9 @@ jobs:
                   raise SystemExit(f'No closing head tag in {filename}')
 
               html = html.replace('</head>', link + '</head>', 1)
+              path.write_text(html, encoding='utf-8')
 
-              if html.rfind('public-mobile-nav-compact-v8.css?v=8') > html.find('</head>'):
-                  raise SystemExit(f'Compact mobile nav link order failed in {filename}')
-
-              if html != original:
-                  path.write_text(html, encoding='utf-8')
-                  changed.append(filename)
-
-          if len(changed) != len(pages):
-              print('Changed pages:', ', '.join(changed))
-
-      - name: Commit shared compact mobile navigation
+      - name: Commit reference-style mobile navigation
         shell: bash
         run: |
           if git diff --quiet -- index.html results.html predictions.html play-online.html agent.html contact.html; then
@@ -73,5 +62,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html results.html predictions.html play-online.html agent.html contact.html
-          git commit -m "ui: use compact two-column mobile navigation across public pages"
+          git commit -m "ui: match reference mobile navigation across public pages"
           git push
