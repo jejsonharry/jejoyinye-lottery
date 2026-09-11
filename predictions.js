@@ -1529,6 +1529,18 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
 });
 
 const MODERN_PREDICTION_ENGINE_LABEL = "Rolling 7-Day 60/30/10";
+const MODERN_RANGE_PREDICTION_ENGINE_LABEL = "Custom Range 60/30/10";
+
+// Refinement stays entirely inside the approved 60/30/10 method.
+// The latest three draws of the SAME game lead the recency signal, while
+// today's earlier games remain a smaller supporting context rather than
+// growing stronger as more games are published through the day.
+const MODERN_RECENT_SAME_GAME_BOOSTS = Object.freeze([1.45, 1.30, 1.15]);
+const MODERN_TODAY_CONTEXT_BUDGET = Object.freeze({
+    statisticalWinning: 1.20,
+    statisticalMachine: 0.36,
+    relationship: 0.90
+});
 
 const GHANA_GAME_PATTERN_WEIGHTS = Object.freeze({
     statistical: 0.30,
@@ -1816,18 +1828,30 @@ function applyModernClassificationRanking(
     contextResults = [],
     includeMachineRelationships = true
 ) {
+    const sameGameSignals = results.slice(0, 5).map((result, index) => ({
+        result,
+        weight:
+            MODERN_RECENT_SAME_GAME_BOOSTS[index]
+            || Math.max(0.60, 0.90 - ((index - 3) * 0.15))
+    }));
+
+    const todaySignalWeight = todayResults.length
+        ? MODERN_TODAY_CONTEXT_BUDGET.relationship / todayResults.length
+        : 0;
+
+    const contextSignalWeight = contextResults.length
+        ? 0.45 / Math.min(contextResults.length, 3)
+        : 0;
+
     const signalResults = [
+        ...sameGameSignals,
         ...todayResults.map(result => ({
             result,
-            weight: 2.5
+            weight: todaySignalWeight
         })),
-        ...contextResults.slice(0, 3).map((result, index) => ({
+        ...contextResults.slice(0, 3).map(result => ({
             result,
-            weight: Math.max(0.75, 1.35 - (index * 0.20))
-        })),
-        ...results.slice(0, 5).map((result, index) => ({
-            result,
-            weight: Math.max(0.35, 1 - (index * 0.15))
+            weight: contextSignalWeight
         }))
     ];
 
@@ -1923,7 +1947,7 @@ function calculateStatisticalPrediction(
                 );
 
 
-            const recencyWeight =
+            const baseRecencyWeight =
                 Math.max(
                     0.25,
                     1 -
@@ -1936,6 +1960,10 @@ function calculateStatisticalPrediction(
                     ) *
                     0.75
                 );
+
+            const recencyWeight =
+                baseRecencyWeight *
+                (MODERN_RECENT_SAME_GAME_BOOSTS[index] || 1);
 
 
             winningNumbers.forEach(
@@ -1976,13 +2004,15 @@ function calculateStatisticalPrediction(
         }
     );
 
-    // Same-day results carry extra recency weight because they reflect
-    // the number activity immediately before the upcoming game.
-    const todayWinningWeight = Math.min(
-        3.5,
-        Math.max(1.5, results.length * 0.04)
-    );
-    const todayMachineWeight = todayWinningWeight * 0.30;
+    // Same-day games are supporting context. Their TOTAL budget is fixed,
+    // so the signal cannot overpower same-game history later in the day or
+    // when a long custom date range is selected.
+    const todayWinningWeight = todayResults.length
+        ? MODERN_TODAY_CONTEXT_BUDGET.statisticalWinning / todayResults.length
+        : 0;
+    const todayMachineWeight = todayResults.length
+        ? MODERN_TODAY_CONTEXT_BUDGET.statisticalMachine / todayResults.length
+        : 0;
 
     todayResults.forEach(result => {
         const winningNumbers = parsePredictionNumbers(result.winning);
@@ -2067,9 +2097,9 @@ function calculateStatisticalPrediction(
                 }
             );
 
-    const selectedCandidates = useModernClassification
-        ? selectBalancedModernCandidates(rankedNumbers)
-        : rankedNumbers.slice(0, 5);
+    // Strict method: the published five are the actual top five from the
+    // final 60/30/10 weighted ranking. No post-score balancing replacement.
+    const selectedCandidates = rankedNumbers.slice(0, 5);
 
     const selectedNumberSet = new Set(
         selectedCandidates.map(item => item.number)
@@ -3134,7 +3164,9 @@ async function displayNextGamePrediction() {
             engineElement: modernEngineVersion,
             windowElement: modernDataWindow,
             generatedElement: modernGeneratedTime,
-            engineLabel: MODERN_PREDICTION_ENGINE_LABEL,
+            engineLabel: customRangeActive
+                ? MODERN_RANGE_PREDICTION_ENGINE_LABEL
+                : MODERN_PREDICTION_ENGINE_LABEL,
             history,
             generatedAt: null
         });
