@@ -1,4 +1,4 @@
-name: Apply mobile navigation v5 across all public pages
+name: Remove homepage quick stats section
 
 on:
   push:
@@ -10,63 +10,49 @@ permissions:
   contents: write
 
 jobs:
-  update-mobile-nav:
+  remove-quick-stats:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Apply fresh v5 navigation stylesheet everywhere
+      - name: Remove four-card quick stats block from homepage
         shell: python
         run: |
           from pathlib import Path
           import re
 
-          public_pages = []
-          for path in Path('.').glob('*.html'):
-              if path.name in {
-                  'admin.html', 'admin-login.html', 'admin-reset-password.html',
-                  'forgot-password.html', 'reset-password.html',
-                  'agent-application.html'
-              }:
-                  continue
+          path = Path('index.html')
+          html = path.read_text(encoding='utf-8')
 
-              text = path.read_text(encoding='utf-8')
-              if 'class="premium-nav"' not in text:
-                  continue
+          pattern = re.compile(
+              r'<!-- =====================================================\s*QUICK STATS\s*===================================================== -->\s*<section class="quick-stats">.*?</section>\s*',
+              re.S,
+          )
 
-              # Remove any older cache-version references and ensure one v5 stylesheet.
-              text = re.sub(
-                  r'\s*<link\s+rel="stylesheet"\s+href="public-nav-mobile-fit-v2\.css\?v=\d+"\s*>',
-                  '',
-                  text,
-                  flags=re.I,
-              )
+          html, count = pattern.subn('', html, count=1)
+          if count != 1:
+              raise SystemExit('Quick stats section was not found exactly once.')
 
-              insert = '    <link rel="stylesheet" href="public-nav-mobile-fit-v2.css?v=5">\n'
-              head_close = text.lower().find('</head>')
-              if head_close == -1:
-                  raise SystemExit(f'Missing </head> in {path.name}')
-              text = text[:head_close] + insert + text[head_close:]
+          forbidden = [
+              'Modern Billionaire\n            Daily Games',
+              'Ghana\n            Weekly Games',
+              'Result\n            Updates',
+              'Statistical\n            Insights',
+          ]
+          if any(text in html for text in forbidden):
+              raise SystemExit('Quick stats content still remains after removal.')
 
-              path.write_text(text, encoding='utf-8')
-              public_pages.append(path.name)
+          path.write_text(html, encoding='utf-8')
 
-          if not public_pages:
-              raise SystemExit('No public pages with premium navigation were found.')
-
-          print('Updated pages:')
-          for name in public_pages:
-              print('-', name)
-
-      - name: Commit all public-page references
+      - name: Commit homepage cleanup
         shell: bash
         run: |
-          if git diff --quiet -- '*.html'; then
-            echo "No HTML changes detected."
+          if git diff --quiet -- index.html; then
+            echo "No homepage changes detected."
             exit 1
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add *.html
-          git commit -m "ui: apply larger bold mobile tabs across all public pages"
+          git add index.html
+          git commit -m "ui: remove homepage quick stats cards"
           git push
