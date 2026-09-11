@@ -902,3 +902,51 @@ body .next-prediction-card > #ghana-game-drawtime {
     }
 }
 
+/* Forecast countdown replaces confidence heading */
+body .prediction-number-area > .forecast-countdown {
+    width: min(560px, 100%) !important;
+    min-height: 84px !important;
+    margin: 0 auto 20px !important;
+    padding: 11px 18px !important;
+    border: 1px solid rgba(74, 144, 196, .34) !important;
+    border-radius: 17px !important;
+    background: linear-gradient(135deg,#06192b 0%,#0b3658 100%) !important;
+    box-shadow: 0 14px 30px rgba(7,25,45,.18) !important;
+}
+body .prediction-number-area > .forecast-countdown p {
+    margin: 0 0 4px !important;
+    color: #bcd7ec !important;
+    font-size: 9px !important;
+    font-weight: 950 !important;
+    letter-spacing: .12em !important;
+    text-transform: uppercase !important;
+}
+body .prediction-number-area > .forecast-countdown #countdown-timer,
+body .prediction-number-area > .forecast-countdown #ghana-countdown-timer {
+    color: #fff !important;
+    font-size: clamp(27px, 4vw, 36px) !important;
+    font-weight: 950 !important;
+    line-height: 1.05 !important;
+    letter-spacing: .05em !important;
+    text-shadow: 0 7px 18px rgba(0,0,0,.28) !important;
+}
+body .prediction-number-area > .forecast-countdown + .prediction-balls,
+body .prediction-number-area > .forecast-countdown + .ghana-prediction-group {
+    margin-top: 0 !important;
+}
+body .ghana-prediction-group .prediction-balls {
+    margin-top: 0 !important;
+}
+@media (max-width: 700px) {
+    body .prediction-number-area > .forecast-countdown {
+        min-height: 74px !important;
+        margin-bottom: 16px !important;
+        padding: 9px 12px !important;
+        border-radius: 14px !important;
+    }
+    body .prediction-number-area > .forecast-countdown #countdown-timer,
+    body .prediction-number-area > .forecast-countdown #ghana-countdown-timer {
+        font-size: clamp(24px, 8vw, 31px) !important;
+    }
+}
+

@@ -52,7 +52,7 @@
     <link rel="stylesheet" href="public-nav-and-home-mobile-v1.css?v=2">
     <link rel="stylesheet" href="prediction-details.css?v=1">
     <link rel="stylesheet" href="predictions-polish.css?v=3">
-    <link rel="stylesheet" href="predictions-premium-v4.css?v=3">
+    <link rel="stylesheet" href="predictions-premium-v4.css?v=4">
 
 
     <!-- SUPABASE -->
@@ -263,28 +263,21 @@
             </form>
 
 
-            <!-- COUNTDOWN -->
-
-            <div class="prediction-countdown-box">
-
-                <p>
-                    Time Remaining Until Draw
-                </p>
-
-                <div id="countdown-timer">
-                    00:00:00
-                </div>
-
-            </div>
-
-
             <!-- PREDICTED BALLS -->
 
             <div class="prediction-number-area">
 
-                <span class="prediction-number-label">
-                    5-NUMBER CONFIDENCE FORECAST
-                </span>
+                <div class="prediction-countdown-box forecast-countdown">
+
+                    <p>
+                        Time Remaining Until Draw
+                    </p>
+
+                    <div id="countdown-timer">
+                        00:00:00
+                    </div>
+
+                </div>
 
 
                 <div
@@ -413,22 +406,19 @@
                 <p id="ghana-prediction-range-status" class="prediction-range-status">Using all verified results for the scheduled Ghana game.</p>
             </form>
 
-            <div class="prediction-countdown-box">
-
-                <p>Time Remaining Until Draw</p>
-
-                <div id="ghana-countdown-timer">
-                    00:00:00
-                </div>
-
-            </div>
-
             <div class="prediction-number-area">
 
+                <div class="prediction-countdown-box forecast-countdown">
+
+                    <p>Time Remaining Until Draw</p>
+
+                    <div id="ghana-countdown-timer">
+                        00:00:00
+                    </div>
+
+                </div>
+
                 <div class="ghana-prediction-group">
-                    <span class="prediction-number-label">
-                        5-NUMBER CONFIDENCE FORECAST
-                    </span>
 
                     <div
                         id="ghana-game-balls"
