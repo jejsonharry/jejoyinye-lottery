@@ -39,7 +39,7 @@ text = re.sub(
     flags=re.S,
 )
 
-# Header-only visual tuning requested by the user.
+# Header refinements plus one-row mobile admin tabs.
 header_css = '''<style id="admin-header-tuning">
 .admin-control-header-inner {
     min-height: 94px !important;
@@ -106,6 +106,42 @@ header_css = '''<style id="admin-header-tuning">
         font-size: 14px !important;
         max-width: 205px !important;
     }
+
+    /* Keep Dashboard, Analytics, Results, Agents and Messages on one row. */
+    .admin-dashboard-body .admin-tabs {
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        width: 100% !important;
+        overflow: visible !important;
+        gap: 3px !important;
+        padding: 5px !important;
+    }
+
+    .admin-dashboard-body .admin-tab-button {
+        flex: initial !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 40px !important;
+        padding: 9px 3px !important;
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+    }
+
+    #admin-unread-tab-count {
+        position: absolute !important;
+        top: 2px !important;
+        right: 2px !important;
+        min-width: 15px !important;
+        width: 15px !important;
+        height: 15px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 8px !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -139,6 +175,18 @@ header_css = '''<style id="admin-header-tuning">
     .admin-header-logout {
         min-height: 34px !important;
         padding: 7px 8px !important;
+    }
+
+    .admin-dashboard-body .admin-tabs {
+        gap: 2px !important;
+        padding: 4px !important;
+    }
+
+    .admin-dashboard-body .admin-tab-button {
+        min-height: 38px !important;
+        padding: 8px 1px !important;
+        font-size: 9px !important;
+        letter-spacing: -0.1px !important;
     }
 }
 </style>'''
