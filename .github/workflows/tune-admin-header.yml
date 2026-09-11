@@ -1,0 +1,142 @@
+name: Tune admin header
+
+on:
+  push:
+    paths:
+      - '.github/workflows/tune-admin-header.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tune admin header only
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('admin.html')
+          text = path.read_text(encoding='utf-8')
+
+          # Keep the small admin label as requested while retaining the full company name.
+          text = text.replace('<small>SECURE ADMINISTRATION</small>', '<small>JOLS SECURE ADMIN</small>')
+          text = text.replace('<small>JOLS SECURE ADMIN</small>\n                <strong>Control Center</strong>', '<small>JOLS SECURE ADMIN</small>\n                <strong>JEJOYINYE LOTTERY SERVICES</strong>')
+
+          # Remove only the explanatory copy directly under Administrator Dashboard.
+          text = re.sub(
+              r'(<h2>\s*Administrator Dashboard\s*</h2>)\s*<p>.*?</p>',
+              r'\1',
+              text,
+              count=1,
+              flags=re.S,
+          )
+
+          style = '''
+<style id="admin-header-tuning">
+/* Header-only refinements */
+.admin-control-logo {
+    width: 68px !important;
+    height: 68px !important;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,.34)) contrast(1.08) saturate(1.08) !important;
+}
+
+.admin-control-brand {
+    gap: 15px !important;
+}
+
+.admin-control-brand-copy small {
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    letter-spacing: 1.55px !important;
+    color: #bfdbfe !important;
+    line-height: 1.1;
+}
+
+.admin-control-brand-copy strong {
+    margin-top: 5px !important;
+    font-size: 21px !important;
+    font-weight: 950 !important;
+    line-height: 1.08 !important;
+    letter-spacing: .05px !important;
+    max-width: none !important;
+}
+
+.admin-dashboard-body .admin-top-compact {
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+}
+
+.admin-dashboard-body .admin-top-compact h2 {
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 760px) {
+    .admin-control-logo {
+        width: 55px !important;
+        height: 55px !important;
+    }
+
+    .admin-control-brand {
+        gap: 10px !important;
+    }
+
+    .admin-control-brand-copy small {
+        font-size: 10px !important;
+        letter-spacing: 1.05px !important;
+    }
+
+    .admin-control-brand-copy strong {
+        font-size: 14px !important;
+        max-width: 210px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-control-logo {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    .admin-control-brand-copy small {
+        font-size: 9px !important;
+        letter-spacing: .8px !important;
+    }
+
+    .admin-control-brand-copy strong {
+        font-size: 12px !important;
+        max-width: 150px !important;
+        line-height: 1.12 !important;
+    }
+}
+</style>
+'''
+
+          if 'id="admin-header-tuning"' in text:
+              text = re.sub(r'<style id="admin-header-tuning">.*?</style>', style.strip(), text, count=1, flags=re.S)
+          else:
+              text = text.replace('</head>', style + '\n</head>', 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit admin header refinement
+        shell: bash
+        run: |
+          if git diff --quiet -- admin.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html
+          git commit -m "ui: enlarge and strengthen admin header branding"
+          git push
