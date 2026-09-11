@@ -1,4 +1,4 @@
-/* JOLS public navigation — three-tab mobile v13 */
+/* JOLS public navigation — six-tab mobile v14 */
 @media (max-width: 700px) {
     html body .premium-nav.premium-nav {
         position: relative !important;
@@ -43,19 +43,14 @@
         background: linear-gradient(180deg,#1d293b 0%,#0a1728 100%) !important;
         color: #f8fafc !important;
         box-shadow: inset 0 1px 0 rgba(255,255,255,.06),0 5px 13px rgba(2,8,23,.16) !important;
-        font-size: clamp(11.5px,3.2vw,14px) !important;
+        font-size: clamp(11px,3vw,13.5px) !important;
         font-weight: 900 !important;
         line-height: 1.05 !important;
-        letter-spacing: .05px !important;
+        letter-spacing: .02px !important;
         text-align: center !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
         overflow: hidden !important;
         text-overflow: clip !important;
-    }
-
-    /* Keep only the three primary mobile tabs: Home, Results, Predictions. */
-    html body .premium-nav.premium-nav .nav-inner.nav-inner > a:nth-child(n+4) {
-        display: none !important;
     }
 
     html body .premium-nav.premium-nav .nav-inner.nav-inner > a.active,
@@ -90,8 +85,8 @@
 
     html body .premium-nav.premium-nav .nav-inner.nav-inner > a {
         min-height: 41px !important;
-        padding: 6px 4px !important;
+        padding: 6px 3px !important;
         border-radius: 11px !important;
-        font-size: 11.5px !important;
+        font-size: 10.8px !important;
     }
 }
