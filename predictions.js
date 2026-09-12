@@ -2211,6 +2211,15 @@ function getLotteryDisplayName(
 
 
 
+function hasCustomPredictionRange(
+    dateRange = modernPredictionDateRange
+) {
+    return Boolean(
+        dateRange &&
+        (dateRange.from || dateRange.to)
+    );
+}
+
 // =========================================================
 // DISPLAY NEXT GAME
 // =========================================================
