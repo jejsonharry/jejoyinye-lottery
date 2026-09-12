@@ -1,0 +1,66 @@
+name: Fix Evidence Fusion Live Page
+
+on:
+  push:
+    paths:
+      - ".github/workflows/fix-evidence-fusion-live-page.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Repair live Evidence Fusion page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          js_path = Path('predictions.js')
+          html_path = Path('predictions.html')
+
+          js = js_path.read_text(encoding='utf-8')
+          html = html_path.read_text(encoding='utf-8')
+
+          helper = '''function hasCustomPredictionRange(\n    dateRange = modernPredictionDateRange\n) {\n    return Boolean(\n        dateRange &&\n        (dateRange.from || dateRange.to)\n    );\n}\n\n'''
+
+          marker = '// =========================================================\n// DISPLAY NEXT GAME\n// ========================================================='
+          if 'function hasCustomPredictionRange(' not in js:
+              if marker not in js:
+                  raise SystemExit('DISPLAY NEXT GAME marker not found')
+              js = js.replace(marker, helper + marker, 1)
+
+          old_method = '<strong>60% Statistics • 30% Classification • 10% Moving</strong>'
+          new_method = '<strong>45% Same-Game • 20% Machine→Winning • 20% Cross-Confirmation • 10% Classification • 5% Moving</strong>'
+          if old_method in html:
+              html = html.replace(old_method, new_method, 1)
+
+          html = html.replace('src="predictions.js?v=38"', 'src="predictions.js?v=39"', 1)
+
+          if 'function hasCustomPredictionRange(' not in js:
+              raise SystemExit('Range helper still missing')
+          if 'calculateModernEvidenceFusionPrediction(' not in js:
+              raise SystemExit('Evidence Fusion adapter missing')
+          if '45% Same-Game' not in html:
+              raise SystemExit('Evidence Fusion method label was not updated')
+
+          js_path.write_text(js, encoding='utf-8')
+          html_path.write_text(html, encoding='utf-8')
+          PY
+
+      - name: Commit repair
+        run: |
+          if git diff --quiet; then
+            echo "No changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions.js predictions.html
+          git commit -m "fix: restore Evidence Fusion prediction rendering"
+          git push
