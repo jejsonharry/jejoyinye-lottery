@@ -1,0 +1,55 @@
+.jols-consent {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    left: 18px;
+    z-index: 2147483646;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 18px 20px;
+    border: 1px solid rgba(212, 175, 55, 0.48);
+    border-radius: 18px;
+    background: #071f25;
+    color: #f8fafc;
+    box-shadow: 0 18px 60px rgba(2, 12, 18, 0.38);
+    font-family: Arial, sans-serif;
+}
+
+.jols-consent-copy { max-width: 650px; }
+.jols-consent-copy strong { display: block; margin-bottom: 5px; color: #f5d77c; font-size: 16px; }
+.jols-consent-copy p { margin: 0; color: #dbe7e9; font-size: 13px; line-height: 1.55; }
+.jols-consent-copy a { color: #f5d77c; font-weight: 800; }
+.jols-consent-actions { display: flex; flex: 0 0 auto; gap: 9px; }
+.jols-consent-actions button {
+    min-height: 42px;
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+.jols-consent-actions .jols-consent-accept { border-color: #d4af37; background: #d4af37; color: #071f25; }
+.jols-consent-actions button:focus-visible,
+.jols-analytics-settings:focus-visible { outline: 3px solid #f5d77c; outline-offset: 3px; }
+.jols-analytics-settings {
+    appearance: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+@media (max-width: 680px) {
+    .jols-consent { align-items: stretch; flex-direction: column; gap: 14px; padding: 16px; }
+    .jols-consent-actions { display: grid; grid-template-columns: 1fr 1.25fr; }
+    .jols-consent-actions button { padding-inline: 10px; font-size: 12px; }
+}

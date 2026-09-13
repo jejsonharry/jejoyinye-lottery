@@ -130,6 +130,9 @@ if (contactForm) {
             if (data?.ok !== true) throw new Error(data?.error || "Message rejected");
 
             alert("Thank you! Your message has been sent successfully. We will get back to you shortly.");
+            window.jolsTrackEvent?.("contact_form_submit", {
+                form_name: "contact"
+            });
             contactForm.reset();
             resetContactTurnstile();
         } catch (error) {

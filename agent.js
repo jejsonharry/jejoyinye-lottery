@@ -193,6 +193,9 @@ async function submitAgentApplication(event) {
         if (data?.ok !== true) throw new Error(data?.error || "Submission rejected");
 
         showMessage("Application submitted successfully!\n\nYour application has been received and will be reviewed.", "success");
+        window.jolsTrackEvent?.("agent_application_submit", {
+            form_name: "agent_application"
+        });
         agentForm.reset();
         resetAgentTurnstile();
         messageBox?.scrollIntoView({ behavior: "smooth", block: "center" });

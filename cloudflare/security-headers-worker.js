@@ -6,11 +6,11 @@ export default {
 
     headers.set("Content-Security-Policy", [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com",
+      "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com https://www.googletagmanager.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://iedgznzmmfkdhgmkghwt.supabase.co wss://iedgznzmmfkdhgmkghwt.supabase.co https://challenges.cloudflare.com",
+      "connect-src 'self' https://iedgznzmmfkdhgmkghwt.supabase.co wss://iedgznzmmfkdhgmkghwt.supabase.co https://challenges.cloudflare.com https://www.googletagmanager.com https://*.google-analytics.com",
       "frame-src https://challenges.cloudflare.com",
       "object-src 'none'",
       "base-uri 'self'",
