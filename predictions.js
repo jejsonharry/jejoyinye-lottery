@@ -63,7 +63,7 @@ const ghanaGameBalls =
 const ghanaAnalysisDrawCount =
     document.getElementById("ghana-analysis-draw-count");
 
-let predictionDateRange = { from: "", to: "" };
+let modernPredictionDateRange = { from: "", to: "" };
 
 
 // =========================================================
@@ -799,12 +799,15 @@ async function fetchPredictionHistory(game) {
 
         }
 
-        if (predictionDateRange.from) {
-            query = query.gte("draw_date", predictionDateRange.from);
+        const rangeApplies =
+            game.lottery === "modern-billionaire";
+
+        if (rangeApplies && modernPredictionDateRange.from) {
+            query = query.gte("draw_date", modernPredictionDateRange.from);
         }
 
-        if (predictionDateRange.to) {
-            query = query.lte("draw_date", predictionDateRange.to);
+        if (rangeApplies && modernPredictionDateRange.to) {
+            query = query.lte("draw_date", modernPredictionDateRange.to);
         }
 
 
@@ -857,7 +860,7 @@ async function fetchPredictionHistory(game) {
 // =========================================================
 // GHANA HISTORY FALLBACK
 // Uses all Ghana winning results when a scheduled game has
-// no saved history in the selected period.
+// no saved history. Modern's date range never filters Ghana.
 // =========================================================
 
 async function fetchGhanaFallbackHistory() {
@@ -866,14 +869,6 @@ async function fetchGhanaFallbackHistory() {
             .from("results")
             .select("game, lottery, draw_date, winning, machine")
             .eq("lottery", "ghana");
-
-        if (predictionDateRange.from) {
-            query = query.gte("draw_date", predictionDateRange.from);
-        }
-
-        if (predictionDateRange.to) {
-            query = query.lte("draw_date", predictionDateRange.to);
-        }
 
         const { data, error } = await query
             .order("draw_date", { ascending: false })
@@ -2439,32 +2434,26 @@ document.addEventListener(
                 predictionToDate.value = to;
             }
 
-            predictionDateRange = { from, to };
+            modernPredictionDateRange = { from, to };
 
             if (predictionRangeStatus) {
                 predictionRangeStatus.textContent = from || to
-                    ? `Historical range: ${from || "earliest"} to ${to || "latest"}. Today's earlier games are also included.`
-                    : "Using all historical results plus today's earlier published games.";
+                    ? `Modern Billionaire range: ${from || "earliest"} to ${to || "latest"}. Ghana remains unchanged.`
+                    : "Modern Billionaire is using all history. Ghana remains unchanged.";
             }
 
-            await Promise.all([
-            displayNextGamePrediction(),
-            displayGhanaPrediction()
-        ]);
+            await displayNextGamePrediction();
         });
 
         predictionRangeReset?.addEventListener("click", async () => {
             predictionRangeForm?.reset();
-            predictionDateRange = { from: "", to: "" };
+            modernPredictionDateRange = { from: "", to: "" };
 
             if (predictionRangeStatus) {
-                predictionRangeStatus.textContent = "Using all historical results plus today's earlier published games.";
+                predictionRangeStatus.textContent = "Modern Billionaire is using all history. Ghana remains unchanged.";
             }
 
-            await Promise.all([
-            displayNextGamePrediction(),
-            displayGhanaPrediction()
-        ]);
+            await displayNextGamePrediction();
         });
 
 

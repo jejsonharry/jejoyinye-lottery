@@ -173,7 +173,8 @@
 
         document.getElementById("prediction-range-form")?.addEventListener("submit", function () {
             window.jolsTrackEvent("prediction_range_apply", {
-                page_path: window.location.pathname
+                page_path: window.location.pathname,
+                lottery_scope: "modern-billionaire"
             });
         });
     }

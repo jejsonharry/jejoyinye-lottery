@@ -50,7 +50,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions.js?v=15"
+        src="predictions.js?v=16"
         defer
     ></script>
 
@@ -92,9 +92,9 @@
     }
   }
   </script>
-    <link rel="stylesheet" href="predictions-luxury-v1.css?v=3">
+    <link rel="stylesheet" href="predictions-luxury-v1.css?v=4">
   <link rel="stylesheet" href="analytics.css?v=1">
-  <script src="analytics.js?v=1" defer></script>
+  <script src="analytics.js?v=2" defer></script>
 </head>
 
 
@@ -221,7 +221,11 @@
     <section class="next-prediction-section">
 
 
-        <form class="prediction-range-filter" id="prediction-range-form">
+        <form class="prediction-range-filter" id="prediction-range-form" aria-label="Modern Billionaire prediction date range">
+            <div class="prediction-range-heading">
+                <span>MODERN BILLIONAIRE DATE RANGE</span>
+                <strong>Applies only to Modern predictions • Ghana remains separate</strong>
+            </div>
             <div class="prediction-range-field">
                 <label for="prediction-from-date">Results from</label>
                 <input type="date" id="prediction-from-date">
@@ -234,7 +238,7 @@
 
             <button type="submit" class="prediction-range-apply">Apply Range</button>
             <button type="button" class="prediction-range-reset" id="prediction-range-reset">Reset</button>
-            <p id="prediction-range-status" class="prediction-range-status">Using all historical results plus today's earlier published games.</p>
+            <p id="prediction-range-status" class="prediction-range-status">Modern Billionaire is using all history. Ghana remains unchanged.</p>
         </form>
 
 
