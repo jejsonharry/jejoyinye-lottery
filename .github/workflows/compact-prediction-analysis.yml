@@ -1,0 +1,236 @@
+name: Compact prediction analysis panel
+
+on:
+  push:
+    paths:
+      - '.github/workflows/compact-prediction-analysis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compact-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Replace long analysis with compact expandable panel
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path('predictions.html')
+          text = path.read_text(encoding='utf-8')
+
+          pattern = re.compile(r'<div class="prediction-analysis-section">.*?</div>\s*\n\s*\n\s*<p class="prediction-small-note">', re.S)
+
+          replacement = '''<div class="prediction-analysis-section compact-analysis-card">
+
+    <div class="compact-analysis-header">
+        <div>
+            <span class="compact-analysis-kicker">WHY THESE NUMBERS?</span>
+            <h3>Prediction Insight</h3>
+        </div>
+        <span class="compact-analysis-status">Live Analysis</span>
+    </div>
+
+    <div class="compact-signal-grid" aria-label="Prediction method weights">
+        <div class="compact-signal-chip">
+            <strong>60%</strong>
+            <span>Statistics</span>
+        </div>
+        <div class="compact-signal-chip">
+            <strong>30%</strong>
+            <span>Classification</span>
+        </div>
+        <div class="compact-signal-chip">
+            <strong>10%</strong>
+            <span>Moving</span>
+        </div>
+    </div>
+
+    <p class="compact-analysis-summary">
+        Historical results, classification relationships and moving-number support are combined to rank the five selected numbers, with today's earlier games carrying the strongest current-day influence.
+    </p>
+
+    <details class="compact-analysis-details">
+        <summary>View detailed number analysis</summary>
+        <div id="prediction-analysis-list">
+            <p class="analysis-loading">Analysing prediction data...</p>
+        </div>
+    </details>
+
+</div>
+
+
+                <p class="prediction-small-note">'''
+
+          updated, count = pattern.subn(replacement, text, count=1)
+          if count != 1:
+              raise SystemExit('Prediction analysis section not found exactly once')
+
+          path.write_text(updated, encoding='utf-8')
+
+      - name: Add compact analysis styling
+        shell: python
+        run: |
+          from pathlib import Path
+
+          css = Path('predictions-luxury-v1.css')
+          text = css.read_text(encoding='utf-8')
+
+          marker = '/* COMPACT PREDICTION ANALYSIS V2 */'
+          if marker not in text:
+              text += r'''
+
+/* COMPACT PREDICTION ANALYSIS V2 */
+.compact-analysis-card {
+  padding: 20px !important;
+}
+
+.compact-analysis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.compact-analysis-kicker {
+  display: block;
+  color: var(--jols-gold-soft);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+  margin-bottom: 4px;
+}
+
+.compact-analysis-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+}
+
+.compact-analysis-status {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(93,240,160,.28);
+  background: rgba(25,199,106,.10);
+  color: #79efac;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.compact-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.compact-signal-chip {
+  padding: 12px 8px;
+  text-align: center;
+  border-radius: 14px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(215,173,69,.20);
+}
+
+.compact-signal-chip strong {
+  display: block;
+  color: #72f0aa;
+  font-size: 1.08rem;
+  line-height: 1.1;
+}
+
+.compact-signal-chip span {
+  display: block;
+  margin-top: 4px;
+  color: rgba(235,244,247,.72);
+  font-size: .73rem;
+  font-weight: 800;
+}
+
+.compact-analysis-summary {
+  margin: 0;
+  color: rgba(231,241,245,.76);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.compact-analysis-details {
+  margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 12px;
+}
+
+.compact-analysis-details summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--jols-gold-soft);
+  font-weight: 900;
+  font-size: .9rem;
+}
+
+.compact-analysis-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.compact-analysis-details summary::after {
+  content: ' +';
+  color: #72f0aa;
+}
+
+.compact-analysis-details[open] summary::after {
+  content: ' −';
+}
+
+.compact-analysis-details #prediction-analysis-list {
+  margin-top: 12px;
+}
+
+@media (max-width: 560px) {
+  .compact-analysis-card {
+    padding: 16px !important;
+  }
+
+  .compact-analysis-header {
+    align-items: flex-start;
+  }
+
+  .compact-analysis-status {
+    font-size: .65rem;
+    padding: 6px 8px;
+  }
+
+  .compact-signal-grid {
+    gap: 7px;
+  }
+
+  .compact-signal-chip {
+    padding: 10px 5px;
+  }
+
+  .compact-signal-chip span {
+    font-size: .65rem;
+  }
+
+  .compact-analysis-summary {
+    font-size: .86rem;
+  }
+}
+'''
+              css.write_text(text, encoding='utf-8')
+
+      - name: Commit change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions.html predictions-luxury-v1.css
+          git diff --cached --quiet && exit 0
+          git commit -m "ui: compact prediction analysis card"
+          git push
