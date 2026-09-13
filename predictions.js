@@ -21,9 +21,6 @@ const countdownTimer =
 const nextGameBalls =
     document.getElementById("next-game-balls");
 
-const modernPredictionShareButton =
-    document.querySelector('[data-share-prediction="modern"]');
-
 const upcomingGamesList =
     document.getElementById("upcoming-games-list");
 
@@ -36,35 +33,20 @@ const analysisTodayCount =
 const predictionAnalysisList =
     document.getElementById("prediction-analysis-list");
 
-const modernPredictionRangeForm =
-    document.getElementById("modern-prediction-range-form");
+const predictionRangeForm =
+    document.getElementById("prediction-range-form");
 
-const modernPredictionFromDate =
-    document.getElementById("modern-prediction-from-date");
+const predictionFromDate =
+    document.getElementById("prediction-from-date");
 
-const modernPredictionToDate =
-    document.getElementById("modern-prediction-to-date");
+const predictionToDate =
+    document.getElementById("prediction-to-date");
 
-const modernPredictionRangeReset =
-    document.getElementById("modern-prediction-range-reset");
+const predictionRangeReset =
+    document.getElementById("prediction-range-reset");
 
-const modernPredictionRangeStatus =
-    document.getElementById("modern-prediction-range-status");
-
-const ghanaPredictionRangeForm =
-    document.getElementById("ghana-prediction-range-form");
-
-const ghanaPredictionFromDate =
-    document.getElementById("ghana-prediction-from-date");
-
-const ghanaPredictionToDate =
-    document.getElementById("ghana-prediction-to-date");
-
-const ghanaPredictionRangeReset =
-    document.getElementById("ghana-prediction-range-reset");
-
-const ghanaPredictionRangeStatus =
-    document.getElementById("ghana-prediction-range-status");
+const predictionRangeStatus =
+    document.getElementById("prediction-range-status");
 
 const ghanaGameTitle =
     document.getElementById("ghana-game-title");
@@ -81,179 +63,7 @@ const ghanaGameBalls =
 const ghanaAnalysisDrawCount =
     document.getElementById("ghana-analysis-draw-count");
 
-const modernEngineVersion =
-    document.getElementById("modern-engine-version");
-
-const modernDataWindow =
-    document.getElementById("modern-data-window");
-
-const modernGeneratedTime =
-    document.getElementById("modern-generated-time");
-
-const ghanaEngineVersion =
-    document.getElementById("ghana-engine-version");
-
-const ghanaDataWindow =
-    document.getElementById("ghana-data-window");
-
-const ghanaGeneratedTime =
-    document.getElementById("ghana-generated-time");
-
-let modernPredictionDateRange = { from: "", to: "" };
-
-let ghanaPredictionDateRange = { from: "", to: "" };
-
-const PREDICTION_COOLDOWN_MS = 5 * 60 * 1000;
-
-let modernPredictionCooldownTimer = null;
-
-let modernPredictionCooldownUntil = 0;
-
-let lastObservedModernResultKey = "";
-
-let modernResultsRealtimeChannel = null;
-
-const PREDICTIONS_SHARE_URL =
-    "https://jolslottery.com/predictions";
-
-
-function getDisplayedPredictionNumbers(container, selector = ".number-ball") {
-
-    if (!container) {
-        return [];
-    }
-
-    return Array.from(
-        container.querySelectorAll(selector)
-    )
-        .map(ball => ball.textContent.trim())
-        .filter(number => /^\d{1,2}$/.test(number));
-}
-
-
-function getDisplayedPredictionTiers(container) {
-    return {
-        sureNumbers: getDisplayedPredictionNumbers(
-            container,
-            ".prediction-tier-sure .number-ball"
-        ),
-        directSureNumbers: getDisplayedPredictionNumbers(
-            container,
-            ".prediction-tier-direct .number-ball"
-        )
-    };
-}
-
-
-async function shareGamePrediction(button) {
-
-    const isGhana =
-        button.dataset.sharePrediction === "ghana";
-
-    const gameElement =
-        isGhana ? ghanaGameTitle : nextGameTitle;
-
-    const drawElement =
-        isGhana ? ghanaGameDrawTime : nextGameDrawTime;
-
-    const ballsElement =
-        isGhana ? ghanaGameBalls : nextGameBalls;
-
-    const {
-        sureNumbers,
-        directSureNumbers
-    } = getDisplayedPredictionTiers(ballsElement);
-
-    const numbers = [
-        ...sureNumbers,
-        ...directSureNumbers
-    ];
-
-    if (
-        sureNumbers.length !== 2
-        ||
-        directSureNumbers.length !== 3
-    ) {
-        button.textContent = "Prediction Not Ready";
-        setTimeout(
-            () => button.textContent = "Share Prediction",
-            1800
-        );
-        return;
-    }
-
-    const game =
-        gameElement?.textContent.trim() || "Lottery";
-
-    const drawDetails =
-        drawElement?.textContent.trim() || "";
-
-    const activeDateRange =
-        isGhana
-            ? ghanaPredictionDateRange
-            : modernPredictionDateRange;
-
-    const period =
-        activeDateRange.from || activeDateRange.to
-            ? `${activeDateRange.from || "earliest"} to ${activeDateRange.to || "latest"}`
-            : isGhana
-                ? "Scheduled weekday game's complete history"
-                : "Recent same-game evidence, machine conversion and controlled same-day context";
-
-    const forecastLabel = isGhana
-        ? "Weekday game-pattern forecast"
-        : "Evidence Fusion forecast";
-
-    const text = [
-        `${game} Game Prediction`,
-        drawDetails,
-        `2 Sure Numbers: ${sureNumbers.join("-")}`,
-        `3 Direct Sure Numbers: ${directSureNumbers.join("-")}`,
-        `${forecastLabel}: ${numbers.join("-")}`,
-        `Historical period: ${period}`,
-        "Statistical insight only — not a guaranteed result.",
-        "View prediction details:"
-    ].filter(Boolean).join("\n");
-
-    try {
-        if (navigator.share) {
-            await navigator.share({
-                title: `${game} Game Prediction`,
-                text,
-                url: PREDICTIONS_SHARE_URL
-            });
-            return;
-        }
-
-        await navigator.clipboard.writeText(
-            `${text}\n${PREDICTIONS_SHARE_URL}`
-        );
-
-        button.textContent = "Copied!";
-        setTimeout(
-            () => button.textContent = "Share Prediction",
-            1800
-        );
-    }
-    catch (error) {
-        if (error && error.name === "AbortError") {
-            return;
-        }
-
-        console.error("PREDICTION SHARE FAILED:", error);
-    }
-}
-
-
-document.addEventListener("click", function (event) {
-
-    const button =
-        event.target.closest("[data-share-prediction]");
-
-    if (button) {
-        shareGamePrediction(button);
-    }
-});
+let predictionDateRange = { from: "", to: "" };
 
 
 // =========================================================
@@ -576,156 +386,66 @@ function getTomorrowDateString() {
 }
 
 
-function shiftDateString(dateString, numberOfDays) {
-    const [year, month, day] = String(dateString)
-        .split("-")
-        .map(Number);
-
-    if (![year, month, day].every(Number.isFinite)) {
-        return "";
-    }
-
-    const date = new Date(Date.UTC(year, month - 1, day));
-    date.setUTCDate(date.getUTCDate() + numberOfDays);
-
-    return makeDateString(
-        date.getUTCFullYear(),
-        date.getUTCMonth() + 1,
-        date.getUTCDate()
-    );
-}
-
-
-function formatPredictionDetailDate(dateValue) {
-
-    const value = String(dateValue || "").slice(0, 10);
-
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return "Unavailable";
-    }
-
-    return new Intl.DateTimeFormat(
-        "en-GB",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            timeZone: "UTC"
-        }
-    ).format(new Date(`${value}T00:00:00Z`));
-}
-
-
-function getPredictionDataWindow(history) {
-
-    const dates = (Array.isArray(history) ? history : [])
-        .map(result => String(result?.draw_date || "").slice(0, 10))
-        .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date))
-        .sort();
-
-    if (!dates.length) {
-        return "No records available";
-    }
-
-    const first = formatPredictionDetailDate(dates[0]);
-    const last = formatPredictionDetailDate(dates[dates.length - 1]);
-
-    return first === last ? first : `${first} – ${last}`;
-}
-
-
-function formatPredictionGeneratedTime(value) {
-
-    const date = value ? new Date(value) : new Date();
-
-    if (Number.isNaN(date.getTime())) {
-        return "Unavailable";
-    }
-
-    return `${new Intl.DateTimeFormat(
-        "en-GB",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hourCycle: "h23",
-            timeZone: "Africa/Lagos"
-        }
-    ).format(date)} WAT`;
-}
-
-
-function updatePredictionRunDetails({
-    engineElement,
-    windowElement,
-    generatedElement,
-    engineLabel,
-    history,
-    generatedAt
-}) {
-
-    if (engineElement) {
-        engineElement.textContent = engineLabel;
-    }
-
-    if (windowElement) {
-        windowElement.textContent = getPredictionDataWindow(history);
-    }
-
-    if (generatedElement) {
-        generatedElement.textContent = formatPredictionGeneratedTime(generatedAt);
-    }
-}
-
-
-function getSavedEngineLabel(snapshot, fallbackLabel) {
-
-    if (!snapshot) {
-        return fallbackLabel;
-    }
-
-    const version = String(snapshot.engine_version || "v2").toUpperCase();
-    const profile = String(snapshot.engine_profile || "balanced")
-        .replace(/(^|[-_\s])\w/g, match => match.toUpperCase());
-
-    return `${version} Saved (${profile})`;
-}
-
-
 // =========================================================
 // PARSE DATABASE NUMBERS
 // =========================================================
 
 function parsePredictionNumbers(data) {
-    if (data === null || data === undefined) {
+
+    if (
+        data === null ||
+        data === undefined
+    ) {
         return [];
     }
 
+
+    let numbers = [];
+
+
     if (Array.isArray(data)) {
-        return data
-            .map(Number)
-            .filter(number =>
-                Number.isInteger(number) &&
-                number >= 1 &&
-                number <= 90
-            );
+
+        numbers = data;
+
     }
 
-    if (typeof data === "string") {
-        const matches = data.match(/\b\d{1,2}\b/g) || [];
+    else if (
+        typeof data === "string"
+    ) {
 
-        return matches
-            .map(Number)
-            .filter(number =>
-                Number.isInteger(number) &&
-                number >= 1 &&
-                number <= 90
-            );
+        const matches =
+            data.match(/\d+/g);
+
+        if (matches) {
+            numbers = matches;
+        }
+
     }
 
-    return [];
+    else if (
+        typeof data === "object"
+    ) {
+
+        const matches =
+            JSON.stringify(data)
+                .match(/\d+/g);
+
+        if (matches) {
+            numbers = matches;
+        }
+
+    }
+
+
+    return numbers
+
+        .map(number => Number(number))
+
+        .filter(number =>
+            Number.isInteger(number) &&
+            number >= 1 &&
+            number <= 90
+        );
 }
 
 
@@ -1032,22 +752,11 @@ function updateCountdown(
 // FETCH HISTORICAL RESULTS
 // =========================================================
 
-async function fetchPredictionHistory(
-    game,
-    dateRange = null
-) {
+async function fetchPredictionHistory(game) {
 
     if (!game) {
         return [];
     }
-
-
-    const activeDateRange =
-        dateRange || (
-            game.lottery === "ghana"
-                ? ghanaPredictionDateRange
-                : modernPredictionDateRange
-        );
 
 
     try {
@@ -1090,30 +799,12 @@ async function fetchPredictionHistory(
 
         }
 
-        const customRangeActive = Boolean(
-            activeDateRange.from || activeDateRange.to
-        );
-
-        if (
-            game.lottery === "modern-billionaire" &&
-            !customRangeActive
-        ) {
-            query = query
-                .gte(
-                    "draw_date",
-                    shiftDateString(game.drawDate, -90)
-                )
-                .lt("draw_date", game.drawDate);
+        if (predictionDateRange.from) {
+            query = query.gte("draw_date", predictionDateRange.from);
         }
 
-        else {
-            if (activeDateRange.from) {
-                query = query.gte("draw_date", activeDateRange.from);
-            }
-
-            if (activeDateRange.to) {
-                query = query.lte("draw_date", activeDateRange.to);
-            }
+        if (predictionDateRange.to) {
+            query = query.lte("draw_date", predictionDateRange.to);
         }
 
 
@@ -1164,123 +855,47 @@ async function fetchPredictionHistory(
 
 
 // =========================================================
-// BUNDLED GHANA HISTORY
-// Validated ASEDA and National winning + machine records.
+// GHANA HISTORY FALLBACK
+// Uses all Ghana winning results when a scheduled game has
+// no saved history in the selected period.
 // =========================================================
 
-let bundledGhanaHistoryPromise = null;
+async function fetchGhanaFallbackHistory() {
+    try {
+        let query = supabaseClient
+            .from("results")
+            .select("game, lottery, draw_date, winning, machine")
+            .eq("lottery", "ghana");
 
-function parseGhanaHistoryCsv(csvText) {
-    return csvText
-        .trim()
-        .split(/\r?\n/)
-        .slice(1)
-        .map(line => {
-            const [lottery, game, drawDate, winning, machine] =
-                line.split(",");
+        if (predictionDateRange.from) {
+            query = query.gte("draw_date", predictionDateRange.from);
+        }
 
-            return {
-                lottery,
-                game,
-                draw_date: drawDate,
-                winning,
-                machine
-            };
-        })
-        .filter(result =>
-            result.lottery === "ghana" &&
-            result.game &&
-            result.draw_date
-        );
-}
+        if (predictionDateRange.to) {
+            query = query.lte("draw_date", predictionDateRange.to);
+        }
 
-async function fetchBundledGhanaHistory() {
-    if (!bundledGhanaHistoryPromise) {
-        bundledGhanaHistoryPromise =
-            fetch("data/ghana-history.csv?v=6", { cache: "no-cache" })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Bundled Ghana history could not be loaded");
-                    }
+        const { data, error } = await query
+            .order("draw_date", { ascending: false })
+            .limit(500);
 
-                    return response.text();
-                })
-                .then(parseGhanaHistoryCsv)
-                .catch(error => {
-                    console.error("Bundled Ghana history error:", error);
-                    bundledGhanaHistoryPromise = null;
-                    return [];
-                });
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
     }
 
-    return bundledGhanaHistoryPromise;
+    catch (error) {
+        console.error("Ghana fallback history error:", error);
+        return [];
+    }
 }
 
-function mergeGhanaHistory(...collections) {
-    const merged = new Map();
-
-    collections
-        .flat()
-        .forEach(result => {
-            if (!result || !result.game || !result.draw_date) {
-                return;
-            }
-
-            const key =
-                `${String(result.game).trim().toUpperCase()}|${result.draw_date}`;
-
-            // The first collection is authoritative for overlapping draws.
-            // Owner-verified bundled Ghana archives are passed first.
-            if (!merged.has(key)) {
-                merged.set(key, result);
-            }
-        });
-
-    return [...merged.values()]
-        .sort((a, b) =>
-            String(b.draw_date).localeCompare(String(a.draw_date))
-        );
-}
-
-function filterHistoryByDateRange(
-    results,
-    dateRange
-) {
-    const from = dateRange?.from || "";
-    const to = dateRange?.to || "";
-
-    return (Array.isArray(results) ? results : [])
-        .filter(result => {
-            const drawDate = String(result?.draw_date || "").slice(0, 10);
-
-            if (from && drawDate < from) {
-                return false;
-            }
-
-            if (to && drawDate > to) {
-                return false;
-            }
-
-            return true;
-        });
-}
 
 // =========================================================
 // TODAY'S EARLIER PUBLISHED GAMES
 // =========================================================
-
-function getEarlierGameNamesForPrediction(game) {
-    if (!game) {
-        return [];
-    }
-
-    return getTodaysGames()
-        .filter(item =>
-            item.lottery === game.lottery &&
-            item.drawMinutes < game.drawMinutes
-        )
-        .flatMap(item => item.databaseNames || [item.game]);
-}
 
 async function fetchTodaysEarlierResults(game) {
 
@@ -1288,7 +903,12 @@ async function fetchTodaysEarlierResults(game) {
         return [];
     }
 
-    const earlierGameNames = getEarlierGameNamesForPrediction(game);
+    const earlierGameNames = getTodaysGames()
+        .filter(item =>
+            item.lottery === game.lottery &&
+            item.drawMinutes < game.drawMinutes
+        )
+        .flatMap(item => item.databaseNames || [item.game]);
 
     if (!earlierGameNames.length) {
         return [];
@@ -1297,7 +917,7 @@ async function fetchTodaysEarlierResults(game) {
     try {
         const { data, error } = await supabaseClient
             .from("results")
-            .select("game, lottery, draw_date, winning, machine, created_at")
+            .select("game, lottery, draw_date, winning, machine")
             .eq("lottery", game.lottery)
             .eq("draw_date", game.drawDate)
             .in("game", [...new Set(earlierGameNames)]);
@@ -1317,221 +937,21 @@ async function fetchTodaysEarlierResults(game) {
 
 
 // =========================================================
-// FIVE-MINUTE POST-RESULT COOLING PERIOD
+// MODERN BILLIONAIRE CLASSIFICATION CHART
+// 60% statistics + 30% classification + 10% moving numbers
 // =========================================================
 
-function getPublishedResultKey(result) {
-    if (!result) {
-        return "";
-    }
-
-    return [
-        result.draw_date || "",
-        result.lottery || "",
-        result.game || "",
-        result.created_at || ""
-    ].join("|");
-}
-
-function getLatestPublishedResult(results) {
-    return (Array.isArray(results) ? results : [])
-        .filter(result => Number.isFinite(Date.parse(result?.created_at || "")))
-        .sort((a, b) =>
-            Date.parse(b.created_at) - Date.parse(a.created_at)
-        )[0] || null;
-}
-
-function getPredictionCooldownState(results) {
-    const latestResult = getLatestPublishedResult(results);
-    const publishedAt = Date.parse(latestResult?.created_at || "");
-    const expiresAt = Number.isFinite(publishedAt)
-        ? publishedAt + PREDICTION_COOLDOWN_MS
-        : 0;
-
-    return {
-        latestResult,
-        expiresAt,
-        active: expiresAt > Date.now()
-    };
-}
-
-function stopModernPredictionCooldown() {
-    if (modernPredictionCooldownTimer) {
-        clearInterval(modernPredictionCooldownTimer);
-        modernPredictionCooldownTimer = null;
-    }
-
-    modernPredictionCooldownUntil = 0;
-}
-
-function setModernPredictionShareDisabled(disabled) {
-    if (!modernPredictionShareButton) {
-        return;
-    }
-
-    modernPredictionShareButton.disabled = disabled;
-    modernPredictionShareButton.setAttribute(
-        "aria-disabled",
-        String(disabled)
-    );
-}
-
-function startModernPredictionCooldown(latestResult, expiresAt) {
-    stopModernPredictionCooldown();
-
-    modernPredictionCooldownUntil = expiresAt;
-    setModernPredictionShareDisabled(true);
-
-    const renderCooldown = () => {
-        const remainingMilliseconds =
-            Math.max(0, modernPredictionCooldownUntil - Date.now());
-
-        if (remainingMilliseconds <= 0) {
-            stopModernPredictionCooldown();
-            setModernPredictionShareDisabled(false);
-            displayNextGamePrediction();
-            return;
-        }
-
-        const remainingSeconds = Math.ceil(remainingMilliseconds / 1000);
-        const minutes = Math.floor(remainingSeconds / 60);
-        const seconds = remainingSeconds % 60;
-        const countdown =
-            `${String(minutes).padStart(2, "0")}:` +
-            `${String(seconds).padStart(2, "0")}`;
-
-        if (nextGameBalls) {
-            nextGameBalls.innerHTML = `
-                <div class="prediction-cooldown" role="status" aria-live="polite">
-                    <span class="prediction-cooldown-label">NEW RESULT PUBLISHED</span>
-                    <strong>Updating the next forecast</strong>
-                    <span class="prediction-cooldown-time">${countdown}</span>
-                    <small>The five predicted numbers will appear after the five-minute analysis period.</small>
-                </div>
-            `;
-        }
-
-        if (predictionAnalysisList) {
-            predictionAnalysisList.innerHTML = `
-                <p class="analysis-loading prediction-cooldown-analysis">
-                    The engine is analysing the newly published result before releasing its next five-number forecast.
-                </p>
-            `;
-        }
-
-        if (modernGeneratedTime) {
-            modernGeneratedTime.textContent = `Available in ${countdown}`;
-        }
-    };
-
-    renderCooldown();
-    modernPredictionCooldownTimer = setInterval(renderCooldown, 1000);
-
-    console.info(
-        `Prediction paused after ${latestResult?.game || "a new result"} until`,
-        new Date(expiresAt).toISOString()
-    );
-}
-
-async function checkForNewPublishedModernResult() {
-    const nextGame = getNextPredictionGame();
-
-    if (!nextGame || nextGame.lottery !== "modern-billionaire") {
-        return;
-    }
-
-    const todayResults = await fetchTodaysEarlierResults(nextGame);
-    const latestResult = getLatestPublishedResult(todayResults);
-    const latestKey = getPublishedResultKey(latestResult);
-
-    if (!latestKey) {
-        return;
-    }
-
-    if (latestKey !== lastObservedModernResultKey) {
-        lastObservedModernResultKey = latestKey;
-        await displayNextGamePrediction();
-    }
-}
-
-async function subscribeToModernResultUpdates() {
-    if (!supabaseClient?.channel) {
-        return;
-    }
-
-    if (modernResultsRealtimeChannel) {
-        const previousChannel = modernResultsRealtimeChannel;
-        modernResultsRealtimeChannel = null;
-
-        try {
-            await supabaseClient.removeChannel(previousChannel);
-        }
-
-        catch (error) {
-            console.warn("Previous prediction channel cleanup failed:", error);
-        }
-    }
-
-    const handlePublishedResult = payload => {
-        const result = payload?.new;
-        const nextGame = getNextPredictionGame();
-
-        if (
-            !result ||
-            !nextGame ||
-            result.lottery !== nextGame.lottery ||
-            String(result.draw_date || "").slice(0, 10) !== nextGame.drawDate
-        ) {
-            return;
-        }
-
-        const earlierGameNames = new Set(
-            getEarlierGameNamesForPrediction(nextGame)
-        );
-
-        if (!earlierGameNames.has(result.game)) {
-            return;
-        }
-
-        const resultKey = getPublishedResultKey(result);
-
-        if (resultKey && resultKey !== lastObservedModernResultKey) {
-            lastObservedModernResultKey = resultKey;
-            displayNextGamePrediction();
-        }
-    };
-
-    modernResultsRealtimeChannel = supabaseClient
-        .channel("modern-prediction-result-updates")
-        .on(
-            "postgres_changes",
-            { event: "INSERT", schema: "public", table: "results" },
-            handlePublishedResult
-        )
-        .on(
-            "postgres_changes",
-            { event: "UPDATE", schema: "public", table: "results" },
-            handlePublishedResult
-        )
-        .subscribe();
-}
-
-
-// =========================================================
-// MODERN EVIDENCE INPUT TABLES
-// Classification and moving-number relationships used by Evidence Fusion v1.
-// =========================================================
-
-const MODERN_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1.1 • EF-D";
-const MODERN_RANGE_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1.1 • Custom Range";
-
-const GHANA_GAME_PATTERN_WEIGHTS = Object.freeze({
-    statistical: 0.30,
-    pattern: 0.50,
-    moving: 0.20
+const MODERN_PREDICTION_WEIGHTS = Object.freeze({
+    statistical: 0.60,
+    classification: 0.30,
+    moving: 0.10
 });
 
-const GHANA_PREDICTION_ENGINE_LABEL = "Weekday game pattern";
+const GHANA_PREDICTION_WEIGHTS = Object.freeze({
+    statistical: 0.70,
+    classification: 0.25,
+    moving: 0.05
+});
 
 const MODERN_CLASSIFICATION_CATEGORY_NAMES = Object.freeze([
     "counterpart",
@@ -1721,38 +1141,306 @@ function normalizePredictionComponent(scoreMap, property) {
     });
 }
 
-// =========================================================
-// MODERN BILLIONAIRE — EVIDENCE FUSION v1 (ACTIVE)
-// EF-F profile selected after chronological walk-forward validation.
-// 45% recent same-game evidence
-// 20% machine -> future-winning conversion
-// 20% cross-confirmation (same-game + controlled same-day evidence)
-// 10% classification support
-// 5% moving-number support
-// plus a small multi-signal evidence-breadth bonus.
-// =========================================================
+function addModernRelationshipScores(scoreMap, sourceNumber, weight) {
+    const relationships = MODERN_CLASSIFICATION_CHART[sourceNumber];
 
-function calculateModernEvidenceFusionPrediction(
-    history,
-    todayResults = [],
-    drawDate = "",
-    rangeMode = false
-) {
-    const engine = globalThis.JolsModernEvidenceEngine;
-
-    if (!engine || typeof engine.predict !== "function") {
-        throw new Error("Modern Evidence Fusion engine core is unavailable");
+    if (relationships) {
+        Object.values(relationships).forEach(target => {
+            if (target >= 1 && target <= 90) {
+                scoreMap[target].classificationScore += weight;
+            }
+        });
     }
 
-    return engine.predict({
-        history,
-        todayResults,
-        drawDate,
-        rangeMode,
-        classificationChart: MODERN_CLASSIFICATION_CHART,
-        movingGraph: MODERN_MOVING_GRAPH
+    (MODERN_MOVING_GRAPH[sourceNumber] || []).forEach(target => {
+        scoreMap[target].movingScore += weight;
     });
 }
+
+function applyModernClassificationRanking(
+    scoreMap,
+    results,
+    todayResults,
+    predictionWeights = MODERN_PREDICTION_WEIGHTS,
+    contextResults = [],
+    includeMachineRelationships = true
+) {
+    const signalResults = [
+        ...todayResults.map(result => ({
+            result,
+            weight: 2.5
+        })),
+        ...contextResults.slice(0, 3).map((result, index) => ({
+            result,
+            weight: Math.max(0.75, 1.35 - (index * 0.20))
+        })),
+        ...results.slice(0, 5).map((result, index) => ({
+            result,
+            weight: Math.max(0.35, 1 - (index * 0.15))
+        }))
+    ];
+
+    signalResults.forEach(({ result, weight }) => {
+        parsePredictionNumbers(result.winning).forEach(number => {
+            addModernRelationshipScores(scoreMap, number, weight);
+        });
+
+        if (includeMachineRelationships) {
+            parsePredictionNumbers(result.machine).forEach(number => {
+                addModernRelationshipScores(scoreMap, number, weight * 0.45);
+            });
+        }
+    });
+
+    Object.values(scoreMap).forEach(item => {
+        item.statisticalScore = item.totalScore;
+    });
+
+    normalizePredictionComponent(scoreMap, "statisticalScore");
+    normalizePredictionComponent(scoreMap, "classificationScore");
+    normalizePredictionComponent(scoreMap, "movingScore");
+
+    Object.values(scoreMap).forEach(item => {
+        item.totalScore =
+            (item.statisticalScoreNormalized * predictionWeights.statistical) +
+            (item.classificationScoreNormalized * predictionWeights.classification) +
+            (item.movingScoreNormalized * predictionWeights.moving);
+    });
+}
+
+
+// =========================================================
+// STATISTICAL PREDICTION ALGORITHM
+// =========================================================
+
+function calculateStatisticalPrediction(
+    results,
+    todayResults = [],
+    useModernClassification = false,
+    predictionWeights = MODERN_PREDICTION_WEIGHTS,
+    contextResults = [],
+    includeMachineRelationships = true
+) {
+
+    const scoreMap = {};
+
+
+    for (
+        let number = 1;
+        number <= 90;
+        number++
+    ) {
+
+        scoreMap[number] = {
+
+            number: number,
+
+            winningFrequency: 0,
+
+            machineFrequency: 0,
+
+            todayFrequency: 0,
+
+            recentScore: 0,
+
+            statisticalScore: 0,
+
+            classificationScore: 0,
+
+            movingScore: 0,
+
+            totalScore: 0
+
+        };
+
+    }
+
+
+    results.forEach(
+        (result, index) => {
+
+
+            const winningNumbers =
+                parsePredictionNumbers(
+                    result.winning
+                );
+
+
+            const machineNumbers =
+                parsePredictionNumbers(
+                    result.machine
+                );
+
+
+            const recencyWeight =
+                Math.max(
+                    0.25,
+                    1 -
+                    (
+                        index /
+                        Math.max(
+                            results.length,
+                            1
+                        )
+                    ) *
+                    0.75
+                );
+
+
+            winningNumbers.forEach(
+                number => {
+
+                    scoreMap[
+                        number
+                    ].winningFrequency += 1;
+
+
+                    scoreMap[
+                        number
+                    ].recentScore +=
+                        2.4 *
+                        recencyWeight;
+
+                }
+            );
+
+
+            machineNumbers.forEach(
+                number => {
+
+                    scoreMap[
+                        number
+                    ].machineFrequency += 1;
+
+
+                    scoreMap[
+                        number
+                    ].recentScore +=
+                        0.7 *
+                        recencyWeight;
+
+                }
+            );
+
+        }
+    );
+
+    // Same-day results carry extra recency weight because they reflect
+    // the number activity immediately before the upcoming game.
+    const todayWinningWeight = Math.max(7, results.length * 0.09);
+    const todayMachineWeight = Math.max(2, results.length * 0.025);
+
+    todayResults.forEach(result => {
+        const winningNumbers = parsePredictionNumbers(result.winning);
+        const machineNumbers = parsePredictionNumbers(result.machine);
+
+        winningNumbers.forEach(number => {
+            scoreMap[number].todayFrequency += 1;
+            scoreMap[number].recentScore += todayWinningWeight;
+        });
+
+        machineNumbers.forEach(number => {
+            scoreMap[number].todayFrequency += 0.35;
+            scoreMap[number].recentScore += todayMachineWeight;
+        });
+    });
+
+
+    Object.values(
+        scoreMap
+    ).forEach(item => {
+
+
+        item.totalScore =
+
+            (
+                item.winningFrequency *
+                3.5
+            )
+
+            +
+
+            (
+                item.machineFrequency *
+                0.8
+            )
+
+            +
+
+            item.recentScore;
+
+    });
+
+
+    if (useModernClassification) {
+        applyModernClassificationRanking(
+            scoreMap,
+            results,
+            todayResults,
+            predictionWeights,
+            contextResults,
+            includeMachineRelationships
+        );
+    }
+
+
+    const rankedNumbers =
+        Object.values(
+            scoreMap
+        )
+
+            .sort(
+                (a, b) => {
+
+                    if (
+                        b.totalScore !==
+                        a.totalScore
+                    ) {
+
+                        return (
+                            b.totalScore -
+                            a.totalScore
+                        );
+
+                    }
+
+
+                    return (
+                        a.number -
+                        b.number
+                    );
+
+                }
+            );
+
+
+    return {
+
+        predictedNumbers:
+            rankedNumbers
+
+                .slice(0, 5)
+
+                .map(
+                    item =>
+                        item.number
+                )
+
+                .sort(
+                    (a, b) =>
+                        a - b
+                ),
+
+        rankedData:
+            rankedNumbers,
+
+        scoreMap:
+            scoreMap
+
+    };
+
+}
+
 
 // =========================================================
 // STRENGTH LABEL
@@ -1820,34 +1508,21 @@ function getPredictionStrength(
 // DISPLAY BALLS
 // =========================================================
 
-function getPredictionTiers(predictionData) {
-    const rankedNumbers =
-        Array.isArray(predictionData?.rankedData)
-            ? predictionData.rankedData
-                .slice(0, 5)
-                .map(item => Number(item.number))
-                .filter(Number.isInteger)
-            : [];
+function displayPredictionBalls(
+    numbers
+) {
 
-    return {
-        sureNumbers: rankedNumbers.slice(0, 2),
-        directSureNumbers: rankedNumbers.slice(2, 5)
-    };
-}
+    if (!nextGameBalls) {
+        return;
+    }
 
-
-function predictionTierMarkup(predictionData) {
-    const {
-        sureNumbers,
-        directSureNumbers
-    } = getPredictionTiers(predictionData);
 
     if (
-        sureNumbers.length !== 2
-        ||
-        directSureNumbers.length !== 3
+        !numbers ||
+        numbers.length < 5
     ) {
-        return `
+
+        nextGameBalls.innerHTML = `
 
             <span
                 style="
@@ -1859,58 +1534,34 @@ function predictionTierMarkup(predictionData) {
             </span>
 
         `;
+
+
+        return;
+
     }
 
-    const renderBalls = numbers =>
+
+    nextGameBalls.innerHTML =
         numbers
+
             .map(
                 number => `
 
-                    <span class="number-ball">
-                        ${String(number).padStart(2, "0")}
+                    <span
+                        class="number-ball"
+                    >
+                        ${String(
+                            number
+                        ).padStart(
+                            2,
+                            "0"
+                        )}
                     </span>
 
                 `
             )
+
             .join("");
-
-    return `
-
-        <div class="prediction-tier prediction-tier-sure">
-            <span class="prediction-tier-title">
-                2 Sure Numbers
-            </span>
-
-            <div class="prediction-tier-balls">
-                ${renderBalls(sureNumbers)}
-            </div>
-        </div>
-
-        <div class="prediction-tier prediction-tier-direct">
-            <span class="prediction-tier-title">
-                3 Direct Sure Numbers
-            </span>
-
-            <div class="prediction-tier-balls">
-                ${renderBalls(directSureNumbers)}
-            </div>
-        </div>
-
-    `;
-}
-
-
-function displayPredictionBalls(
-    predictionData,
-    container = nextGameBalls
-) {
-
-    if (!container) {
-        return;
-    }
-
-    container.classList.add("prediction-tier-grid");
-    container.innerHTML = predictionTierMarkup(predictionData);
 
 }
 
@@ -2087,35 +1738,13 @@ function displayPredictionAnalysis(
                                     <div>
 
                                         <span>
-                                            Same-Game Evidence
+                                            Recent Activity Score
                                         </span>
 
                                         <strong>
-                                            ${Number(item.sameGameScoreNormalized ?? item.recentScore ?? 0).toFixed(1)}
-                                        </strong>
-
-                                    </div>
-
-                                    <div>
-
-                                        <span>
-                                            Machine → Winning Conversion
-                                        </span>
-
-                                        <strong>
-                                            ${Number(item.machineConversionScoreNormalized ?? 0).toFixed(1)}
-                                        </strong>
-
-                                    </div>
-
-                                    <div>
-
-                                        <span>
-                                            Cross Confirmation
-                                        </span>
-
-                                        <strong>
-                                            ${Number(item.crossConfirmationScoreNormalized ?? 0).toFixed(1)}
+                                            ${item.recentScore.toFixed(
+                                                1
+                                            )}
                                         </strong>
 
                                     </div>
@@ -2210,16 +1839,6 @@ function getLotteryDisplayName(
 }
 
 
-
-function hasCustomPredictionRange(
-    dateRange = modernPredictionDateRange
-) {
-    return Boolean(
-        dateRange &&
-        (dateRange.from || dateRange.to)
-    );
-}
-
 // =========================================================
 // DISPLAY NEXT GAME
 // =========================================================
@@ -2296,53 +1915,10 @@ async function displayNextGamePrediction() {
 
     try {
 
-        const customRangeActive = hasCustomPredictionRange(
-            modernPredictionDateRange
-        );
-
-        const [
-            history,
-            todayResults
-        ] = await Promise.all([
+        const [history, todayResults] = await Promise.all([
             fetchPredictionHistory(nextGame),
             fetchTodaysEarlierResults(nextGame)
         ]);
-
-        const latestTodayResult = getLatestPublishedResult(todayResults);
-
-        if (latestTodayResult) {
-            lastObservedModernResultKey =
-                getPublishedResultKey(latestTodayResult);
-        }
-
-
-        updatePredictionRunDetails({
-            engineElement: modernEngineVersion,
-            windowElement: modernDataWindow,
-            generatedElement: modernGeneratedTime,
-            engineLabel: customRangeActive
-                ? MODERN_RANGE_PREDICTION_ENGINE_LABEL
-                : MODERN_PREDICTION_ENGINE_LABEL,
-            history,
-            generatedAt: null
-        });
-
-        const cooldownState = getPredictionCooldownState(todayResults);
-
-        if (cooldownState.active) {
-            if (analysisTodayCount) {
-                analysisTodayCount.textContent = todayResults.length;
-            }
-
-            startModernPredictionCooldown(
-                cooldownState.latestResult,
-                cooldownState.expiresAt
-            );
-            return;
-        }
-
-        stopModernPredictionCooldown();
-        setModernPredictionShareDisabled(false);
 
 
         if (
@@ -2387,21 +1963,15 @@ async function displayNextGamePrediction() {
 
 
         const predictionData =
-            calculateModernEvidenceFusionPrediction(
+            calculateStatisticalPrediction(
                 history,
                 todayResults,
-                nextGame.drawDate,
-                customRangeActive
+                true
             );
-
-        if (customRangeActive && nextGameDrawTime) {
-            nextGameDrawTime.textContent =
-                `${getLotteryDisplayName(nextGame.lottery)} • Draw Time: ${nextGame.drawTime} • Evidence Fusion range`;
-        }
 
 
         displayPredictionBalls(
-            predictionData
+            predictionData.predictedNumbers
         );
 
 
@@ -2446,172 +2016,6 @@ async function displayNextGamePrediction() {
 
     }
 
-}
-
-
-// =========================================================
-// GHANA WEEKDAY GAME-PATTERN PREDICTION
-// Each scheduled game uses only its own historical results.
-// 30% own-game statistics + 50% own-game pattern + 20% movement.
-// =========================================================
-
-function calculateGhanaGamePatternPrediction(results) {
-    const scoreMap = {};
-
-    for (let number = 1; number <= 90; number++) {
-        scoreMap[number] = {
-            number,
-            statisticalScore: 0,
-            patternScore: 0,
-            movingScore: 0,
-            totalScore: 0
-        };
-    }
-
-    const orderedResults = [...results]
-        .sort((a, b) =>
-            String(b.draw_date || "").localeCompare(
-                String(a.draw_date || "")
-            )
-        );
-
-    const parsedDraws = orderedResults.map(result => ({
-        winning: parsePredictionNumbers(result.winning),
-        machine: parsePredictionNumbers(result.machine)
-    }));
-
-    parsedDraws.forEach((draw, index) => {
-        const recencyWeight =
-            Math.max(
-                0.35,
-                1 - (
-                    index /
-                    Math.max(parsedDraws.length, 1)
-                ) * 0.65
-            );
-
-        draw.winning.forEach(number => {
-            scoreMap[number].statisticalScore += 2.5 * recencyWeight;
-        });
-
-        draw.machine.forEach(number => {
-            scoreMap[number].statisticalScore += 0.75 * recencyWeight;
-        });
-    });
-
-    const latestWinningNumbers = parsedDraws[0]?.winning || [];
-    const latestWinningSet = new Set(latestWinningNumbers);
-
-    // Learn recurrence gaps separately for this weekday game.
-    for (let number = 1; number <= 90; number++) {
-        const appearances = [];
-
-        parsedDraws.forEach((draw, index) => {
-            if (draw.winning.includes(number)) {
-                appearances.push(index);
-            }
-        });
-
-        if (appearances.length >= 2) {
-            const gaps = appearances
-                .slice(0, -1)
-                .map((index, position) =>
-                    appearances[position + 1] - index
-                );
-            const averageGap =
-                gaps.reduce((sum, gap) => sum + gap, 0) /
-                Math.max(gaps.length, 1);
-            const currentGap = appearances[0];
-            const distance = Math.abs(currentGap - averageGap);
-
-            scoreMap[number].patternScore +=
-                Math.max(0, 2.5 - (distance / Math.max(averageGap, 1)));
-        }
-    }
-
-    // Learn which numbers recur beside the latest game's number groups.
-    parsedDraws.slice(1).forEach((draw, index) => {
-        const recencyWeight = Math.max(0.3, 1 - (index * 0.025));
-        const exactMatches = draw.winning
-            .filter(number => latestWinningSet.has(number))
-            .length;
-
-        draw.winning.forEach(candidate => {
-            const relatedAnchors = latestWinningNumbers
-                .filter(anchor =>
-                    anchor % 10 === candidate % 10 ||
-                    Math.floor((anchor - 1) / 10) ===
-                        Math.floor((candidate - 1) / 10)
-                )
-                .length;
-
-            scoreMap[candidate].patternScore +=
-                ((exactMatches * 0.8) + (relatedAnchors * 0.2)) *
-                recencyWeight;
-        });
-    });
-
-    // Learn draw-to-draw movements from this game only, then apply the
-    // strongest historical movements to its latest winning numbers.
-    const movementFrequency = new Map();
-
-    for (let index = parsedDraws.length - 1; index > 0; index--) {
-        const olderDraw = parsedDraws[index];
-        const newerDraw = parsedDraws[index - 1];
-
-        olderDraw.winning.forEach(source => {
-            newerDraw.winning.forEach(target => {
-                const movement = (target - source + 90) % 90;
-
-                if (movement > 0) {
-                    movementFrequency.set(
-                        movement,
-                        (movementFrequency.get(movement) || 0) + 1
-                    );
-                }
-            });
-        });
-    }
-
-    const strongestMovements = [...movementFrequency.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-
-    latestWinningNumbers.forEach(source => {
-        strongestMovements.forEach(([movement, frequency]) => {
-            const target = ((source + movement - 1) % 90) + 1;
-            scoreMap[target].movingScore += frequency;
-        });
-    });
-
-    normalizePredictionComponent(scoreMap, "statisticalScore");
-    normalizePredictionComponent(scoreMap, "patternScore");
-    normalizePredictionComponent(scoreMap, "movingScore");
-
-    Object.values(scoreMap).forEach(item => {
-        item.totalScore =
-            (item.statisticalScoreNormalized * GHANA_GAME_PATTERN_WEIGHTS.statistical) +
-            (item.patternScoreNormalized * GHANA_GAME_PATTERN_WEIGHTS.pattern) +
-            (item.movingScoreNormalized * GHANA_GAME_PATTERN_WEIGHTS.moving);
-    });
-
-    const rankedNumbers =
-        Object.values(scoreMap)
-            .sort((a, b) =>
-                b.totalScore !== a.totalScore
-                    ? b.totalScore - a.totalScore
-                    : a.number - b.number
-            );
-
-    return {
-        predictedNumbers:
-            rankedNumbers
-                .slice(0, 5)
-                .map(item => item.number)
-                .sort((a, b) => a - b),
-        rankedData: rankedNumbers,
-        scoreMap
-    };
 }
 
 
@@ -2666,47 +2070,25 @@ async function displayGhanaPrediction() {
 
     try {
 
-        const [
-            databaseGameHistory,
-            bundledGhanaHistory
-        ] = await Promise.all([
-            fetchPredictionHistory(ghanaGame),
-            fetchBundledGhanaHistory()
-        ]);
-
-        const filteredBundledGhanaHistory =
-            filterHistoryByDateRange(
-                bundledGhanaHistory,
-                ghanaPredictionDateRange
-            );
-
-        const bundledGameHistory =
-            filteredBundledGhanaHistory.filter(result =>
-                String(result.game).trim().toUpperCase() ===
-                String(ghanaGame.game).trim().toUpperCase()
-            );
-
         const gameHistory =
-            mergeGhanaHistory(
-                bundledGameHistory,
-                databaseGameHistory
+            await fetchPredictionHistory(
+                ghanaGame
             );
 
-        const history = gameHistory;
+        const allGhanaHistory =
+            await fetchGhanaFallbackHistory();
 
-        const ghanaRangeActive =
-            hasCustomPredictionRange(
-                ghanaPredictionDateRange
-            );
+        const history =
+            gameHistory.length
+                ? gameHistory
+                : allGhanaHistory;
 
-        updatePredictionRunDetails({
-            engineElement: ghanaEngineVersion,
-            windowElement: ghanaDataWindow,
-            generatedElement: ghanaGeneratedTime,
-            engineLabel: GHANA_PREDICTION_ENGINE_LABEL,
-            history,
-            generatedAt: null
-        });
+        const supportingGhanaHistory =
+            gameHistory.length
+                ? allGhanaHistory
+                    .filter(result => result.game !== ghanaGame.game)
+                    .slice(0, 3)
+                : [];
 
 
         if (ghanaAnalysisDrawCount) {
@@ -2735,18 +2117,35 @@ async function displayGhanaPrediction() {
 
 
         const predictionData =
-            calculateGhanaGamePatternPrediction(history);
+            calculateStatisticalPrediction(
+                history,
+                [],
+                true,
+                GHANA_PREDICTION_WEIGHTS,
+                supportingGhanaHistory,
+                false
+            );
 
-        if (ghanaRangeActive && ghanaGameDrawTime) {
-            ghanaGameDrawTime.textContent =
-                `Ghana Games • Draw Time: ${ghanaGame.drawTime} • Weekday game-pattern range`;
+
+        if (ghanaGameBalls) {
+
+            ghanaGameBalls.innerHTML =
+
+                predictionData
+                    .predictedNumbers
+
+                    .map(
+                        number => `
+
+                            <span class="number-ball">
+                                ${String(number).padStart(2, "0")}
+                            </span>
+
+                        `
+                    )
+
+                    .join("");
         }
-
-
-        displayPredictionBalls(
-            predictionData,
-            ghanaGameBalls
-        );
 
     }
 
@@ -3028,72 +2427,44 @@ document.addEventListener(
     "DOMContentLoaded",
     async function () {
 
-        modernPredictionRangeForm?.addEventListener("submit", async event => {
+        predictionRangeForm?.addEventListener("submit", async event => {
             event.preventDefault();
 
-            let from = modernPredictionFromDate?.value || "";
-            let to = modernPredictionToDate?.value || "";
+            let from = predictionFromDate?.value || "";
+            let to = predictionToDate?.value || "";
 
             if (from && to && from > to) {
                 [from, to] = [to, from];
-                modernPredictionFromDate.value = from;
-                modernPredictionToDate.value = to;
+                predictionFromDate.value = from;
+                predictionToDate.value = to;
             }
 
-            modernPredictionDateRange = { from, to };
+            predictionDateRange = { from, to };
 
-            if (modernPredictionRangeStatus) {
-                modernPredictionRangeStatus.textContent = from || to
-                    ? `Evidence Fusion range: ${from || "earliest"} to ${to || "latest"}. Ghana history is unchanged.`
-                    : "Using recent same-game evidence, machine conversion and controlled same-day context.";
+            if (predictionRangeStatus) {
+                predictionRangeStatus.textContent = from || to
+                    ? `Historical range: ${from || "earliest"} to ${to || "latest"}. Today's earlier games are also included.`
+                    : "Using all historical results plus today's earlier published games.";
             }
 
-            await displayNextGamePrediction();
+            await Promise.all([
+            displayNextGamePrediction(),
+            displayGhanaPrediction()
+        ]);
         });
 
-        modernPredictionRangeReset?.addEventListener("click", async () => {
-            modernPredictionRangeForm?.reset();
-            modernPredictionDateRange = { from: "", to: "" };
+        predictionRangeReset?.addEventListener("click", async () => {
+            predictionRangeForm?.reset();
+            predictionDateRange = { from: "", to: "" };
 
-            if (modernPredictionRangeStatus) {
-                modernPredictionRangeStatus.textContent = "Using recent same-game evidence, machine conversion and controlled same-day context.";
+            if (predictionRangeStatus) {
+                predictionRangeStatus.textContent = "Using all historical results plus today's earlier published games.";
             }
 
-            await displayNextGamePrediction();
-        });
-
-        ghanaPredictionRangeForm?.addEventListener("submit", async event => {
-            event.preventDefault();
-
-            let from = ghanaPredictionFromDate?.value || "";
-            let to = ghanaPredictionToDate?.value || "";
-
-            if (from && to && from > to) {
-                [from, to] = [to, from];
-                ghanaPredictionFromDate.value = from;
-                ghanaPredictionToDate.value = to;
-            }
-
-            ghanaPredictionDateRange = { from, to };
-
-            if (ghanaPredictionRangeStatus) {
-                ghanaPredictionRangeStatus.textContent = from || to
-                    ? `${getGhanaPredictionGame()?.game || "Ghana game"} pattern range: ${from || "earliest"} to ${to || "latest"}. Modern history is unchanged.`
-                    : "Using all verified results for the scheduled Ghana game.";
-            }
-
-            await displayGhanaPrediction();
-        });
-
-        ghanaPredictionRangeReset?.addEventListener("click", async () => {
-            ghanaPredictionRangeForm?.reset();
-            ghanaPredictionDateRange = { from: "", to: "" };
-
-            if (ghanaPredictionRangeStatus) {
-                ghanaPredictionRangeStatus.textContent = "Using all verified results for the scheduled Ghana game.";
-            }
-
-            await displayGhanaPrediction();
+            await Promise.all([
+            displayNextGamePrediction(),
+            displayGhanaPrediction()
+        ]);
         });
 
 
@@ -3121,19 +2492,6 @@ document.addEventListener(
             displayNextGamePrediction(),
             displayGhanaPrediction()
         ]);
-
-        await subscribeToModernResultUpdates();
-
-        window.addEventListener(
-            "pagehide",
-            function () {
-                if (modernResultsRealtimeChannel) {
-                    supabaseClient.removeChannel(modernResultsRealtimeChannel);
-                    modernResultsRealtimeChannel = null;
-                }
-            },
-            { once: true }
-        );
 
 
         // Countdown every second
@@ -3195,14 +2553,6 @@ document.addEventListener(
                 displayGhanaPrediction();
             },
             120000
-        );
-
-
-        // Lightweight backup polling in case realtime delivery is unavailable.
-
-        setInterval(
-            checkForNewPublishedModernResult,
-            20000
         );
 
     }

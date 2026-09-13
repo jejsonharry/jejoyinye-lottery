@@ -2,32 +2,8 @@
 <html lang="en">
 
 <head>
-<link rel="apple-touch-icon" href="/Images/jols-logo.png?v=2">
-<meta name="apple-mobile-web-app-title" content="JOLS Lottery">
 
-    
-<script>
-(function () {
-    const path = window.location.pathname;
-
-    if (!path.endsWith(".html")) {
-        return;
-    }
-
-    const cleanPath =
-        path === "/index.html"
-            ? "/"
-            : path.slice(0, -5);
-
-    window.location.replace(
-        cleanPath +
-        window.location.search +
-        window.location.hash
-    );
-})();
-</script>
-
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
     <meta
         name="viewport"
@@ -47,56 +23,40 @@
     <!-- MAIN CSS -->
     <link
         rel="stylesheet"
-        href="style.css?v=95"
+        href="style.css?v=87"
     >
-    <link rel="stylesheet" href="public-nav-and-home-mobile-v1.css?v=2">
-    <link rel="stylesheet" href="prediction-details.css?v=1">
-    <link rel="stylesheet" href="predictions-polish.css?v=3">
-    <link rel="stylesheet" href="predictions-premium-v4.css?v=9">
 
 
     <!-- SUPABASE -->
     <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"
-        defer
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
 
     <script
         src="supabase.js"
-        defer
     ></script>
 
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="modern-evidence-engine-core.js?v=2"
-        defer
-    ></script>
-    <script
-        src="predictions.js?v=40"
+        src="predictions.js?v=15"
         defer
     ></script>
 
 
-  <link rel="canonical" href="https://jolslottery.com/predictions">
+  <link rel="canonical" href="https://jolslottery.com/predictions.html">
   <link rel="icon" href="Images/jols-logo.png" type="image/jpeg">
   <meta property="og:site_name" content="Jejoyinye Lottery Services">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Lottery Number Insights | Jejoyinye Lottery Services">
   <meta property="og:description" content="Explore statistical lottery-number trends and informational predictions. No prediction guarantees a win.">
-  <meta property="og:url" content="https://jolslottery.com/predictions">
-  <meta property="og:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
-  <meta property="og:image:secure_url" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://jolslottery.com/predictions.html">
+  <meta property="og:image" content="https://jolslottery.com/Images/jols-logo.png">
   <meta property="og:image:alt" content="Jejoyinye Lottery Services">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Lottery Number Insights | Jejoyinye Lottery Services">
   <meta name="twitter:description" content="Explore statistical lottery-number trends and informational predictions. No prediction guarantees a win.">
-  <meta name="twitter:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
-    <link rel="stylesheet" href="public-mobile-nav-final-v11.css?v=17">
-    <link rel="stylesheet" href="public-premium-texture-v1.css?v=1">
+  <meta name="twitter:image" content="https://jolslottery.com/Images/jols-logo.png">
 </head>
 
 
@@ -143,14 +103,38 @@
 ===================================================== -->
 
 <nav class="premium-nav">
+
     <div class="nav-inner">
-        <a href="/">Home</a>
-        <a href="results">Results</a>
-        <a href="predictions">Predictions</a>
-        <a href="contact">Contact</a>
-        <a href="agent">Become an Agent</a>
-        <a href="play-online">Play Online</a>
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="results.html">
+            Results
+        </a>
+
+        <a
+            href="predictions.html"
+            class="active"
+        >
+            Predictions
+        </a>
+
+        <a href="play-online.html">
+            Play Online
+        </a>
+
+        <a href="agent.html">
+            Become an Agent
+        </a>
+
+        <a href="contact.html">
+            Contact
+        </a>
+
     </div>
+
 </nav>
 
 
@@ -162,9 +146,27 @@
 
     <div class="prediction-hero-content">
 
-        <h1 class="prediction-hero-title">
-            Statistical Number Insights
-        </h1>
+        <span class="prediction-hero-badge">
+            STATISTICAL NUMBER INSIGHTS
+        </span>
+
+        <h2>
+            Lottery Prediction
+            & Number Analysis
+        </h2>
+
+        <p>
+            Explore algorithmic number combinations
+            generated from historical results, the Modern
+            classification chart and moving-number patterns.
+        </p>
+
+        <div class="prediction-hero-note">
+
+            Predictions are statistical insights only.
+            Winning numbers are never guaranteed.
+
+        </div>
 
     </div>
 
@@ -179,6 +181,42 @@
 
 
     <section class="next-prediction-section">
+
+
+        <div class="prediction-section-heading">
+
+            <span>
+                NEXT DRAW
+            </span>
+
+            <h2>
+                Upcoming Game Prediction
+            </h2>
+
+            <p>
+                Our system automatically identifies
+                the next scheduled game and displays
+                its statistical number combination.
+            </p>
+
+        </div>
+
+        <form class="prediction-range-filter" id="prediction-range-form">
+            <div class="prediction-range-field">
+                <label for="prediction-from-date">Results from</label>
+                <input type="date" id="prediction-from-date">
+            </div>
+
+            <div class="prediction-range-field">
+                <label for="prediction-to-date">Results to</label>
+                <input type="date" id="prediction-to-date">
+            </div>
+
+            <button type="submit" class="prediction-range-apply">Apply Range</button>
+            <button type="button" class="prediction-range-reset" id="prediction-range-reset">Reset</button>
+            <p id="prediction-range-status" class="prediction-range-status">Using all historical results plus today's earlier published games.</p>
+        </form>
+
 
         <div class="prediction-cards-grid">
 
@@ -218,41 +256,29 @@
                 Target Draw Time: --:--
             </p>
 
-            <form class="prediction-range-filter prediction-range-panel modern-range-panel" id="modern-prediction-range-form">
-                <div class="prediction-range-heading">
-                    <span>MODERN DATA RANGE</span>
-                    <strong>Analyse Modern Billionaire history</strong>
+
+            <!-- COUNTDOWN -->
+
+            <div class="prediction-countdown-box">
+
+                <p>
+                    Time Remaining Until Draw
+                </p>
+
+                <div id="countdown-timer">
+                    00:00:00
                 </div>
-                <div class="prediction-range-field">
-                    <label for="modern-prediction-from-date">From date</label>
-                    <input type="date" id="modern-prediction-from-date">
-                </div>
-                <div class="prediction-range-field">
-                    <label for="modern-prediction-to-date">To date</label>
-                    <input type="date" id="modern-prediction-to-date">
-                </div>
-                <div class="prediction-range-actions">
-                    <button type="submit" class="prediction-range-apply">Apply Modern Range</button>
-                    <button type="button" class="prediction-range-reset" id="modern-prediction-range-reset">Reset</button>
-                </div>
-            </form>
+
+            </div>
 
 
             <!-- PREDICTED BALLS -->
 
             <div class="prediction-number-area">
 
-                <div class="prediction-countdown-box forecast-countdown">
-
-                    <p>
-                        Time Remaining Until Draw
-                    </p>
-
-                    <div id="countdown-timer">
-                        00:00:00
-                    </div>
-
-                </div>
+                <span class="prediction-number-label">
+                    STATISTICAL 5-BALL COMBINATION
+                </span>
 
 
                 <div
@@ -282,22 +308,59 @@
 
                 </div>
 
-                <button
-                    type="button"
-                    class="prediction-share-btn"
-                    data-share-prediction="modern"
-                >
-                    Share Prediction
-                </button>
-
                 <div class="prediction-analysis-summary">
 
     <div class="analysis-summary-card">
+        <span>Historical Draws Analysed</span>
+        <strong id="analysis-draw-count">0</strong>
+    </div>
+
+    <div class="analysis-summary-card">
         <span>Prediction Method</span>
-        <strong>50% Same-Game • 15% Machine→Winning • 15% Cross-Confirmation • 10% Classification • 10% Moving</strong>
+        <strong>60% Statistics • 30% Classification • 10% Moving</strong>
+    </div>
+
+    <div class="analysis-summary-card">
+        <span>Today's Earlier Games</span>
+        <strong id="analysis-today-count">0</strong>
     </div>
 
 </div>
+
+<div class="prediction-analysis-section">
+
+    <div class="prediction-analysis-heading">
+
+        <span>WHY THESE NUMBERS?</span>
+
+        <h3>
+            Prediction Analysis
+        </h3>
+
+        <p>
+            Each selected number is ranked using 60%
+            historical statistics, 30% classification-chart
+            relationships and 10% moving-number groups.
+            Today's earlier games receive the strongest
+            current-day influence.
+        </p>
+
+    </div>
+
+    <div id="prediction-analysis-list">
+        <p class="analysis-loading">
+            Analysing prediction data...
+        </p>
+    </div>
+
+</div>
+
+
+                <p class="prediction-small-note">
+                    Generated from historical draw
+                    patterns. This is not a guarantee
+                    of the next winning result.
+                </p>
 
             </div>
 
@@ -328,68 +391,52 @@
                 Ghana Games • Draw Time: --:--
             </p>
 
-            <form class="prediction-range-filter prediction-range-panel ghana-range-panel" id="ghana-prediction-range-form">
-                <div class="prediction-range-heading">
-                    <span>GHANA DATA RANGE</span>
-                    <strong>Analyse the scheduled Ghana game history</strong>
+            <div class="prediction-countdown-box">
+
+                <p>Time Remaining Until Draw</p>
+
+                <div id="ghana-countdown-timer">
+                    00:00:00
                 </div>
-                <div class="prediction-range-field">
-                    <label for="ghana-prediction-from-date">From date</label>
-                    <input type="date" id="ghana-prediction-from-date">
-                </div>
-                <div class="prediction-range-field">
-                    <label for="ghana-prediction-to-date">To date</label>
-                    <input type="date" id="ghana-prediction-to-date">
-                </div>
-                <div class="prediction-range-actions">
-                    <button type="submit" class="prediction-range-apply ghana-range-apply">Apply Ghana Range</button>
-                    <button type="button" class="prediction-range-reset" id="ghana-prediction-range-reset">Reset</button>
-                </div>
-            </form>
+
+            </div>
 
             <div class="prediction-number-area">
 
-                <div class="prediction-countdown-box forecast-countdown">
+                <span class="prediction-number-label">
+                    STATISTICAL 5-BALL COMBINATION
+                </span>
 
-                    <p>Time Remaining Until Draw</p>
-
-                    <div id="ghana-countdown-timer">
-                        00:00:00
-                    </div>
-
-                </div>
-
-                <div class="ghana-prediction-group">
-
-                    <div
-                        id="ghana-game-balls"
-                        class="prediction-balls winning-numbers"
-                        aria-label="Combined Ghana number forecast"
-                    >
-                        <span class="number-ball">--</span>
-                        <span class="number-ball">--</span>
-                        <span class="number-ball">--</span>
-                        <span class="number-ball">--</span>
-                        <span class="number-ball">--</span>
-                    </div>
-
-                    <button
-                        type="button"
-                        class="prediction-share-btn ghana-share-btn"
-                        data-share-prediction="ghana"
-                    >
-                        Share Prediction
-                    </button>
+                <div
+                    id="ghana-game-balls"
+                    class="prediction-balls winning-numbers"
+                >
+                    <span class="number-ball">--</span>
+                    <span class="number-ball">--</span>
+                    <span class="number-ball">--</span>
+                    <span class="number-ball">--</span>
+                    <span class="number-ball">--</span>
                 </div>
 
                 <div class="prediction-analysis-summary ghana-analysis-summary">
 
                     <div class="analysis-summary-card">
+                        <span>Historical Draws Analysed</span>
+                        <strong id="ghana-analysis-draw-count">0</strong>
+                    </div>
+
+                    <div class="analysis-summary-card">
                         <span>Prediction Method</span>
-                        <strong>30% Own-Game Statistics • 50% Weekday Pattern • 20% Movement</strong>
+                        <strong>70% History • 25% Classification • 5% Moving</strong>
                     </div>
 
                 </div>
+
+                <p class="prediction-small-note">
+                    Ghana predictions use winning-number history,
+                    classification-chart relationships and moving-number
+                    support. Machine numbers remain excluded.
+                </p>
 
             </div>
 
@@ -399,29 +446,116 @@
 
 </section>
 
+
     <!-- =================================================
-         PREDICTION ANALYSIS
+         INFORMATION CARDS
     ================================================== -->
 
-    <section class="prediction-analysis-section prediction-analysis-wide">
+    <section class="prediction-info-grid">
 
-        <div class="prediction-analysis-heading">
 
-            <span>NUMBER BREAKDOWN</span>
+        <article class="prediction-info-card">
 
-            <h2>
-                Prediction Analysis
-            </h2>
+            <div class="prediction-info-icon">
+                01
+            </div>
 
-        </div>
+            <h3>
+                Historical Analysis
+            </h3>
 
-        <div id="prediction-analysis-list">
-            <p class="analysis-loading">
-                Analysing prediction data...
+            <p>
+                Previous lottery results are analysed
+                to identify recurring number patterns
+                and frequency behaviour.
             </p>
-        </div>
+
+        </article>
+
+
+        <article class="prediction-info-card">
+
+            <div class="prediction-info-icon">
+                02
+            </div>
+
+            <h3>
+                Number Frequency
+            </h3>
+
+            <p>
+                Numbers that have appeared more
+                frequently or less frequently can
+                be identified from historical data.
+            </p>
+
+        </article>
+
+
+        <article class="prediction-info-card">
+
+            <div class="prediction-info-icon">
+                03
+            </div>
+
+            <h3>
+                Statistical Combination
+            </h3>
+
+            <p>
+                The prediction engine creates a
+                five-number combination using
+                statistical information from
+                previous draws.
+            </p>
+
+        </article>
+
 
     </section>
+
+
+    <!-- =================================================
+         DAILY GAME SCHEDULE
+    ================================================== -->
+
+    <section class="prediction-schedule-section">
+
+
+        <div class="prediction-section-heading">
+
+            <span>
+                TODAY'S GAMES
+            </span>
+
+            <h2>
+                Daily Game Schedule
+            </h2>
+
+            <p>
+                Track scheduled games and upcoming
+                draw progression throughout the day.
+            </p>
+
+        </div>
+
+
+        <div
+            id="upcoming-games-list"
+            class="prediction-schedule-list"
+        >
+
+            <div class="schedule-loading">
+
+                Loading today's game schedule...
+
+            </div>
+
+        </div>
+
+
+    </section>
+
 
     <!-- =================================================
          RESPONSIBLE PLAY NOTICE
@@ -432,6 +566,7 @@
         <div class="warning-icon">
             !
         </div>
+
 
         <div>
 
@@ -450,44 +585,6 @@
             </p>
 
         </div>
-
-    </section>
-
-
-    <!-- =================================================
-         DAILY GAME SCHEDULE
-    ================================================== -->
-
-    <section class="prediction-schedule-section">
-
-
-        <div class="prediction-section-heading">
-<h2>
-                Daily Game Schedule
-            </h2>
-
-        </div>
-
-        <div class="schedule-legend" aria-label="Game status guide">
-            <span class="legend-completed">Completed</span>
-            <span class="legend-next">Next Draw</span>
-            <span class="legend-upcoming">Upcoming</span>
-        </div>
-
-
-        <div
-            id="upcoming-games-list"
-            class="prediction-schedule-list"
-        >
-
-            <div class="schedule-loading">
-
-                Loading today's game schedule...
-
-            </div>
-
-        </div>
-
 
     </section>
 
@@ -520,24 +617,24 @@
 
         <div class="footer-links">
 
-            <a href="/">
+            <a href="index.html">
                 Home
             </a>
 
-            <a href="results">
+            <a href="results.html">
                 Results
             </a>
 
-            <a href="predictions">
+            <a href="predictions.html">
                 Predictions
             </a>
-    <a href="play-online">Play Online</a>
+    <a href="play-online.html">Play Online</a>
 
-            <a href="agent">
+            <a href="agent.html">
                 Become an Agent
             </a>
 
-            <a href="contact">
+            <a href="contact.html">
                 Contact
             </a>
 
@@ -557,7 +654,7 @@
     </div>
 
 </footer>
-<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy">Privacy Policy</a><a href="terms">Terms of Use</a><a href="responsible-gaming">Responsible Gaming</a></div>
+<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="responsible-gaming.html">Responsible Gaming</a></div>
 
 <a class="facebook-community-btn" style="position:fixed;left:18px;bottom:18px;z-index:2147483647;display:inline-flex;align-items:center;min-height:48px;padding:11px 18px;border-radius:999px;background:rgb(24,119,242);color:white;font:800 14px Arial,sans-serif;text-decoration:none;box-shadow:0 10px 26px rgba(13,95,199,.35)" href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer" aria-label="Join our Facebook group">Join Our Facebook Group</a>
 
