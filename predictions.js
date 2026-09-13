@@ -1522,8 +1522,8 @@ async function subscribeToModernResultUpdates() {
 // Classification and moving-number relationships used by Evidence Fusion v1.
 // =========================================================
 
-const MODERN_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1 • EF-F";
-const MODERN_RANGE_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1 • Custom Range";
+const MODERN_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1.1 • EF-D";
+const MODERN_RANGE_PREDICTION_ENGINE_LABEL = "Evidence Fusion v1.1 • Custom Range";
 
 const GHANA_GAME_PATTERN_WEIGHTS = Object.freeze({
     statistical: 0.30,

@@ -2,14 +2,14 @@
     "use strict";
 
     const PROFILE = Object.freeze({
-        id: "evidence-fusion-v1-ef-f",
-        label: "Evidence Fusion v1",
+        id: "evidence-fusion-v1.1-ef-d",
+        label: "Evidence Fusion v1.1",
         weights: Object.freeze({
-            sameGame: 0.45,
-            machineConversion: 0.20,
-            crossConfirmation: 0.20,
+            sameGame: 0.50,
+            machineConversion: 0.15,
+            crossConfirmation: 0.15,
             classification: 0.10,
-            moving: 0.05
+            moving: 0.10
         }),
         breadthBonus: 2,
         conversionHorizonDraws: 3,
