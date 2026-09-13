@@ -1,0 +1,46 @@
+name: Remove prediction info cards
+
+on:
+  push:
+    paths:
+      - '.github/workflows/remove-prediction-info-cards.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  remove-info-cards:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+
+      - name: Remove information cards section
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path('predictions.html')
+          text = path.read_text(encoding='utf-8')
+
+          pattern = re.compile(
+              r'\n\s*<!-- =================================================\n\s*INFORMATION CARDS\n\s*================================================== -->\n\s*<section class="prediction-info-grid">.*?</section>\s*\n',
+              re.S,
+          )
+
+          updated, count = pattern.subn('\n', text, count=1)
+          if count != 1:
+              raise SystemExit('Prediction information cards section not found exactly once')
+
+          path.write_text(updated, encoding='utf-8')
+
+      - name: Commit change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions.html
+          git diff --cached --quiet && exit 0
+          git commit -m "ui: remove prediction information cards"
+          git push
