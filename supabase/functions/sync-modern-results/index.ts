@@ -1,6 +1,7 @@
 const OFFICIAL_RESULTS_API =
   "https://api.modernlotterynigeria.com/9999/third/gameissue/getIssues";
-const LOTTERY = "modern-billionaire";
+const MODERN_LOTTERY = "modern-billionaire";
+const GHANA_LOTTERY = "ghana";
 
 const GAME_BY_MERCHANT_ID: Record<string, string> = {
   "21": "Powerball",
@@ -32,6 +33,26 @@ const GAME_BY_SPIN_TIME: Record<string, string> = {
   "23:59:59": "Queen",
   "00:00:00": "Queen",
 };
+
+const GHANA_GAME_BY_MERCHANT_ID: Record<string, string> = {
+  "101": "Monday Special",
+  "102": "Lucky Tuesday",
+  "103": "Mid Week",
+  "104": "Thursday Fortune",
+  "105": "Friday Bonanza",
+  "106": "National",
+  "107": "ASEDA",
+};
+
+const GHANA_MERCHANT_ID_BY_WEEKDAY = [
+  "107",
+  "101",
+  "102",
+  "103",
+  "104",
+  "105",
+  "106",
+];
 
 type OfficialRecord = {
   merchantId?: string | number;
@@ -69,6 +90,10 @@ function lagosDate(date = new Date()): string {
   return new Date(date.getTime() + 60 * 60 * 1000)
     .toISOString()
     .slice(0, 10);
+}
+
+function utcDate(date = new Date()): string {
+  return date.toISOString().slice(0, 10);
 }
 
 function addDays(isoDate: string, days: number): string {
@@ -155,7 +180,7 @@ async function fetchWithRetry(
   throw lastError;
 }
 
-async function fetchOfficialResults(drawDate: string): Promise<ResultRecord[]> {
+async function fetchOfficialModernResults(drawDate: string): Promise<ResultRecord[]> {
   const query = new URLSearchParams({
     issueDate: drawDate,
     current: "1",
@@ -179,11 +204,55 @@ async function fetchOfficialResults(drawDate: string): Promise<ResultRecord[]> {
       record.statusFlag === "F" && record.result
     )
     .map((record: OfficialRecord): ResultRecord => ({
-      lottery: LOTTERY,
+      lottery: MODERN_LOTTERY,
       game: gameForRecord(record),
       draw_date: String(record.issueDate || drawDate).slice(0, 10),
       winning: parseNumbers(record.result),
       machine: parseNumbers(record.mach),
+    }))
+    .filter((record: ResultRecord) =>
+      record.game && record.winning.length === 5
+    );
+}
+
+function ghanaMerchantIdForDate(drawDate: string): string {
+  const weekday = new Date(`${drawDate}T12:00:00Z`).getUTCDay();
+  return GHANA_MERCHANT_ID_BY_WEEKDAY[weekday];
+}
+
+async function fetchOfficialGhanaResults(drawDate: string): Promise<ResultRecord[]> {
+  const merchantId = ghanaMerchantIdForDate(drawDate);
+  const query = new URLSearchParams({
+    issueDate: drawDate,
+    current: "1",
+    size: "5",
+    merchantId,
+  });
+
+  const response = await fetchWithRetry(`${OFFICIAL_RESULTS_API}?${query}`, {
+    headers: { Authorization: "Bearer", Accept: "application/json" },
+  });
+  const payload = await response.json();
+
+  if (payload?.code !== 0 || !Array.isArray(payload?.data?.records)) {
+    throw new Error(
+      payload?.msg || `Unexpected Ghana API response for ${drawDate}`,
+    );
+  }
+
+  return payload.data.records
+    .filter((record: OfficialRecord) =>
+      String(record.merchantId || "") === merchantId &&
+      String(record.issueDate || "").slice(0, 10) === drawDate &&
+      record.statusFlag === "F" &&
+      record.result
+    )
+    .map((record: OfficialRecord): ResultRecord => ({
+      lottery: GHANA_LOTTERY,
+      game: GHANA_GAME_BY_MERCHANT_ID[merchantId],
+      draw_date: drawDate,
+      winning: parseNumbers(record.result),
+      machine: [],
     }))
     .filter((record: ResultRecord) =>
       record.game && record.winning.length === 5
@@ -208,10 +277,11 @@ async function syncDate(
   projectUrl: string,
   secretKey: string,
   drawDate: string,
+  lottery: string,
+  officialResults: ResultRecord[],
 ) {
-  const officialResults = await fetchOfficialResults(drawDate);
   const existingQuery = new URLSearchParams({
-    lottery: `eq.${LOTTERY}`,
+    lottery: `eq.${lottery}`,
     draw_date: `eq.${drawDate}`,
     select: "game,winning,machine",
   });
@@ -273,7 +343,7 @@ async function syncDate(
     totals[existing ? "updated" : "inserted"] += 1;
   }
 
-  return { drawDate, ...totals };
+  return { lottery, drawDate, ...totals };
 }
 
 Deno.serve(async (request) => {
@@ -289,17 +359,37 @@ Deno.serve(async (request) => {
       throw new Error("Supabase function credentials are unavailable.");
     }
 
-    const today = lagosDate();
-    const dates = [addDays(today, -1), today];
+    const modernToday = lagosDate();
+    const modernDates = [addDays(modernToday, -1), modernToday];
+    const ghanaToday = utcDate();
+    const ghanaDates = [addDays(ghanaToday, -1), ghanaToday];
     const results = [];
 
-    for (const date of dates) {
-      results.push(await syncDate(projectUrl, secretKey, date));
+    for (const date of modernDates) {
+      const officialResults = await fetchOfficialModernResults(date);
+      results.push(await syncDate(
+        projectUrl,
+        secretKey,
+        date,
+        MODERN_LOTTERY,
+        officialResults,
+      ));
+    }
+
+    for (const date of ghanaDates) {
+      const officialResults = await fetchOfficialGhanaResults(date);
+      results.push(await syncDate(
+        projectUrl,
+        secretKey,
+        date,
+        GHANA_LOTTERY,
+        officialResults,
+      ));
     }
 
     return Response.json({ ok: true, checkedAt: new Date().toISOString(), results });
   } catch (error) {
-    console.error("Modern results sync failed", error);
+    console.error("Lottery results sync failed", error);
     return Response.json(
       { ok: false, error: error instanceof Error ? error.message : String(error) },
       { status: 500 },

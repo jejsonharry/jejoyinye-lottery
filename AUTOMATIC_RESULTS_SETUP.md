@@ -1,6 +1,8 @@
-# Automatic Modern Billionaire Results
+# Automatic Lottery Results
 
-The primary updater is the Supabase Edge Function in `supabase/functions/sync-modern-results`. Supabase Cron calls it every two minutes and the website listens for database changes, so an open results page updates shortly after a new result is imported.
+The primary updater is the Supabase Edge Function in `supabase/functions/sync-modern-results`. Supabase Cron calls it every two minutes and the website listens for database changes, so an open results page updates shortly after a new Modern Billionaire or Ghana result is imported.
+
+Both result groups use Modern Lottery's results API. Modern Billionaire is read through merchant group `21`. Ghana uses the scheduled game merchant IDs `101` through `107`, from Monday Special to Sunday ASEDA. Ghana records are published with winning numbers only when the source does not provide machine numbers.
 
 The scheduled GitHub Action still runs every ten minutes as an independent backup.
 
@@ -28,7 +30,7 @@ Never place the service-role key in a website JavaScript file or commit it to Gi
 
 ## Backup operation
 
-The workflow runs every ten minutes and checks both today and yesterday in Nigeria time. Existing results are updated when the official numbers change; unchanged results are skipped, so repeated workflow runs do not create duplicates.
+The workflow runs every ten minutes and checks both today and yesterday in Nigeria time for Modern Billionaire. The two-minute Supabase updater also checks today and yesterday in Ghana time for the appropriate Ghana game. Existing results are updated when the official numbers change; unchanged results are skipped, so repeated runs do not create duplicates.
 
 Manual result publishing in the admin dashboard remains available as a backup.
 
@@ -46,3 +48,5 @@ Each game/date is checked before it is inserted, so an historical run can safely
 ## Game mapping
 
 The official merchant identifiers are mapped to the JOLS names: Powerball, Awoof, Biggest Bet, Gold Rush, Lucky Dollar, Blessing, Owo Time, Modern Bingo, Bonus Cash, Hero, Golden and Queen.
+
+Ghana identifiers are mapped as follows: Monday Special (`101`), Lucky Tuesday (`102`), Mid Week (`103`), Thursday Fortune (`104`), Friday Bonanza (`105`), National (`106`) and ASEDA (`107`).
