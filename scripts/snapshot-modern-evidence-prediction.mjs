@@ -194,6 +194,7 @@ async function upsertSnapshot(game, prediction) {
   const rankedTop = prediction.rankedData.slice(0, 5);
   const allNumbers = rankedTop.map(item => item.number);
   const profile = evidenceEngine.PROFILE;
+  const profileCode = profile.id.split('-').slice(-2).join('-').toUpperCase();
 
   const body = {
     lottery: 'modern-billionaire',
@@ -202,7 +203,7 @@ async function upsertSnapshot(game, prediction) {
     draw_time: game.drawTime,
     generated_at: new Date().toISOString(),
     engine_version: profile.id,
-    engine_profile: 'EF-F',
+    engine_profile: profileCode,
     sure_numbers: allNumbers.slice(0, 2),
     direct_numbers: allNumbers.slice(2, 5),
     all_numbers: allNumbers,
