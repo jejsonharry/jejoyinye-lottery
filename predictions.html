@@ -3,6 +3,15 @@
 
 <head>
 
+    <script>
+    (function () {
+        const path = window.location.pathname;
+        if (path.endsWith(".html")) {
+            window.location.replace(path.slice(0, -5) + window.location.search + window.location.hash);
+        }
+    })();
+    </script>
+
     <meta charset="UTF-8">
 
     <meta
@@ -12,11 +21,13 @@
 
     <meta
         name="description"
-        content="Jejoyinye Lottery Services statistical prediction insights, upcoming draws and lottery number analysis."
+        content="Explore JOLS statistical lottery predictions, five-number insights and number analysis for Modern Billionaire and Ghana games. Predictions do not guarantee a win."
     >
 
+    <meta name="robots" content="index, follow, max-image-preview:large">
+
     <title>
-        Predictions & Insights | Jejoyinye Lottery Services
+        Lottery Predictions &amp; Number Analysis | JOLS
     </title>
 
 
@@ -44,19 +55,43 @@
     ></script>
 
 
-  <link rel="canonical" href="https://jolslottery.com/predictions.html">
-  <link rel="icon" href="Images/jols-logo.png" type="image/jpeg">
+  <link rel="canonical" href="https://jolslottery.com/predictions">
+  <link rel="icon" href="Images/jols-logo.png" type="image/png">
   <meta property="og:site_name" content="Jejoyinye Lottery Services">
+  <meta property="og:locale" content="en_NG">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Lottery Number Insights | Jejoyinye Lottery Services">
-  <meta property="og:description" content="Explore statistical lottery-number trends and informational predictions. No prediction guarantees a win.">
-  <meta property="og:url" content="https://jolslottery.com/predictions.html">
-  <meta property="og:image" content="https://jolslottery.com/Images/jols-logo.png">
-  <meta property="og:image:alt" content="Jejoyinye Lottery Services">
+  <meta property="og:title" content="Lottery Predictions &amp; Number Analysis | JOLS">
+  <meta property="og:description" content="Explore statistical five-number insights for Modern Billionaire and Ghana games. No prediction guarantees a win.">
+  <meta property="og:url" content="https://jolslottery.com/predictions">
+  <meta property="og:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta property="og:image:secure_url" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="JOLS Lottery statistical number insights">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Lottery Number Insights | Jejoyinye Lottery Services">
-  <meta name="twitter:description" content="Explore statistical lottery-number trends and informational predictions. No prediction guarantees a win.">
-  <meta name="twitter:image" content="https://jolslottery.com/Images/jols-logo.png">
+  <meta name="twitter:title" content="Lottery Predictions &amp; Number Analysis | JOLS">
+  <meta name="twitter:description" content="Explore statistical five-number insights for Modern Billionaire and Ghana games. No prediction guarantees a win.">
+  <meta name="twitter:image" content="https://jolslottery.com/Images/jejoyinye-social-preview.png">
+  <meta name="twitter:image:alt" content="JOLS Lottery statistical number insights">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Lottery Predictions and Number Analysis",
+    "url": "https://jolslottery.com/predictions",
+    "description": "Statistical number insights for Modern Billionaire and Ghana lottery games.",
+    "inLanguage": "en-NG",
+    "isPartOf": {"@id": "https://jolslottery.com/#website"},
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://jolslottery.com/"},
+        {"@type": "ListItem", "position": 2, "name": "Predictions", "item": "https://jolslottery.com/predictions"}
+      ]
+    }
+  }
+  </script>
     <link rel="stylesheet" href="predictions-luxury-v1.css?v=3">
 </head>
 
@@ -107,30 +142,30 @@
 
     <div class="nav-inner">
 
-        <a href="index.html">
+        <a href="/">
             Home
         </a>
 
-        <a href="results.html">
+        <a href="results">
             Results
         </a>
 
         <a
-            href="predictions.html"
+            href="predictions"
             class="active"
         >
             Predictions
         </a>
 
-        <a href="play-online.html">
+        <a href="play-online">
             Play Online
         </a>
 
-        <a href="agent.html">
+        <a href="agent">
             Become an Agent
         </a>
 
-        <a href="contact.html">
+        <a href="contact">
             Contact
         </a>
 
@@ -547,24 +582,24 @@
 
         <div class="footer-links">
 
-            <a href="index.html">
+            <a href="/">
                 Home
             </a>
 
-            <a href="results.html">
+            <a href="results">
                 Results
             </a>
 
-            <a href="predictions.html">
+            <a href="predictions">
                 Predictions
             </a>
-    <a href="play-online.html">Play Online</a>
+    <a href="play-online">Play Online</a>
 
-            <a href="agent.html">
+            <a href="agent">
                 Become an Agent
             </a>
 
-            <a href="contact.html">
+            <a href="contact">
                 Contact
             </a>
 
@@ -584,7 +619,7 @@
     </div>
 
 </footer>
-<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="responsible-gaming.html">Responsible Gaming</a></div>
+<div class="legal-footer-links" aria-label="Legal and safety links"><a href="privacy">Privacy Policy</a><a href="terms">Terms of Use</a><a href="responsible-gaming">Responsible Gaming</a></div>
 
 <a class="facebook-community-btn" style="position:fixed;left:18px;bottom:18px;z-index:2147483647;display:inline-flex;align-items:center;min-height:48px;padding:11px 18px;border-radius:999px;background:rgb(24,119,242);color:white;font:800 14px Arial,sans-serif;text-decoration:none;box-shadow:0 10px 26px rgba(13,95,199,.35)" href="https://www.facebook.com/share/1Hs5FSoJJ3/" target="_blank" rel="noopener noreferrer" aria-label="Join our Facebook group">Join Our Facebook Group</a>
 
