@@ -363,29 +363,28 @@ Deno.serve(async (request) => {
     const modernDates = [addDays(modernToday, -1), modernToday];
     const ghanaToday = utcDate();
     const ghanaDates = [addDays(ghanaToday, -1), ghanaToday];
-    const results = [];
-
-    for (const date of modernDates) {
-      const officialResults = await fetchOfficialModernResults(date);
-      results.push(await syncDate(
-        projectUrl,
-        secretKey,
-        date,
-        MODERN_LOTTERY,
-        officialResults,
-      ));
-    }
-
-    for (const date of ghanaDates) {
-      const officialResults = await fetchOfficialGhanaResults(date);
-      results.push(await syncDate(
-        projectUrl,
-        secretKey,
-        date,
-        GHANA_LOTTERY,
-        officialResults,
-      ));
-    }
+    const results = await Promise.all([
+      ...modernDates.map(async (date) => {
+        const officialResults = await fetchOfficialModernResults(date);
+        return syncDate(
+          projectUrl,
+          secretKey,
+          date,
+          MODERN_LOTTERY,
+          officialResults,
+        );
+      }),
+      ...ghanaDates.map(async (date) => {
+        const officialResults = await fetchOfficialGhanaResults(date);
+        return syncDate(
+          projectUrl,
+          secretKey,
+          date,
+          GHANA_LOTTERY,
+          officialResults,
+        );
+      }),
+    ]);
 
     return Response.json({ ok: true, checkedAt: new Date().toISOString(), results });
   } catch (error) {
