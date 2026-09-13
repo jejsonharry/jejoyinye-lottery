@@ -2,21 +2,24 @@
     "use strict";
 
     const PROFILE = Object.freeze({
-        id: "evidence-fusion-v1.1-ef-d",
-        label: "Evidence Fusion v1.1",
+        id: "evidence-fusion-v1.2-ef-r",
+        label: "Evidence Fusion v1.2",
         weights: Object.freeze({
-            sameGame: 0.50,
+            sameGame: 0.40,
             machineConversion: 0.15,
-            crossConfirmation: 0.15,
+            crossConfirmation: 0.10,
             classification: 0.10,
-            moving: 0.10
+            moving: 0.10,
+            reentry: 0.15
         }),
         breadthBonus: 2,
         conversionHorizonDraws: 3,
         conversionPriorStrength: 6,
         defaultHistoryDays: 90,
         recentSameGameDays: 7,
-        recentRelationshipDraws: 5
+        recentRelationshipDraws: 5,
+        reentryHistoryDraws: 90,
+        reentryGapCap: 12
     });
 
     function parseNumbers(value) {
@@ -74,9 +77,7 @@
             const drawDate = String(result?.draw_date || "").slice(0, 10);
             if (!drawDate) return;
 
-            if (!grouped.has(drawDate)) {
-                grouped.set(drawDate, []);
-            }
+            if (!grouped.has(drawDate)) grouped.set(drawDate, []);
 
             grouped.get(drawDate).push({
                 ...result,
@@ -91,16 +92,9 @@
 
         grouped.forEach(group => {
             const variants = new Map();
-
             group.forEach(result => {
-                const signature = JSON.stringify([
-                    result.winning,
-                    result.machine
-                ]);
-
-                if (!variants.has(signature)) {
-                    variants.set(signature, result);
-                }
+                const signature = JSON.stringify([result.winning, result.machine]);
+                if (!variants.has(signature)) variants.set(signature, result);
             });
 
             if (variants.size > 1) {
@@ -115,88 +109,52 @@
             String(right.draw_date).localeCompare(String(left.draw_date))
         );
 
-        return {
-            rows: clean,
-            ambiguousDatesExcluded
-        };
+        return { rows: clean, ambiguousDatesExcluded };
     }
 
-    function buildRelationshipScores(
-        recentHistory,
-        todayResults,
-        classificationChart,
-        movingGraph
-    ) {
+    function buildRelationshipScores(recentHistory, todayResults, classificationChart, movingGraph) {
         const rows = Array.from({ length: 90 }, (_, index) => ({
             number: index + 1,
             classificationRaw: 0,
             movingRaw: 0
         }));
-        const byNumber = Object.fromEntries(
-            rows.map(row => [row.number, row])
-        );
+        const byNumber = Object.fromEntries(rows.map(row => [row.number, row]));
 
         function add(sourceNumber, weight) {
             const classification = classificationChart?.[sourceNumber];
-
             if (classification) {
                 new Set(Object.values(classification)).forEach(target => {
                     const targetNumber = Number(target);
-                    if (byNumber[targetNumber]) {
-                        byNumber[targetNumber].classificationRaw += weight;
-                    }
+                    if (byNumber[targetNumber]) byNumber[targetNumber].classificationRaw += weight;
                 });
             }
 
             new Set(movingGraph?.[sourceNumber] || []).forEach(target => {
                 const targetNumber = Number(target);
-                if (byNumber[targetNumber]) {
-                    byNumber[targetNumber].movingRaw += weight;
-                }
+                if (byNumber[targetNumber]) byNumber[targetNumber].movingRaw += weight;
             });
         }
 
         const relationshipBoosts = [1.45, 1.30, 1.15, 0.90, 0.75];
+        recentHistory.slice(0, PROFILE.recentRelationshipDraws).forEach((result, index) => {
+            const weight = relationshipBoosts[index] || 0.60;
+            parseNumbers(result.winning).forEach(number => add(number, weight));
+            parseNumbers(result.machine).forEach(number => add(number, weight * 0.45));
+        });
 
-        recentHistory
-            .slice(0, PROFILE.recentRelationshipDraws)
-            .forEach((result, index) => {
-                const weight = relationshipBoosts[index] || 0.60;
-
-                parseNumbers(result.winning).forEach(number =>
-                    add(number, weight)
-                );
-
-                parseNumbers(result.machine).forEach(number =>
-                    add(number, weight * 0.45)
-                );
-            });
-
-        const contextWeight = todayResults.length
-            ? 0.90 / todayResults.length
-            : 0;
-
+        const contextWeight = todayResults.length ? 0.90 / todayResults.length : 0;
         todayResults.forEach(result => {
-            parseNumbers(result.winning).forEach(number =>
-                add(number, contextWeight)
-            );
-
-            parseNumbers(result.machine).forEach(number =>
-                add(number, contextWeight * 0.45)
-            );
+            parseNumbers(result.winning).forEach(number => add(number, contextWeight));
+            parseNumbers(result.machine).forEach(number => add(number, contextWeight * 0.45));
         });
 
         normalizeRows(rows, "classificationRaw", "classification");
         normalizeRows(rows, "movingRaw", "moving");
-
-        return Object.fromEntries(
-            rows.map(row => [row.number, row])
-        );
+        return Object.fromEntries(rows.map(row => [row.number, row]));
     }
 
     function buildMachineConversionRates(chronologicalHistory) {
-        const baselineProbability =
-            1 - Math.pow(85 / 90, PROFILE.conversionHorizonDraws);
+        const baselineProbability = 1 - Math.pow(85 / 90, PROFILE.conversionHorizonDraws);
         const priorStrength = PROFILE.conversionPriorStrength;
         const output = {};
 
@@ -204,56 +162,65 @@
             let opportunities = 0;
             let conversions = 0;
 
-            for (
-                let index = 0;
-                index < chronologicalHistory.length - 1;
-                index++
-            ) {
+            for (let index = 0; index < chronologicalHistory.length - 1; index++) {
                 const source = chronologicalHistory[index];
-
-                if (!parseNumbers(source.machine).includes(number)) {
-                    continue;
-                }
+                if (!parseNumbers(source.machine).includes(number)) continue;
 
                 opportunities += 1;
                 let converted = false;
-
                 for (
                     let futureIndex = index + 1;
-                    futureIndex <= Math.min(
-                        index + PROFILE.conversionHorizonDraws,
-                        chronologicalHistory.length - 1
-                    );
+                    futureIndex <= Math.min(index + PROFILE.conversionHorizonDraws, chronologicalHistory.length - 1);
                     futureIndex++
                 ) {
-                    if (
-                        parseNumbers(
-                            chronologicalHistory[futureIndex].winning
-                        ).includes(number)
-                    ) {
+                    if (parseNumbers(chronologicalHistory[futureIndex].winning).includes(number)) {
                         converted = true;
                         break;
                     }
                 }
-
-                if (converted) {
-                    conversions += 1;
-                }
+                if (converted) conversions += 1;
             }
 
             output[number] = {
-                rate:
-                    (
-                        conversions +
-                        (priorStrength * baselineProbability)
-                    ) /
-                    (opportunities + priorStrength),
+                rate: (conversions + priorStrength * baselineProbability) / (opportunities + priorStrength),
                 opportunities,
                 conversions
             };
         }
 
         return output;
+    }
+
+    function buildReentryRaw(number, orderedHistory, recentHistory) {
+        const recentSeen = recentHistory.some(result =>
+            parseNumbers(result.winning).includes(number) || parseNumbers(result.machine).includes(number)
+        );
+        if (recentSeen) return 0;
+
+        const historyWindow = orderedHistory.slice(0, PROFILE.reentryHistoryDraws);
+        let olderWins = 0;
+        let olderMachines = 0;
+        let gapDraws = historyWindow.length;
+        let found = false;
+
+        for (let index = 0; index < historyWindow.length; index++) {
+            const result = historyWindow[index];
+            const inWinning = parseNumbers(result.winning).includes(number);
+            const inMachine = parseNumbers(result.machine).includes(number);
+
+            if (inWinning) olderWins += 1;
+            if (inMachine) olderMachines += 1;
+            if (!found && (inWinning || inMachine)) {
+                gapDraws = index + 1;
+                found = true;
+            }
+        }
+
+        if (!found || (olderWins + olderMachines) === 0) return 0;
+
+        const gapFactor = Math.min(gapDraws, PROFILE.reentryGapCap) / PROFILE.reentryGapCap;
+        const historyStrength = Math.log1p((2.2 * olderWins) + (0.7 * olderMachines));
+        return gapFactor * historyStrength;
     }
 
     function predict(options = {}) {
@@ -269,25 +236,15 @@
         const canonical = canonicalizeHistory(history);
         const orderedHistory = canonical.rows;
 
-        const recentCutoff = drawDate
-            ? shiftDate(drawDate, -PROFILE.recentSameGameDays)
-            : "";
-
+        const recentCutoff = drawDate ? shiftDate(drawDate, -PROFILE.recentSameGameDays) : "";
         const recentHistory = rangeMode || !recentCutoff
             ? orderedHistory.slice(0, 7)
             : orderedHistory.filter(result =>
-                result.draw_date >= recentCutoff &&
-                result.draw_date < drawDate
+                result.draw_date >= recentCutoff && result.draw_date < drawDate
             );
 
-        const conversionHistory = orderedHistory
-            .slice(0, 90)
-            .slice()
-            .reverse();
-
-        const conversionRates =
-            buildMachineConversionRates(conversionHistory);
-
+        const conversionHistory = orderedHistory.slice(0, 90).slice().reverse();
+        const conversionRates = buildMachineConversionRates(conversionHistory);
         const relationshipByNumber = buildRelationshipScores(
             recentHistory,
             todayResults,
@@ -302,11 +259,7 @@
             ])
         ).size;
 
-        const sameDayCoverageFactor = Math.max(
-            0.25,
-            1 - (0.80 * (uniqueTodayNumbers / 90))
-        );
-
+        const sameDayCoverageFactor = Math.max(0.25, 1 - (0.80 * (uniqueTodayNumbers / 90)));
         const rows = [];
 
         for (let number = 1; number <= 90; number++) {
@@ -325,14 +278,10 @@
                     winningRecency += decay;
                     winningFrequency += 1;
                 }
-
                 if (machine.includes(number)) {
                     machineRecency += decay;
                     machineFrequency += 1;
-
-                    if (index < 3) {
-                        recentMachineSignal += decay;
-                    }
+                    if (index < 3) recentMachineSignal += decay;
                 }
             });
 
@@ -344,28 +293,22 @@
 
             let sameDayRaw = 0;
             let todayFrequency = 0;
-
             todayResults.forEach(result => {
                 if (parseNumbers(result.winning).includes(number)) {
                     sameDayRaw += 1;
                     todayFrequency += 1;
                 }
-
                 if (parseNumbers(result.machine).includes(number)) {
                     sameDayRaw += 0.35;
                     todayFrequency += 0.35;
                 }
             });
-
-            sameDayRaw =
-                (sameDayRaw / Math.max(1, todayResults.length)) *
-                sameDayCoverageFactor;
+            sameDayRaw = (sameDayRaw / Math.max(1, todayResults.length)) * sameDayCoverageFactor;
 
             const conversion = conversionRates[number];
-            const machineConversionRaw =
-                recentMachineSignal * conversion.rate;
-
+            const machineConversionRaw = recentMachineSignal * conversion.rate;
             const relationship = relationshipByNumber[number] || {};
+            const reentryRaw = buildReentryRaw(number, orderedHistory, recentHistory);
 
             rows.push({
                 number,
@@ -376,29 +319,24 @@
                 sameGameRaw,
                 sameDayRaw,
                 machineConversionRaw,
+                reentryRaw,
                 conversionRate: conversion.rate,
                 conversionOpportunities: conversion.opportunities,
                 conversionHits: conversion.conversions,
-                classificationScoreNormalized:
-                    Number(relationship.classification || 0),
-                movingScoreNormalized:
-                    Number(relationship.moving || 0),
+                classificationScoreNormalized: Number(relationship.classification || 0),
+                movingScoreNormalized: Number(relationship.moving || 0),
                 totalScore: 0
             });
         }
 
         normalizeRows(rows, "sameGameRaw", "sameGameScoreNormalized");
         normalizeRows(rows, "sameDayRaw", "sameDayScoreNormalized");
-        normalizeRows(
-            rows,
-            "machineConversionRaw",
-            "machineConversionScoreNormalized"
-        );
+        normalizeRows(rows, "machineConversionRaw", "machineConversionScoreNormalized");
+        normalizeRows(rows, "reentryRaw", "reentryScoreNormalized");
 
         rows.forEach(row => {
             row.crossConfirmationScoreNormalized = Math.sqrt(
-                row.sameGameScoreNormalized *
-                row.sameDayScoreNormalized
+                row.sameGameScoreNormalized * row.sameDayScoreNormalized
             );
 
             row.evidenceBreadth = [
@@ -406,33 +344,18 @@
                 row.machineConversionScoreNormalized >= 40,
                 row.crossConfirmationScoreNormalized >= 35,
                 row.classificationScoreNormalized >= 45,
-                row.movingScoreNormalized >= 45
+                row.movingScoreNormalized >= 45,
+                row.reentryScoreNormalized >= 45
             ].filter(Boolean).length;
 
-            row.statisticalScoreNormalized =
-                row.sameGameScoreNormalized;
-
+            row.statisticalScoreNormalized = row.sameGameScoreNormalized;
             row.totalScore =
-                (
-                    row.sameGameScoreNormalized *
-                    PROFILE.weights.sameGame
-                ) +
-                (
-                    row.machineConversionScoreNormalized *
-                    PROFILE.weights.machineConversion
-                ) +
-                (
-                    row.crossConfirmationScoreNormalized *
-                    PROFILE.weights.crossConfirmation
-                ) +
-                (
-                    row.classificationScoreNormalized *
-                    PROFILE.weights.classification
-                ) +
-                (
-                    row.movingScoreNormalized *
-                    PROFILE.weights.moving
-                ) +
+                (row.sameGameScoreNormalized * PROFILE.weights.sameGame) +
+                (row.machineConversionScoreNormalized * PROFILE.weights.machineConversion) +
+                (row.crossConfirmationScoreNormalized * PROFILE.weights.crossConfirmation) +
+                (row.classificationScoreNormalized * PROFILE.weights.classification) +
+                (row.movingScoreNormalized * PROFILE.weights.moving) +
+                (row.reentryScoreNormalized * PROFILE.weights.reentry) +
                 (row.evidenceBreadth * PROFILE.breadthBonus);
         });
 
@@ -443,15 +366,11 @@
         );
 
         const selected = rows.slice(0, 5);
-        const scoreMap = Object.fromEntries(
-            rows.map(row => [row.number, row])
-        );
+        const scoreMap = Object.fromEntries(rows.map(row => [row.number, row]));
 
         return {
             profile: PROFILE,
-            predictedNumbers: selected
-                .map(row => row.number)
-                .sort((left, right) => left - right),
+            predictedNumbers: selected.map(row => row.number).sort((left, right) => left - right),
             rankedData: rows,
             scoreMap,
             diagnostics: {
@@ -460,15 +379,10 @@
                 todayContextDraws: todayResults.length,
                 uniqueTodayNumbers,
                 sameDayCoverageFactor,
-                ambiguousDatesExcluded:
-                    canonical.ambiguousDatesExcluded
+                ambiguousDatesExcluded: canonical.ambiguousDatesExcluded
             }
         };
     }
 
-    root.JolsModernEvidenceEngine = Object.freeze({
-        PROFILE,
-        predict,
-        parseNumbers
-    });
+    root.JolsModernEvidenceEngine = Object.freeze({ PROFILE, predict, parseNumbers });
 })(typeof globalThis !== "undefined" ? globalThis : window);
