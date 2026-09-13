@@ -1554,6 +1554,56 @@ const PLAY_ONLINE_URL =
 const WHATSAPP_PLAYERS_COMMUNITY_URL =
     "https://chat.whatsapp.com/FL2C5b2emu8L50AG3qXuPw";
 
+function campaignSlug(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 100);
+}
+
+function buildCampaignUrl(
+    baseUrl,
+    source,
+    campaign,
+    content = ""
+) {
+    try {
+        const url = new URL(
+            baseUrl,
+            window.location.origin
+        );
+
+        url.searchParams.set(
+            "utm_source",
+            campaignSlug(source)
+        );
+        url.searchParams.set(
+            "utm_medium",
+            "social"
+        );
+        url.searchParams.set(
+            "utm_campaign",
+            campaignSlug(campaign)
+        );
+
+        const safeContent =
+            campaignSlug(content);
+
+        if (safeContent) {
+            url.searchParams.set(
+                "utm_content",
+                safeContent
+            );
+        }
+
+        return url.toString();
+    }
+    catch (_) {
+        return baseUrl;
+    }
+}
+
 
 function createResultPlayerActions(
     extraClass = ""
@@ -2159,9 +2209,28 @@ async function sharePublishedResult(
         button.dataset.shareMachine ||
         "";
 
-    const shareUrl =
+    const baseShareUrl =
         button.dataset.shareUrl ||
         RESULTS_SHARE_URL;
+
+    const campaignContent =
+        `${game}-${date}`;
+
+    const shareUrl =
+        buildCampaignUrl(
+            baseShareUrl,
+            "result-share",
+            "daily-results",
+            campaignContent
+        );
+
+    const playOnlineUrl =
+        buildCampaignUrl(
+            PLAY_ONLINE_URL,
+            "result-share",
+            "play-online",
+            campaignContent
+        );
 
     const formattedWinning =
         winning.replace(/-/g, " • ");
@@ -2186,7 +2255,7 @@ async function sharePublishedResult(
     lines.push(
         "",
         "🎮 *Play the next draw online:*",
-        PLAY_ONLINE_URL,
+        playOnlineUrl,
         "",
         "💬 *Join our WhatsApp Players Community:*",
         WHATSAPP_PLAYERS_COMMUNITY_URL,
