@@ -315,7 +315,7 @@ body {
   color: #6ef3a8 !important;
 }
 
-/* Analysis panel */
+/* Analysis panel base */
 .prediction-analysis-section {
   background:
     radial-gradient(circle at 100% 0%, rgba(215,173,69,.10), transparent 25%),
@@ -325,39 +325,117 @@ body {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 18px 38px rgba(0,0,0,.18);
 }
 
-.prediction-analysis-heading > span {
-  color: var(--jols-gold-soft) !important;
-  letter-spacing: .14em;
-}
-
-.prediction-analysis-heading h3 {
-  color: #fff !important;
-  font-size: clamp(1.6rem, 4vw, 2.35rem) !important;
-}
-
-.prediction-analysis-heading p,
 .prediction-small-note,
 #prediction-analysis-list {
   color: rgba(231,241,245,.78) !important;
 }
 
-/* Info cards */
-.prediction-info-card {
-  border-radius: 22px !important;
-  border: 1px solid rgba(8,40,50,.10) !important;
-  background: linear-gradient(160deg, #ffffff 0%, #f8fbfa 100%) !important;
-  box-shadow: 0 16px 40px rgba(9,30,41,.08) !important;
+/* COMPACT PREDICTION ANALYSIS V2 */
+.compact-analysis-card {
+  padding: 20px !important;
 }
 
-.prediction-info-icon {
-  background: linear-gradient(145deg, #0d9b50, #08733d) !important;
-  color: white !important;
-  border: 2px solid rgba(215,173,69,.55) !important;
-  box-shadow: 0 8px 20px rgba(13,155,80,.20);
+.compact-analysis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
-.prediction-info-card h3 { color: #0b2330 !important; }
-.prediction-info-card p { color: #65737d !important; }
+.compact-analysis-kicker {
+  display: block;
+  color: var(--jols-gold-soft);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+  margin-bottom: 4px;
+}
+
+.compact-analysis-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+}
+
+.compact-analysis-status {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(93,240,160,.28);
+  background: rgba(25,199,106,.10);
+  color: #79efac;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.compact-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.compact-signal-chip {
+  padding: 12px 8px;
+  text-align: center;
+  border-radius: 14px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(215,173,69,.20);
+}
+
+.compact-signal-chip strong {
+  display: block;
+  color: #72f0aa;
+  font-size: 1.08rem;
+  line-height: 1.1;
+}
+
+.compact-signal-chip span {
+  display: block;
+  margin-top: 4px;
+  color: rgba(235,244,247,.72);
+  font-size: .73rem;
+  font-weight: 800;
+}
+
+.compact-analysis-summary {
+  margin: 0;
+  color: rgba(231,241,245,.76);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.compact-analysis-details {
+  margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 12px;
+}
+
+.compact-analysis-details summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--jols-gold-soft);
+  font-weight: 900;
+  font-size: .9rem;
+}
+
+.compact-analysis-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.compact-analysis-details summary::after {
+  content: ' +';
+  color: #72f0aa;
+}
+
+.compact-analysis-details[open] summary::after {
+  content: ' −';
+}
+
+.compact-analysis-details #prediction-analysis-list {
+  margin-top: 12px;
+}
 
 /* Schedule */
 .prediction-schedule-section {
@@ -464,16 +542,43 @@ body {
     padding: 16px !important;
   }
 
-  .prediction-info-grid {
-    grid-template-columns: 1fr !important;
-  }
-
   .facebook-community-btn {
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: calc(100% - 28px) !important;
     justify-content: center !important;
     bottom: 14px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .compact-analysis-card {
+    padding: 16px !important;
+  }
+
+  .compact-analysis-header {
+    align-items: flex-start;
+  }
+
+  .compact-analysis-status {
+    font-size: .65rem;
+    padding: 6px 8px;
+  }
+
+  .compact-signal-grid {
+    gap: 7px;
+  }
+
+  .compact-signal-chip {
+    padding: 10px 5px;
+  }
+
+  .compact-signal-chip span {
+    font-size: .65rem;
+  }
+
+  .compact-analysis-summary {
+    font-size: .86rem;
   }
 }
 
