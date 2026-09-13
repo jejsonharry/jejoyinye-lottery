@@ -1,4 +1,4 @@
-name: Deploy Supabase Results Function
+name: Deploy Supabase Functions
 
 on:
   workflow_dispatch:
@@ -8,6 +8,7 @@ on:
     paths:
       - "supabase/functions/sync-modern-results/**"
       - "supabase/functions/admin-delete/**"
+      - "supabase/functions/public-form-submit/**"
       - "supabase/config.toml"
       - "supabase/migrations/**"
 
@@ -44,3 +45,4 @@ jobs:
         run: |
           supabase functions deploy sync-modern-results --project-ref iedgznzmmfkdhgmkghwt
           supabase functions deploy admin-delete --project-ref iedgznzmmfkdhgmkghwt
+          supabase functions deploy public-form-submit --project-ref iedgznzmmfkdhgmkghwt
