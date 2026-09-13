@@ -345,7 +345,7 @@ body {
 
 .compact-analysis-kicker {
   display: block;
-  color: var(--jols-gold-soft);
+  color: var(--jols-gold-soft) !important;
   font-size: .72rem;
   font-weight: 900;
   letter-spacing: .16em;
@@ -354,7 +354,7 @@ body {
 
 .compact-analysis-header h3 {
   margin: 0;
-  color: #fff;
+  color: #fff !important;
   font-size: clamp(1.25rem, 4vw, 1.75rem);
 }
 
@@ -364,7 +364,7 @@ body {
   border-radius: 999px;
   border: 1px solid rgba(93,240,160,.28);
   background: rgba(25,199,106,.10);
-  color: #79efac;
+  color: #79efac !important;
   font-size: .72rem;
   font-weight: 900;
 }
@@ -386,7 +386,7 @@ body {
 
 .compact-signal-chip strong {
   display: block;
-  color: #72f0aa;
+  color: #72f0aa !important;
   font-size: 1.08rem;
   line-height: 1.1;
 }
@@ -394,14 +394,14 @@ body {
 .compact-signal-chip span {
   display: block;
   margin-top: 4px;
-  color: rgba(235,244,247,.72);
+  color: rgba(235,244,247,.88) !important;
   font-size: .73rem;
   font-weight: 800;
 }
 
 .compact-analysis-summary {
   margin: 0;
-  color: rgba(231,241,245,.76);
+  color: rgba(241,248,250,.86) !important;
   font-size: .92rem;
   line-height: 1.55;
 }
@@ -415,7 +415,7 @@ body {
 .compact-analysis-details summary {
   cursor: pointer;
   list-style: none;
-  color: var(--jols-gold-soft);
+  color: var(--jols-gold-soft) !important;
   font-weight: 900;
   font-size: .9rem;
 }
@@ -439,14 +439,169 @@ body {
 
 /* Schedule */
 .prediction-schedule-section {
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(249,251,251,.96));
-  border: 1px solid rgba(7,31,42,.08);
-  box-shadow: 0 20px 52px rgba(7,25,36,.08);
+  position: relative;
+  overflow: hidden;
+  margin-top: 30px !important;
+  padding: 24px !important;
+  border-radius: 26px !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(215,173,69,.12), transparent 28%),
+    linear-gradient(145deg, #081c27 0%, #083234 58%, #071922 100%) !important;
+  border: 1px solid rgba(215,173,69,.30) !important;
+  box-shadow: 0 22px 52px rgba(4,20,29,.20), inset 0 1px 0 rgba(255,255,255,.04) !important;
 }
 
-.prediction-schedule-list > * {
-  border-radius: 16px !important;
+.prediction-schedule-section .prediction-section-heading {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  column-gap: 16px !important;
+  align-items: center !important;
+  margin: 0 0 18px !important;
+  text-align: left !important;
+}
+
+.prediction-schedule-section .prediction-section-heading > span {
+  grid-row: 1 / span 2;
+  display: inline-flex !important;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(215,173,69,.34);
+  border-radius: 999px;
+  background: rgba(215,173,69,.08);
+  color: var(--jols-gold-soft) !important;
+  font-size: .68rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .12em !important;
+}
+
+.prediction-schedule-section .prediction-section-heading h2 {
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: clamp(1.35rem, 3vw, 1.9rem) !important;
+  line-height: 1.15;
+}
+
+.prediction-schedule-section .prediction-section-heading p {
+  margin: 4px 0 0 !important;
+  color: rgba(231,241,245,.70) !important;
+  font-size: .82rem !important;
+  line-height: 1.45 !important;
+}
+
+.prediction-schedule-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.prediction-schedule-card {
+  position: relative;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  min-height: 82px !important;
+  padding: 13px 14px !important;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  border-radius: 15px !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.035)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 8px 20px rgba(0,0,0,.12) !important;
+}
+
+.prediction-schedule-card::before {
+  content: "";
+  position: absolute;
+  inset: 10px auto 10px 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: rgba(169,186,198,.42);
+}
+
+.prediction-schedule-card.schedule-next {
+  border-color: rgba(93,240,160,.48) !important;
+  background: linear-gradient(145deg, rgba(25,199,106,.16), rgba(255,255,255,.045)) !important;
+  box-shadow: 0 0 0 1px rgba(25,199,106,.08), 0 10px 26px rgba(2,18,22,.22) !important;
+}
+
+.prediction-schedule-card.schedule-next::before {
+  background: #5df0a0;
+  box-shadow: 0 0 14px rgba(93,240,160,.7);
+}
+
+.prediction-schedule-card.schedule-upcoming::before {
+  background: var(--jols-gold);
+}
+
+.prediction-schedule-card.schedule-completed {
+  opacity: .68;
+}
+
+.schedule-card-left {
+  min-width: 0;
+}
+
+.schedule-lottery {
+  display: block !important;
+  margin-bottom: 3px !important;
+  color: rgba(244,215,125,.78) !important;
+  font-size: .62rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .10em !important;
+  text-transform: uppercase;
+}
+
+.schedule-card-left h3 {
+  margin: 0 !important;
+  color: #f8fbff !important;
+  font-size: 1rem !important;
+  line-height: 1.2 !important;
+}
+
+.schedule-close {
+  display: block !important;
+  margin-top: 4px !important;
+  color: rgba(229,240,244,.60) !important;
+  font-size: .69rem !important;
+  font-weight: 700 !important;
+}
+
+.schedule-card-right {
+  flex: 0 0 auto;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 5px !important;
+}
+
+.schedule-card-right strong {
+  color: #fff !important;
+  font-size: 1rem !important;
+  font-weight: 950 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-status {
+  display: inline-flex !important;
+  align-items: center;
+  padding: 4px 8px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.08) !important;
+  color: rgba(238,246,249,.76) !important;
+  font-size: .62rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .04em;
+}
+
+.schedule-next .schedule-status {
+  background: rgba(25,199,106,.16) !important;
+  color: #79efac !important;
+}
+
+.schedule-upcoming .schedule-status {
+  background: rgba(215,173,69,.13) !important;
+  color: #f4d77d !important;
 }
 
 /* Warning */
@@ -540,6 +695,34 @@ body {
 
   .analysis-summary-card {
     padding: 16px !important;
+  }
+
+  .prediction-schedule-section {
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .prediction-schedule-section .prediction-section-heading {
+    grid-template-columns: 1fr !important;
+    row-gap: 7px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .prediction-schedule-section .prediction-section-heading > span {
+    grid-row: auto;
+    width: fit-content;
+    min-height: 0;
+    padding: 6px 9px;
+  }
+
+  .prediction-schedule-list {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .prediction-schedule-card {
+    min-height: 72px !important;
+    padding: 11px 12px !important;
   }
 
   .facebook-community-btn {
