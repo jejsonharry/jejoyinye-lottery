@@ -1,8 +1,21 @@
 export default {
   async fetch(request) {
+    const url = new URL(request.url);
+    const cleanUrlRedirects = new Map([
+      ["/index.html", "/"],
+      ["/results.html", "/results"],
+      ["/predictions.html", "/predictions"]
+    ]);
+
+    const cleanPath = cleanUrlRedirects.get(url.pathname);
+    if (cleanPath && (request.method === "GET" || request.method === "HEAD")) {
+      url.pathname = cleanPath;
+
+      return Response.redirect(url.toString(), 301);
+    }
+
     const response = await fetch(request);
     const headers = new Headers(response.headers);
-    const url = new URL(request.url);
 
     headers.set("Content-Security-Policy", [
       "default-src 'self'",
