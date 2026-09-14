@@ -278,6 +278,12 @@ const modalDeleteButton =
     );
 
 
+const modalEditButton =
+    document.getElementById(
+        "modal-edit-agent"
+    );
+
+
 // =========================================================
 // STATE
 // =========================================================
@@ -2510,6 +2516,7 @@ function renderApplications(
 
                     <div class="admin-actions agent-card-actions">
                         <button type="button" class="admin-dark-btn view-agent" data-id="${application.id}">View Details</button>
+                        <button type="button" class="admin-edit-btn edit-agent" data-id="${application.id}">Edit Application</button>
                         ${archived ? `
                             <button type="button" class="admin-restore-btn restore-agent" data-id="${application.id}">Restore</button>
                         ` : `
@@ -2521,8 +2528,8 @@ function renderApplications(
             `;
 
 
-            // Approved applications are intentionally read-only in the list.
-            // Keep only the APPROVED status badge and View Details action visible.
+            // Approved applications may still need information corrections.
+            // Keep View Details and Edit Application available, while protecting lifecycle actions.
             if (!archived && status === "approved") {
                 card
                     .querySelectorAll(".archive-agent, .restore-agent, .delete-agent")
@@ -2560,6 +2567,31 @@ function renderApplications(
                     }
                 );
 
+            }
+        );
+
+
+    applicationsContainer
+        .querySelectorAll(
+            ".edit-agent"
+        )
+
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        openAgentModal(
+                            button.dataset.id
+                        );
+
+                        showAgentEditForm(
+                            selectedApplication
+                        );
+                    }
+                );
             }
         );
 
@@ -2975,6 +3007,16 @@ function openAgentModal(id) {
     `;
 
 
+    const modalTitle = agentModal.querySelector(".agent-modal-header h2");
+    if (modalTitle) {
+        modalTitle.textContent = "Applicant Details";
+    }
+
+    if (modalEditButton) {
+        modalEditButton.hidden = false;
+        modalEditButton.disabled = false;
+    }
+
     const onboardingStatus = String(application.onboarding_status || "pending").toLowerCase();
     const isOnboarded = onboardingStatus === "onboarded";
 
@@ -3023,6 +3065,255 @@ function openAgentModal(id) {
         "modal-open"
     );
 
+}
+
+
+
+// =========================================================
+// EDIT AGENT APPLICATION
+// =========================================================
+
+function setAgentModalManagementActions(hidden) {
+    [
+        modalApproveButton,
+        modalRejectButton,
+        modalArchiveButton,
+        modalRestoreButton,
+        modalDeleteButton,
+        modalEditButton
+    ].forEach(button => {
+        if (button) {
+            button.hidden = hidden;
+        }
+    });
+}
+
+
+function showAgentEditForm(application) {
+    if (!application || !agentModalContent) {
+        return;
+    }
+
+    selectedApplication = application;
+    setAgentModalManagementActions(true);
+
+    const modalTitle = agentModal?.querySelector(".agent-modal-header h2");
+    if (modalTitle) {
+        modalTitle.textContent = "Edit Application";
+    }
+
+    agentModalContent.innerHTML = `
+        <form id="agent-edit-form" class="agent-edit-form" novalidate>
+            <div class="agent-edit-intro">
+                <span class="admin-eyebrow">APPLICATION UPDATE</span>
+                <h3>Correct or update the agent's information</h3>
+                <p>Saving updates this existing application. It will not create another record.</p>
+            </div>
+
+            <div class="agent-edit-grid">
+                <label class="agent-edit-field">
+                    <span>Full Name <b>*</b></span>
+                    <input name="full_name" value="${escapeHTML(application.full_name || "")}" required autocomplete="name">
+                </label>
+
+                <label class="agent-edit-field">
+                    <span>Phone Number <b>*</b></span>
+                    <input name="phone" value="${escapeHTML(application.phone || "")}" required inputmode="tel" autocomplete="tel">
+                </label>
+
+                <label class="agent-edit-field">
+                    <span>Email Address</span>
+                    <input name="email" type="email" value="${escapeHTML(application.email || "")}" autocomplete="email">
+                </label>
+
+                <label class="agent-edit-field">
+                    <span>NIN <b>*</b></span>
+                    <input name="nin" value="${escapeHTML(application.nin || "")}" required inputmode="numeric" maxlength="11" autocomplete="off">
+                </label>
+
+                <label class="agent-edit-field">
+                    <span>State <b>*</b></span>
+                    <input name="state" value="${escapeHTML(application.state || "")}" required autocomplete="address-level1">
+                </label>
+
+                <label class="agent-edit-field">
+                    <span>City / Town <b>*</b></span>
+                    <input name="city" value="${escapeHTML(application.city || "")}" required autocomplete="address-level2">
+                </label>
+
+                <label class="agent-edit-field agent-edit-field-full">
+                    <span>Business Address <b>*</b></span>
+                    <textarea name="business_address" rows="3" required autocomplete="street-address">${escapeHTML(application.business_address || "")}</textarea>
+                </label>
+            </div>
+
+            <section class="agent-edit-sensitive">
+                <div>
+                    <span class="admin-eyebrow">PRIVATE INFORMATION</span>
+                    <h3>Bank and identification details</h3>
+                    <p>Only authorised administrators should update these fields.</p>
+                </div>
+
+                <div class="agent-edit-grid">
+                    <label class="agent-edit-field">
+                        <span>Bank Name <b>*</b></span>
+                        <input name="bank_name" value="${escapeHTML(application.bank_name || "")}" required autocomplete="off">
+                    </label>
+
+                    <label class="agent-edit-field">
+                        <span>Account Name <b>*</b></span>
+                        <input name="account_name" value="${escapeHTML(application.account_name || "")}" required autocomplete="off">
+                    </label>
+
+                    <label class="agent-edit-field">
+                        <span>Account Number <b>*</b></span>
+                        <input name="account_number" value="${escapeHTML(application.account_number || "")}" required inputmode="numeric" maxlength="10" autocomplete="off">
+                    </label>
+
+                    <label class="agent-edit-field">
+                        <span>Lottery Experience</span>
+                        <select name="lottery_experience">
+                            <option value="" ${!application.lottery_experience ? "selected" : ""}>Not specified</option>
+                            <option value="yes" ${String(application.lottery_experience || "").toLowerCase() === "yes" ? "selected" : ""}>Yes</option>
+                            <option value="no" ${String(application.lottery_experience || "").toLowerCase() === "no" ? "selected" : ""}>No</option>
+                        </select>
+                    </label>
+
+                    <label class="agent-edit-field agent-edit-field-full">
+                        <span>Additional Information</span>
+                        <textarea name="additional_information" rows="4">${escapeHTML(application.additional_information || "")}</textarea>
+                    </label>
+                </div>
+            </section>
+
+            <div id="agent-edit-message" class="agent-edit-message" role="alert" aria-live="polite"></div>
+
+            <div class="agent-edit-actions">
+                <button type="button" class="admin-light-btn" id="cancel-agent-edit">Cancel</button>
+                <button type="submit" class="admin-success-btn" id="save-agent-edit">Save Changes</button>
+            </div>
+        </form>
+    `;
+
+    const editForm = document.getElementById("agent-edit-form");
+    const ninInput = editForm?.elements.namedItem("nin");
+    const accountInput = editForm?.elements.namedItem("account_number");
+
+    ninInput?.addEventListener("input", event => {
+        event.target.value = event.target.value.replace(/\D/g, "").slice(0, 11);
+    });
+
+    accountInput?.addEventListener("input", event => {
+        event.target.value = event.target.value.replace(/\D/g, "").slice(0, 10);
+    });
+
+    document.getElementById("cancel-agent-edit")?.addEventListener("click", () => {
+        openAgentModal(application.id);
+    });
+
+    editForm?.addEventListener("submit", event => {
+        saveAgentApplicationEdits(event, application.id);
+    });
+
+    editForm?.querySelector('[name="full_name"]')?.focus();
+}
+
+
+async function saveAgentApplicationEdits(event, id) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const fieldValue = name => String(form.elements.namedItem(name)?.value || "").trim();
+    const phone = fieldValue("phone");
+    const email = fieldValue("email");
+    const nin = fieldValue("nin").replace(/\D/g, "");
+    const accountNumber = fieldValue("account_number").replace(/\D/g, "");
+    const message = document.getElementById("agent-edit-message");
+    const saveButton = document.getElementById("save-agent-edit");
+
+    const showEditError = text => {
+        if (message) {
+            message.textContent = text;
+            message.className = "agent-edit-message error";
+        }
+    };
+
+    const payload = {
+        full_name: fieldValue("full_name"),
+        phone,
+        email: email || null,
+        nin,
+        state: fieldValue("state"),
+        city: fieldValue("city"),
+        business_address: fieldValue("business_address"),
+        bank_name: fieldValue("bank_name"),
+        account_name: fieldValue("account_name"),
+        account_number: accountNumber,
+        lottery_experience: fieldValue("lottery_experience") || null,
+        additional_information: fieldValue("additional_information") || null
+    };
+
+    if (payload.full_name.length < 3) return showEditError("Please enter the agent's full name.");
+    if (!/^\d{10,14}$/.test(phone.replace(/\D/g, ""))) return showEditError("Please enter a valid phone number.");
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showEditError("Please enter a valid email address.");
+    if (!/^\d{11}$/.test(nin)) return showEditError("NIN must contain exactly 11 digits.");
+    if (!payload.state) return showEditError("Please enter the agent's state.");
+    if (!payload.city) return showEditError("Please enter the agent's city or town.");
+    if (payload.business_address.length < 5) return showEditError("Please enter a valid business address.");
+    if (!payload.bank_name) return showEditError("Please enter the bank name.");
+    if (payload.account_name.length < 3) return showEditError("Please enter the account name.");
+    if (!/^\d{10}$/.test(accountNumber)) return showEditError("Account number must contain exactly 10 digits.");
+
+    try {
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+        }
+
+        const { data, error } = await supabaseClient
+            .from(TABLES.agents)
+            .update(payload)
+            .eq("id", id)
+            .select(`
+                id,
+                full_name,
+                phone,
+                email,
+                nin,
+                state,
+                city,
+                business_address,
+                bank_name,
+                account_name,
+                account_number,
+                lottery_experience,
+                additional_information,
+                status,
+                onboarding_status,
+                archived,
+                created_at
+            `)
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data || String(data.id) !== String(id)) {
+            throw new Error("The application update could not be verified.");
+        }
+
+        showSuccess("Agent application updated successfully.");
+        await loadAgentApplications();
+        openAgentModal(id);
+    } catch (error) {
+        showEditError("Unable to save changes: " + (error?.message || "Unknown error"));
+
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Changes";
+        }
+    }
 }
 
 
@@ -3876,6 +4167,22 @@ function attachEvents() {
         ?.addEventListener(
             "click",
             closeAgentModal
+        );
+
+
+    modalEditButton
+        ?.addEventListener(
+            "click",
+            () => {
+
+                if (!selectedApplication) {
+                    return;
+                }
+
+                showAgentEditForm(
+                    selectedApplication
+                );
+            }
         );
 
 

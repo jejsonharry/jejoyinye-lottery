@@ -2919,7 +2919,7 @@
 .agent-onboarding-status-panel{margin:18px 0;padding:18px;border:1px solid #dbe5f0;border-radius:16px;background:#f8fbff}.agent-onboarding-options{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}.agent-onboarding-option{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer}.agent-onboarding-option input{width:18px;height:18px;accent-color:#2563eb}.agent-onboarding-status-panel .admin-muted{margin:10px 0 0}
 </style>
 
-    <link rel="stylesheet" href="admin-premium-v3.css?v=5">
+    <link rel="stylesheet" href="admin-premium-v3.css?v=6">
 
 </head>
 
@@ -3798,6 +3798,15 @@
 
             <button
                 type="button"
+                id="modal-edit-agent"
+                class="admin-edit-btn"
+            >
+                Edit Application
+            </button>
+
+
+            <button
+                type="button"
                 id="modal-approve-agent"
                 class="admin-success-btn"
             >
@@ -3894,7 +3903,7 @@
 
 <script src="supabase.js" defer></script>
 
-<script src="admin.js?v=1410" defer></script>
+<script src="admin.js?v=1411" defer></script>
 <script src="admin-prediction-audit-v1.js?v=2" defer></script>
 
 </body>

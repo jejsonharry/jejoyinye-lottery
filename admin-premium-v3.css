@@ -959,3 +959,80 @@ html { scroll-behavior: smooth; }
 .agent-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:22px 22px 18px 25px;border-bottom:1px solid #e8eef4;background:linear-gradient(145deg,#fff,#f8fbfe)}.agent-card-title{min-width:0}.agent-card-kicker{display:block;margin-bottom:5px;color:#0d8b4f;font-size:9px;font-weight:950;letter-spacing:1.25px}.agent-card-title h3{margin:0 0 5px!important;color:#091a31!important;font-size:20px!important;font-weight:950!important}.agent-card-location{color:#718197;font-size:12px;font-weight:750}.agent-card-statuses{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto}.agent-card-statuses .application-status{margin:0!important}.agent-onboarding-badge{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:5px 9px;border:1px solid transparent;border-radius:999px;font-size:9px;font-weight:950;letter-spacing:.35px}.onboarding-badge-pending{color:#9a5a07;background:#fff7dc;border-color:#f9df94}.onboarding-badge-onboarded{color:#08733f;background:#e4f9ed;border-color:#bcebcf}
 .agent-card-contact-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:18px 22px 4px 25px}.agent-card-contact{min-width:0;padding:12px;border:1px solid #e1e9f1;border-radius:12px;background:#f9fbfd}.agent-card-contact span,.agent-card-contact strong{display:block}.agent-card-contact span{margin-bottom:5px;color:#7b899b;font-size:9px;font-weight:900;letter-spacing:.55px;text-transform:uppercase}.agent-card-contact strong{overflow:hidden;color:#24384f;font-size:12px;font-weight:850;line-height:1.4;text-overflow:ellipsis}.agent-card-footer{margin-top:auto;padding:16px 22px 20px 25px}.agent-card-progress{display:flex;align-items:center;gap:7px;min-height:32px;padding:9px 11px;border:1px solid #e2eaf2;border-radius:11px;background:linear-gradient(145deg,#f8fbfd,#fff);color:#66768b;font-size:10px;font-weight:800}.agent-progress-dot{width:8px;height:8px;flex:0 0 auto;border-radius:50%;background:#c4cfdb;box-shadow:0 0 0 3px rgba(148,163,184,.12)}.agent-progress-dot.complete{background:#16a05d;box-shadow:0 0 0 3px rgba(22,160,93,.14)}.agent-progress-line{width:20px;height:1px;flex:0 0 auto;background:#ced8e2}.agent-card-actions{margin-top:13px!important;padding-top:13px;border-top:1px solid #edf1f5}
 @media(max-width:1000px){.agent-network-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#agents-tab .admin-tools{grid-template-columns:1fr 1fr!important}#agents-tab .admin-tools .admin-form-group:first-child{grid-column:1/-1}}@media(max-width:760px){.agent-network-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.agent-summary-card{min-height:106px;padding:14px}.agent-summary-card strong{font-size:25px}#agents-tab .admin-tools{grid-template-columns:1fr!important}#agents-tab .admin-tools .admin-form-group:first-child{grid-column:auto}#agent-applications-container{grid-template-columns:1fr!important}.agent-card-header{padding:18px 16px 15px 19px}.agent-card-contact-grid{grid-template-columns:1fr 1fr;padding:15px 16px 3px 19px}.agent-card-contact:last-child{grid-column:1/-1}.agent-card-footer{padding:14px 16px 18px 19px}.agent-card-progress{flex-wrap:wrap}}@media(max-width:460px){.agent-card-header{flex-direction:column;gap:11px}.agent-card-statuses{flex-direction:row;flex-wrap:wrap;align-items:center}.agent-card-contact-grid{grid-template-columns:1fr}.agent-card-contact:last-child{grid-column:auto}.agent-card-actions{display:grid!important;grid-template-columns:1fr}.agent-card-actions button{width:100%}}
+
+
+/* Agent application editing */
+.admin-edit-btn {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 15px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, .2);
+}
+.admin-edit-btn:hover { transform: translateY(-1px); }
+.admin-edit-btn:focus-visible { outline: 3px solid rgba(37, 99, 235, .28); outline-offset: 2px; }
+.agent-edit-form { display: grid; gap: 20px; }
+.agent-edit-intro {
+    padding: 18px;
+    border: 1px solid #bfdbfe;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #eff6ff, #fff);
+}
+.agent-edit-intro h3, .agent-edit-sensitive h3 { margin: 5px 0 6px; color: #0f172a; }
+.agent-edit-intro p, .agent-edit-sensitive p { margin: 0; color: #64748b; font-size: 13px; line-height: 1.55; }
+.agent-edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+.agent-edit-field { display: grid; gap: 7px; min-width: 0; }
+.agent-edit-field-full { grid-column: 1 / -1; }
+.agent-edit-field > span { color: #334155; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .35px; }
+.agent-edit-field b { color: #dc2626; }
+.agent-edit-field input,
+.agent-edit-field select,
+.agent-edit-field textarea {
+    width: 100%;
+    min-height: 46px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    padding: 11px 13px;
+    background: #fff;
+    color: #0f172a;
+    font: inherit;
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.agent-edit-field textarea { resize: vertical; line-height: 1.5; }
+.agent-edit-field input:focus,
+.agent-edit-field select:focus,
+.agent-edit-field textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+.agent-edit-sensitive {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+    background: #fff7ed;
+}
+.agent-edit-message { display: none; padding: 12px 14px; border-radius: 10px; font-size: 13px; font-weight: 800; }
+.agent-edit-message.error { display: block; border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; }
+.agent-edit-actions {
+    position: sticky;
+    bottom: -28px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 0 4px;
+    background: linear-gradient(to top, #fff 70%, rgba(255,255,255,0));
+}
+.agent-edit-actions button { min-width: 140px; }
+@media (max-width: 620px) {
+    .agent-edit-grid { grid-template-columns: 1fr; }
+    .agent-edit-field-full { grid-column: auto; }
+    .agent-edit-actions { bottom: -28px; display: grid; grid-template-columns: 1fr; }
+    .agent-edit-actions button { width: 100%; }
+}
