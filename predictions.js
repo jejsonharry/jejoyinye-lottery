@@ -942,6 +942,14 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
     moving: 0.20
 });
 
+// Source priority inside every Modern scoring component.
+// The game being predicted remains the primary evidence source.
+const MODERN_GAME_SIGNAL_PRIORITY = Object.freeze({
+    targetGame: 0.80,
+    earlierGamesToday: 0.20,
+    recentTargetDraws: 3
+});
+
 const GHANA_PREDICTION_WEIGHTS = Object.freeze({
     statistical: 0.70,
     classification: 0.25,
@@ -1160,20 +1168,61 @@ function applyModernClassificationRanking(
     contextResults = [],
     includeMachineRelationships = true
 ) {
-    const signalResults = [
-        ...todayResults.map(result => ({
+    function buildSourceSignals(sourceResults, priority) {
+        if (!sourceResults.length || priority <= 0) {
+            return [];
+        }
+
+        const recencyWeights = sourceResults.map(
+            (_, index) => Math.max(0.40, 1 - (index * 0.20))
+        );
+
+        const totalWeight =
+            recencyWeights.reduce((sum, weight) => sum + weight, 0) || 1;
+
+        return sourceResults.map((result, index) => ({
             result,
-            weight: 2.5
-        })),
-        ...contextResults.slice(0, 3).map((result, index) => ({
-            result,
-            weight: Math.max(0.75, 1.35 - (index * 0.20))
-        })),
-        ...results.slice(0, 5).map((result, index) => ({
-            result,
-            weight: Math.max(0.35, 1 - (index * 0.15))
-        }))
-    ];
+            weight: priority * (recencyWeights[index] / totalWeight)
+        }));
+    }
+
+    let signalResults;
+
+    if (includeMachineRelationships) {
+        const targetGameResults =
+            results.slice(0, MODERN_GAME_SIGNAL_PRIORITY.recentTargetDraws);
+
+        const supportingResults = todayResults;
+
+        const targetPriority =
+            supportingResults.length
+                ? MODERN_GAME_SIGNAL_PRIORITY.targetGame
+                : 1;
+
+        const supportingPriority =
+            supportingResults.length
+                ? MODERN_GAME_SIGNAL_PRIORITY.earlierGamesToday
+                : 0;
+
+        signalResults = [
+            ...buildSourceSignals(targetGameResults, targetPriority),
+            ...buildSourceSignals(supportingResults, supportingPriority)
+        ];
+    }
+
+    else {
+        // Preserve the separate Ghana model and its winning-number-only rules.
+        signalResults = [
+            ...contextResults.slice(0, 3).map((result, index) => ({
+                result,
+                weight: Math.max(0.75, 1.35 - (index * 0.20))
+            })),
+            ...results.slice(0, 5).map((result, index) => ({
+                result,
+                weight: Math.max(0.35, 1 - (index * 0.15))
+            }))
+        ];
+    }
 
     signalResults.forEach(({ result, weight }) => {
         parsePredictionNumbers(result.winning).forEach(number => {
@@ -1320,23 +1369,16 @@ function calculateStatisticalPrediction(
         }
     );
 
-    // Same-day results carry extra recency weight because they reflect
-    // the number activity immediately before the upcoming game.
-    const todayWinningWeight = Math.max(7, results.length * 0.09);
-    const todayMachineWeight = Math.max(2, results.length * 0.025);
-
     todayResults.forEach(result => {
         const winningNumbers = parsePredictionNumbers(result.winning);
         const machineNumbers = parsePredictionNumbers(result.machine);
 
         winningNumbers.forEach(number => {
             scoreMap[number].todayFrequency += 1;
-            scoreMap[number].recentScore += todayWinningWeight;
         });
 
         machineNumbers.forEach(number => {
             scoreMap[number].todayFrequency += 0.35;
-            scoreMap[number].recentScore += todayMachineWeight;
         });
     });
 
@@ -1346,24 +1388,33 @@ function calculateStatisticalPrediction(
     ).forEach(item => {
 
 
-        item.totalScore =
-
-            (
-                item.winningFrequency *
-                3.5
-            )
-
-            +
-
-            (
-                item.machineFrequency *
-                0.8
-            )
-
-            +
-
+        item.targetGameScore =
+            (item.winningFrequency * 3.5) +
+            (item.machineFrequency * 0.8) +
             item.recentScore;
 
+        item.earlierGamesScore =
+            item.todayFrequency;
+
+    });
+
+    normalizePredictionComponent(scoreMap, "targetGameScore");
+    normalizePredictionComponent(scoreMap, "earlierGamesScore");
+
+    const hasEarlierGames = todayResults.length > 0;
+    const targetGamePriority =
+        hasEarlierGames
+            ? MODERN_GAME_SIGNAL_PRIORITY.targetGame
+            : 1;
+    const earlierGamesPriority =
+        hasEarlierGames
+            ? MODERN_GAME_SIGNAL_PRIORITY.earlierGamesToday
+            : 0;
+
+    Object.values(scoreMap).forEach(item => {
+        item.totalScore =
+            (item.targetGameScoreNormalized * targetGamePriority) +
+            (item.earlierGamesScoreNormalized * earlierGamesPriority);
     });
 
 
