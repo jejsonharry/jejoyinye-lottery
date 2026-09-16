@@ -3,10 +3,74 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
-// VERSION 35
+// VERSION 36
 // =========================================================
 
-console.log("JEJOYINYE SCRIPT VERSION 35 LOADED");
+console.log("JEJOYINYE SCRIPT VERSION 36 LOADED");
+
+
+// =========================================================
+// RESULTS REQUEST RELIABILITY
+// Prevent slow or interrupted requests from leaving the UI
+// permanently stuck on a loading message.
+// =========================================================
+
+function runResultRequestWithTimeout(
+    requestFactory,
+    label,
+    timeoutMs = 15000
+) {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            reject(
+                new Error(
+                    `${label} timed out. Please check your connection and try again.`
+                )
+            );
+        }, timeoutMs);
+
+        Promise.resolve()
+            .then(requestFactory)
+            .then(result => {
+                clearTimeout(timer);
+                resolve(result);
+            })
+            .catch(error => {
+                clearTimeout(timer);
+                reject(error);
+            });
+    });
+}
+
+
+async function runResultRequestWithRetry(
+    requestFactory,
+    label,
+    timeoutMs = 15000
+) {
+    let lastError;
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            return await runResultRequestWithTimeout(
+                requestFactory,
+                label,
+                timeoutMs
+            );
+        }
+        catch (error) {
+            lastError = error;
+
+            if (attempt < 2) {
+                await new Promise(resolve =>
+                    setTimeout(resolve, 600)
+                );
+            }
+        }
+    }
+
+    throw lastError;
+}
 
 
 // =========================================================
@@ -3090,9 +3154,16 @@ async function displayResults() {
             liveResult,
             bundledResult
         ] = await Promise.allSettled([
-            fetchAllFilteredSupabaseResults(),
+            runResultRequestWithRetry(
+                () => fetchAllFilteredSupabaseResults(),
+                "Results request",
+                25000
+            ),
             lotteryType?.value === "ghana"
-                ? fetchBundledGhanaResults()
+                ? runResultRequestWithRetry(
+                    () => fetchBundledGhanaResults(),
+                    "Ghana archive request"
+                )
                 : Promise.resolve([])
         ]);
 
@@ -4263,12 +4334,15 @@ async function displayLatestDailyModernResults() {
 
     try {
         const { data, error } =
-            await supabaseClient
-                .from("results")
-                .select("lottery, game, draw_date, winning, machine")
-                .eq("lottery", "modern-billionaire")
-                .order("draw_date", { ascending: false })
-                .limit(36);
+            await runResultRequestWithRetry(
+                () => supabaseClient
+                    .from("results")
+                    .select("lottery, game, draw_date, winning, machine")
+                    .eq("lottery", "modern-billionaire")
+                    .order("draw_date", { ascending: false })
+                    .limit(36),
+                "Daily Modern results request"
+            );
 
         if (error) {
             throw error;
@@ -4441,8 +4515,14 @@ async function displayLatestDailyGhanaResult() {
     try {
         const [liveResult, bundledResult] =
             await Promise.allSettled([
-                fetchScheduledResult(schedule),
-                fetchBundledGhanaResults()
+                runResultRequestWithRetry(
+                    () => fetchScheduledResult(schedule),
+                    "Daily Ghana result request"
+                ),
+                runResultRequestWithRetry(
+                    () => fetchBundledGhanaResults(),
+                    "Ghana archive request"
+                )
             ]);
 
         const liveResults =
