@@ -30,9 +30,6 @@ const aheadGamePredictions =
 const analysisDrawCount =
     document.getElementById("analysis-draw-count");
 
-const analysisTodayCount =
-    document.getElementById("analysis-today-count");
-
 const predictionAnalysisList =
     document.getElementById("prediction-analysis-list");
 
@@ -882,49 +879,6 @@ async function fetchGhanaFallbackHistory() {
 
 
 // =========================================================
-// TODAY'S EARLIER PUBLISHED GAMES
-// =========================================================
-
-async function fetchTodaysEarlierResults(game) {
-
-    if (!game || game.drawDate !== getTodayDateString()) {
-        return [];
-    }
-
-    const earlierGameNames = getTodaysGames()
-        .filter(item =>
-            item.lottery === game.lottery &&
-            item.drawMinutes < game.drawMinutes
-        )
-        .flatMap(item => item.databaseNames || [item.game]);
-
-    if (!earlierGameNames.length) {
-        return [];
-    }
-
-    try {
-        const { data, error } = await supabaseClient
-            .from("results")
-            .select("game, lottery, draw_date, winning, machine")
-            .eq("lottery", game.lottery)
-            .eq("draw_date", game.drawDate)
-            .in("game", [...new Set(earlierGameNames)]);
-
-        if (error) {
-            throw error;
-        }
-
-        return data || [];
-    }
-
-    catch (error) {
-        console.error("Today's earlier results error:", error);
-        return [];
-    }
-}
-
-
-// =========================================================
 // MODERN BILLIONAIRE CLASSIFICATION CHART
 // 60% statistics + 30% classification + 10% moving numbers
 // =========================================================
@@ -935,11 +889,10 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
     moving: 0.10
 });
 
-// Source priority inside every Modern scoring component.
-// The game being predicted remains the primary evidence source.
+// Every Modern scoring component is strictly based on the
+// exact game being predicted. Other games contribute nothing.
 const MODERN_GAME_SIGNAL_PRIORITY = Object.freeze({
-    targetGame: 0.80,
-    earlierGamesToday: 0.20,
+    targetGame: 1.00,
     recentTargetDraws: 3
 });
 
@@ -1156,7 +1109,7 @@ function addModernRelationshipScores(scoreMap, sourceNumber, weight) {
 function applyModernClassificationRanking(
     scoreMap,
     results,
-    todayResults,
+    _todayResults,
     predictionWeights = MODERN_PREDICTION_WEIGHTS,
     contextResults = [],
     includeMachineRelationships = true
@@ -1185,21 +1138,11 @@ function applyModernClassificationRanking(
         const targetGameResults =
             results.slice(0, MODERN_GAME_SIGNAL_PRIORITY.recentTargetDraws);
 
-        const supportingResults = todayResults;
-
-        const targetPriority =
-            supportingResults.length
-                ? MODERN_GAME_SIGNAL_PRIORITY.targetGame
-                : 1;
-
-        const supportingPriority =
-            supportingResults.length
-                ? MODERN_GAME_SIGNAL_PRIORITY.earlierGamesToday
-                : 0;
-
         signalResults = [
-            ...buildSourceSignals(targetGameResults, targetPriority),
-            ...buildSourceSignals(supportingResults, supportingPriority)
+            ...buildSourceSignals(
+                targetGameResults,
+                MODERN_GAME_SIGNAL_PRIORITY.targetGame
+            )
         ];
     }
 
@@ -1252,7 +1195,7 @@ function applyModernClassificationRanking(
 
 function calculateStatisticalPrediction(
     results,
-    todayResults = [],
+    _todayResults = [],
     useModernClassification = false,
     predictionWeights = MODERN_PREDICTION_WEIGHTS,
     contextResults = [],
@@ -1275,8 +1218,6 @@ function calculateStatisticalPrediction(
             winningFrequency: 0,
 
             machineFrequency: 0,
-
-            todayFrequency: 0,
 
             recentScore: 0,
 
@@ -1362,20 +1303,6 @@ function calculateStatisticalPrediction(
         }
     );
 
-    todayResults.forEach(result => {
-        const winningNumbers = parsePredictionNumbers(result.winning);
-        const machineNumbers = parsePredictionNumbers(result.machine);
-
-        winningNumbers.forEach(number => {
-            scoreMap[number].todayFrequency += 1;
-        });
-
-        machineNumbers.forEach(number => {
-            scoreMap[number].todayFrequency += 0.35;
-        });
-    });
-
-
     Object.values(
         scoreMap
     ).forEach(item => {
@@ -1386,28 +1313,14 @@ function calculateStatisticalPrediction(
             (item.machineFrequency * 0.8) +
             item.recentScore;
 
-        item.earlierGamesScore =
-            item.todayFrequency;
-
     });
 
     normalizePredictionComponent(scoreMap, "targetGameScore");
-    normalizePredictionComponent(scoreMap, "earlierGamesScore");
-
-    const hasEarlierGames = todayResults.length > 0;
-    const targetGamePriority =
-        hasEarlierGames
-            ? MODERN_GAME_SIGNAL_PRIORITY.targetGame
-            : 1;
-    const earlierGamesPriority =
-        hasEarlierGames
-            ? MODERN_GAME_SIGNAL_PRIORITY.earlierGamesToday
-            : 0;
 
     Object.values(scoreMap).forEach(item => {
         item.totalScore =
-            (item.targetGameScoreNormalized * targetGamePriority) +
-            (item.earlierGamesScoreNormalized * earlierGamesPriority);
+            item.targetGameScoreNormalized *
+            MODERN_GAME_SIGNAL_PRIORITY.targetGame;
     });
 
 
@@ -1415,7 +1328,7 @@ function calculateStatisticalPrediction(
         applyModernClassificationRanking(
             scoreMap,
             results,
-            todayResults,
+            [],
             predictionWeights,
             contextResults,
             includeMachineRelationships
@@ -1611,8 +1524,7 @@ function displayPredictionBalls(
 
 function displayPredictionAnalysis(
     predictionData,
-    historyCount,
-    todayCount = 0
+    historyCount
 ) {
 
     if (
@@ -1623,11 +1535,6 @@ function displayPredictionAnalysis(
             historyCount;
 
     }
-
-    if (analysisTodayCount) {
-        analysisTodayCount.textContent = todayCount;
-    }
-
 
     if (
         !predictionAnalysisList ||
@@ -1756,19 +1663,6 @@ function displayPredictionAnalysis(
 
                                         <strong>
                                             ${item.machineFrequency}
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div>
-
-                                        <span>
-                                            Today's Activity
-                                        </span>
-
-                                        <strong>
-                                            ${item.todayFrequency.toFixed(1)}
                                         </strong>
 
                                     </div>
@@ -1954,10 +1848,7 @@ async function displayNextGamePrediction() {
 
     try {
 
-        const [history, todayResults] = await Promise.all([
-            fetchPredictionHistory(nextGame),
-            fetchTodaysEarlierResults(nextGame)
-        ]);
+        const history = await fetchPredictionHistory(nextGame);
 
 
         if (
@@ -1991,11 +1882,6 @@ async function displayNextGamePrediction() {
 
             }
 
-            if (analysisTodayCount) {
-                analysisTodayCount.textContent = todayResults.length;
-            }
-
-
             return;
 
         }
@@ -2004,7 +1890,7 @@ async function displayNextGamePrediction() {
         const predictionData =
             calculateStatisticalPrediction(
                 history,
-                todayResults,
+                [],
                 true
             );
 
@@ -2016,8 +1902,7 @@ async function displayNextGamePrediction() {
 
         displayPredictionAnalysis(
             predictionData,
-            history.length,
-            todayResults.length
+            history.length
         );
 
 
@@ -2061,8 +1946,7 @@ async function displayNextGamePrediction() {
 // =========================================================
 // DISPLAY AHEAD-GAME PREDICTIONS
 // Shows the two games following the primary next draw.
-// Each game is calculated from its own history and any
-// earlier Modern results already published today.
+// Each game is calculated strictly from its own history.
 // =========================================================
 
 function formatAheadDrawDate(game) {
@@ -2118,22 +2002,18 @@ async function displayAheadGamePredictions() {
 
     const predictionResults = await Promise.all(
         aheadGames.map(async game => {
-            const [history, todayResults] = await Promise.all([
-                fetchPredictionHistory(game),
-                fetchTodaysEarlierResults(game)
-            ]);
+            const history = await fetchPredictionHistory(game);
 
             if (!history.length) {
-                return { game, history, todayResults, predictionData: null };
+                return { game, history, predictionData: null };
             }
 
             return {
                 game,
                 history,
-                todayResults,
                 predictionData: calculateStatisticalPrediction(
                     history,
-                    todayResults,
+                    [],
                     true
                 )
             };
@@ -2150,7 +2030,7 @@ async function displayAheadGamePredictions() {
             </div>
             <div class="ahead-prediction-meta">
                 <span>${result.history.length} target-game draws analysed</span>
-                <span>${result.todayResults.length} earlier games supporting</span>
+                <span>100% target-game priority</span>
             </div>
             <small>60% Statistics • 30% Classification • 10% Moving</small>
         </article>
@@ -2685,7 +2565,7 @@ document.addEventListener(
         );
 
 
-        // Pull in newly published earlier games without requiring a page reload.
+        // Refresh predictions without requiring a page reload.
 
         setInterval(
             function () {
