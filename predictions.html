@@ -50,7 +50,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions.js?v=18"
+        src="predictions.js?v=19"
         defer
     ></script>
 
@@ -93,6 +93,7 @@
   }
   </script>
     <link rel="stylesheet" href="predictions-luxury-v1.css?v=4">
+    <link rel="stylesheet" href="ahead-predictions.css?v=1">
   <link rel="stylesheet" href="analytics.css?v=1">
   <script src="analytics.js?v=2" defer></script>
 </head>
@@ -485,6 +486,21 @@
         </article>
 
     </div>
+
+    <section class="ahead-predictions-section" aria-labelledby="ahead-predictions-title">
+        <div class="prediction-section-heading ahead-predictions-heading">
+            <span>NEXT IN LINE</span>
+            <h2 id="ahead-predictions-title">Ahead-Game Predictions</h2>
+            <p>
+                Early predictions for the two games following the main draw.
+                They update automatically as new results are published.
+            </p>
+        </div>
+
+        <div id="ahead-game-predictions" class="ahead-predictions-grid" aria-live="polite">
+            <p class="ahead-prediction-message">Preparing ahead-game predictions...</p>
+        </div>
+    </section>
 
 </section>
     <!-- =================================================
