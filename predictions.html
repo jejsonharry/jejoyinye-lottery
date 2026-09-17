@@ -50,7 +50,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions.js?v=20"
+        src="predictions.js?v=21"
         defer
     ></script>
 
@@ -93,7 +93,7 @@
   }
   </script>
     <link rel="stylesheet" href="predictions-luxury-v1.css?v=4">
-    <link rel="stylesheet" href="ahead-predictions.css?v=1">
+    <link rel="stylesheet" href="ahead-predictions.css?v=2">
   <link rel="stylesheet" href="analytics.css?v=1">
   <script src="analytics.js?v=2" defer></script>
 </head>
@@ -196,8 +196,8 @@
 
         <p>
             Explore algorithmic number combinations
-            generated from historical results, the Modern
-            classification chart and moving-number patterns.
+            generated from the game being predicted and
+            Modern results already published today.
         </p>
 
         <div class="prediction-hero-note">
@@ -342,12 +342,12 @@
 
     <div class="analysis-summary-card">
         <span>Prediction Method</span>
-        <strong>60% Statistics • 30% Classification • 10% Moving</strong>
+        <strong>80% Target Game • 20% Today's Results</strong>
     </div>
 
     <div class="analysis-summary-card">
-        <span>Target Game Priority</span>
-        <strong>100%</strong>
+        <span>Results Published Today</span>
+        <strong id="analysis-today-count">0</strong>
     </div>
 
 </div>
@@ -363,27 +363,23 @@
         <span class="compact-analysis-status">5 PICKS RANKED</span>
     </div>
 
-    <div class="compact-signal-grid" aria-label="Prediction weighting">
+    <div class="compact-signal-grid modern-results-signals" aria-label="Prediction weighting">
         <div class="compact-signal-chip">
-            <strong>60%</strong>
-            <span>Statistics</span>
+            <strong>80%</strong>
+            <span>Target Game History</span>
         </div>
 
         <div class="compact-signal-chip">
-            <strong>30%</strong>
-            <span>Classification</span>
-        </div>
-
-        <div class="compact-signal-chip">
-            <strong>10%</strong>
-            <span>Moving Numbers</span>
+            <strong>20%</strong>
+            <span>Today's Results</span>
         </div>
     </div>
 
     <p class="compact-analysis-summary">
-        The game being predicted is the only evidence source. Its own history
-        drives the statistics, while its latest three draws drive the
-        classification-chart and number-movement analysis.
+        The exact game being predicted is the main source, with its latest
+        three draws receiving the strongest recency weight. Modern results
+        published today provide supporting evidence. Classification and
+        moving-number charts are excluded.
     </p>
 
     <details class="compact-analysis-details">
