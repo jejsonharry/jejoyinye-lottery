@@ -24,6 +24,9 @@ const nextGameBalls =
 const upcomingGamesList =
     document.getElementById("upcoming-games-list");
 
+const aheadGamePredictions =
+    document.getElementById("ahead-game-predictions");
+
 const analysisDrawCount =
     document.getElementById("analysis-draw-count");
 
@@ -500,7 +503,7 @@ function getTodaysGames() {
 // NEXT GAME
 // =========================================================
 
-function getNextPredictionGame() {
+function getUpcomingModernPredictionGames(limit = 3) {
 
     const lagos =
         getLagosTime();
@@ -519,7 +522,7 @@ function getNextPredictionGame() {
         getTodayDateString();
 
 
-    const modernGames =
+    const modernGamesToday =
         modernPredictionSchedule.map(
             game => ({
                 ...game,
@@ -527,36 +530,26 @@ function getNextPredictionGame() {
             })
         );
 
+    const remainingToday = modernGamesToday.filter(
+        game => (game.drawMinutes * 60) > currentSeconds
+    );
 
-    for (
-        const game of modernGames
-    ) {
+    const tomorrow = getTomorrowDateString();
+    const tomorrowGames = modernPredictionSchedule.map(
+        game => ({
+            ...game,
+            drawDate: tomorrow,
+            tomorrow: true
+        })
+    );
 
-        const gameSeconds =
-            game.drawMinutes * 60;
-
-
-        if (
-            gameSeconds >
-            currentSeconds
-        ) {
-
-            return game;
-        }
-    }
+    return [...remainingToday, ...tomorrowGames].slice(0, limit);
+}
 
 
-    return {
+function getNextPredictionGame() {
 
-        ...modernPredictionSchedule[0],
-
-        drawDate:
-            getTomorrowDateString(),
-
-        tomorrow:
-            true
-
-    };
+    return getUpcomingModernPredictionGames(1)[0] || null;
 }
 
 
@@ -2066,6 +2059,106 @@ async function displayNextGamePrediction() {
 
 
 // =========================================================
+// DISPLAY AHEAD-GAME PREDICTIONS
+// Shows the two games following the primary next draw.
+// Each game is calculated from its own history and any
+// earlier Modern results already published today.
+// =========================================================
+
+function formatAheadDrawDate(game) {
+    if (game.drawDate === getTodayDateString()) {
+        return "Today";
+    }
+
+    if (game.drawDate === getTomorrowDateString()) {
+        return "Tomorrow";
+    }
+
+    return game.drawDate;
+}
+
+
+function renderAheadBalls(numbers) {
+    if (!numbers || numbers.length < 5) {
+        return `<span class="ahead-prediction-message">Insufficient historical data</span>`;
+    }
+
+    return numbers.map(number => `
+        <span class="number-ball">
+            ${String(number).padStart(2, "0")}
+        </span>
+    `).join("");
+}
+
+
+async function displayAheadGamePredictions() {
+    if (!aheadGamePredictions) {
+        return;
+    }
+
+    const aheadGames = getUpcomingModernPredictionGames(3).slice(1);
+
+    if (!aheadGames.length) {
+        aheadGamePredictions.innerHTML = `
+            <p class="ahead-prediction-message">No later games are scheduled.</p>
+        `;
+        return;
+    }
+
+    aheadGamePredictions.innerHTML = aheadGames.map(game => `
+        <article class="ahead-prediction-card">
+            <span class="ahead-prediction-badge">EARLY PREDICTION</span>
+            <h3>${game.game}</h3>
+            <p>${formatAheadDrawDate(game)} • ${game.drawTime}</p>
+            <div class="ahead-prediction-balls prediction-balls winning-numbers">
+                <span class="ahead-prediction-message">Analysing game history...</span>
+            </div>
+        </article>
+    `).join("");
+
+    const predictionResults = await Promise.all(
+        aheadGames.map(async game => {
+            const [history, todayResults] = await Promise.all([
+                fetchPredictionHistory(game),
+                fetchTodaysEarlierResults(game)
+            ]);
+
+            if (!history.length) {
+                return { game, history, todayResults, predictionData: null };
+            }
+
+            return {
+                game,
+                history,
+                todayResults,
+                predictionData: calculateStatisticalPrediction(
+                    history,
+                    todayResults,
+                    true
+                )
+            };
+        })
+    );
+
+    aheadGamePredictions.innerHTML = predictionResults.map(result => `
+        <article class="ahead-prediction-card">
+            <span class="ahead-prediction-badge">EARLY PREDICTION</span>
+            <h3>${result.game.game}</h3>
+            <p>${formatAheadDrawDate(result.game)} • ${result.game.drawTime}</p>
+            <div class="ahead-prediction-balls prediction-balls winning-numbers">
+                ${renderAheadBalls(result.predictionData?.predictedNumbers)}
+            </div>
+            <div class="ahead-prediction-meta">
+                <span>${result.history.length} target-game draws analysed</span>
+                <span>${result.todayResults.length} earlier games supporting</span>
+            </div>
+            <small>60% Statistics • 30% Classification • 10% Moving</small>
+        </article>
+    `).join("");
+}
+
+
+// =========================================================
 // DISPLAY GHANA PREDICTION
 // =========================================================
 
@@ -2449,6 +2542,7 @@ async function checkForGameChange() {
 
         await Promise.all([
             displayNextGamePrediction(),
+            displayAheadGamePredictions(),
             displayGhanaPrediction()
         ]);
 
@@ -2493,7 +2587,10 @@ document.addEventListener(
                     : "Modern Billionaire is using all history. Ghana remains unchanged.";
             }
 
-            await displayNextGamePrediction();
+            await Promise.all([
+                displayNextGamePrediction(),
+                displayAheadGamePredictions()
+            ]);
         });
 
         predictionRangeReset?.addEventListener("click", async () => {
@@ -2504,7 +2601,10 @@ document.addEventListener(
                 predictionRangeStatus.textContent = "Modern Billionaire is using all history. Ghana remains unchanged.";
             }
 
-            await displayNextGamePrediction();
+            await Promise.all([
+                displayNextGamePrediction(),
+                displayAheadGamePredictions()
+            ]);
         });
 
 
@@ -2530,6 +2630,7 @@ document.addEventListener(
 
         await Promise.all([
             displayNextGamePrediction(),
+            displayAheadGamePredictions(),
             displayGhanaPrediction()
         ]);
 
@@ -2590,6 +2691,7 @@ document.addEventListener(
             function () {
 
                 displayNextGamePrediction();
+                displayAheadGamePredictions();
                 displayGhanaPrediction();
             },
             120000
