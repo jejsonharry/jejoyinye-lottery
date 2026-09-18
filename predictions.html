@@ -50,7 +50,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions.js?v=22"
+        src="predictions.js?v=23"
         defer
     ></script>
 
@@ -336,13 +336,13 @@
                 <div class="prediction-analysis-summary">
 
     <div class="analysis-summary-card">
-        <span>Historical Draws Analysed</span>
+        <span>Current-Month Draws Analysed</span>
         <strong id="analysis-draw-count">0</strong>
     </div>
 
     <div class="analysis-summary-card">
         <span>Prediction Method</span>
-        <strong>80% Target Game • 20% Today's Results</strong>
+        <strong>60% Month • 30% Recent Game • 10% Today</strong>
     </div>
 
     <div class="analysis-summary-card">
@@ -365,19 +365,24 @@
 
     <div class="compact-signal-grid modern-results-signals" aria-label="Prediction weighting">
         <div class="compact-signal-chip">
-            <strong>80%</strong>
-            <span>Target Game History</span>
+            <strong>60%</strong>
+            <span>Current-Month Game Results</span>
         </div>
 
         <div class="compact-signal-chip">
-            <strong>20%</strong>
+            <strong>30%</strong>
+            <span>Latest 3–7 Game Results</span>
+        </div>
+
+        <div class="compact-signal-chip">
+            <strong>10%</strong>
             <span>Today's Results</span>
         </div>
     </div>
 
     <p class="compact-analysis-summary">
-        The exact game being predicted is the main source, with its latest
-        three draws receiving the strongest recency weight. Modern results
+        The current month's actual results for the game are the main source.
+        Its latest seven draws receive a separate recency boost, while results
         published today provide supporting evidence. Classification and
         moving-number charts are excluded.
     </p>
