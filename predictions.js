@@ -1923,6 +1923,48 @@ function getLotteryDisplayName(
 
 
 // =========================================================
+// BACKEND PREDICTION RECORD
+// The database recalculates and freezes the official snapshot.
+// Custom date-range previews are intentionally not audited.
+// =========================================================
+
+async function saveModernPredictionSnapshot(
+    game,
+    predictionType
+) {
+    if (
+        !game ||
+        game.lottery !== "modern-billionaire" ||
+        modernPredictionDateRange.from ||
+        modernPredictionDateRange.to
+    ) {
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient.rpc(
+            "record_modern_prediction_snapshot",
+            {
+                p_game: game.game,
+                p_draw_date: game.drawDate,
+                p_prediction_type: predictionType
+            }
+        );
+
+        if (error) {
+            throw error;
+        }
+    }
+    catch (error) {
+        console.warn(
+            "Prediction snapshot could not be saved:",
+            error
+        );
+    }
+}
+
+
+// =========================================================
 // DISPLAY NEXT GAME
 // =========================================================
 
@@ -2063,6 +2105,12 @@ async function displayNextGamePrediction() {
         );
 
 
+        void saveModernPredictionSnapshot(
+            nextGame,
+            "main"
+        );
+
+
         console.log(
             "Prediction generated:",
             predictionData.predictedNumbers
@@ -2178,6 +2226,15 @@ async function displayAheadGamePredictions() {
             };
         })
     );
+
+    predictionResults
+        .filter(result => result.predictionData)
+        .forEach(result => {
+            void saveModernPredictionSnapshot(
+                result.game,
+                "early"
+            );
+        });
 
     aheadGamePredictions.innerHTML = predictionResults.map(result => `
         <article class="ahead-prediction-card">
