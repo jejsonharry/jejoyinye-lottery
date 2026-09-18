@@ -18,11 +18,11 @@
 
     const COLORS = {
         forest: "#063d2d",
-        green: "#07944c",
-        greenDark: "#05723c",
+        green: "#008f46",
+        greenDark: "#046b38",
         greenSoft: "#e8f7ef",
-        amber: "#e78b17",
-        amberDark: "#b96308",
+        amber: "#f07d00",
+        amberDark: "#ad5200",
         amberSoft: "#fff3df",
         ink: "#11251d",
         muted: "#61736b",
@@ -113,23 +113,26 @@
 
     function drawNumberSet(ctx, numbers, x, y, color, softColor) {
         if (numbers.length < 5) {
-            fillRoundedRect(ctx, x, y - 19, 145, 38, 19, softColor);
+            fillRoundedRect(ctx, x, y - 21, 152, 42, 21, softColor);
             ctx.fillStyle = color;
-            ctx.font = "800 17px Arial, sans-serif";
+            ctx.font = "900 18px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText("PENDING", x + 72.5, y + 1);
+            ctx.fillText("PENDING", x + 76, y + 1);
             return;
         }
 
         numbers.forEach((number, index) => {
-            const centerX = x + 26 + (index * 58);
+            const centerX = x + 26 + (index * 60);
             ctx.beginPath();
-            ctx.arc(centerX, y, 22, 0, Math.PI * 2);
+            ctx.arc(centerX, y, 24, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
+            ctx.strokeStyle = "rgba(255,255,255,0.48)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
             ctx.fillStyle = "#ffffff";
-            ctx.font = "800 18px Arial, sans-serif";
+            ctx.font = "900 21px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(String(number).padStart(2, "0"), centerX, y + 1);
@@ -256,7 +259,7 @@
 
         fillRoundedRect(ctx, tableX + 2, tableY + 2, tableWidth - 4, headerHeight - 2, 24, COLORS.forest);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 17px Arial, sans-serif";
+        ctx.font = "900 19px Arial, sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText("GAME / DRAW TIME", tableX + 28, tableY + 32);
@@ -283,14 +286,14 @@
                 ctx.stroke();
             }
 
-            ctx.fillStyle = COLORS.ink;
-            const gameSize = fitText(ctx, row.game, gameWidth - 48, 21, 16);
-            ctx.font = `800 ${gameSize}px Arial, sans-serif`;
+            ctx.fillStyle = COLORS.forest;
+            const gameSize = fitText(ctx, row.game, gameWidth - 48, 24, 18);
+            ctx.font = `900 ${gameSize}px Arial, sans-serif`;
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
             ctx.fillText(row.game, tableX + 28, centerY - 9);
             ctx.fillStyle = COLORS.muted;
-            ctx.font = "700 14px Arial, sans-serif";
+            ctx.font = "800 15px Arial, sans-serif";
             ctx.fillText(row.time, tableX + 28, centerY + 15);
 
             drawNumberSet(ctx, row.winning, tableX + gameWidth + 26, centerY, COLORS.green, COLORS.greenSoft);
