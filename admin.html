@@ -22,6 +22,7 @@
     >
     <link rel="icon" href="Images/jols-logo.png" type="image/png">
 <link rel="stylesheet" href="admin-prediction-audit-v1.css?v=3">
+<link rel="stylesheet" href="admin-daily-results-poster-v1.css?v=1">
 
 
     <style>
@@ -3531,6 +3532,38 @@
         </section>
 
 
+        <section class="admin-panel daily-results-poster-card" id="daily-results-poster-card">
+            <div class="admin-panel-heading daily-results-poster-heading">
+                <div>
+                    <span>DAILY SOCIAL POSTER</span>
+                    <h2>Modern Results Poster</h2>
+                    <p>Create one clean image containing all 12 Modern Billionaire results. The poster updates as draws are published and marks unavailable games as Pending.</p>
+                </div>
+            </div>
+
+            <div class="daily-results-poster-controls">
+                <div class="admin-form-group">
+                    <label for="daily-results-poster-date">Draw Date</label>
+                    <input type="date" id="daily-results-poster-date">
+                </div>
+
+                <div class="daily-results-poster-actions">
+                    <button type="button" id="generate-daily-results-poster" class="admin-secondary-btn">Refresh Preview</button>
+                    <button type="button" id="download-daily-results-poster" class="admin-primary-btn" disabled>Download PNG</button>
+                    <button type="button" id="share-daily-results-poster" class="admin-secondary-btn" disabled>Share Poster</button>
+                </div>
+            </div>
+
+            <p id="daily-results-poster-status" class="daily-results-poster-status" aria-live="polite">Preparing the daily results poster…</p>
+
+            <div class="daily-results-poster-preview">
+                <canvas id="daily-results-poster-canvas" width="1080" height="1350" aria-label="Preview of the Modern Billionaire daily results poster">
+                    Your browser does not support the poster preview.
+                </canvas>
+            </div>
+        </section>
+
+
 
         <section class="admin-panel">
 
@@ -3905,6 +3938,7 @@
 
 <script src="admin.js?v=1411" defer></script>
 <script src="admin-prediction-audit-v1.js?v=3" defer></script>
+<script src="admin-daily-results-poster-v1.js?v=1" defer></script>
 
 </body>
 </html>
