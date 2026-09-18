@@ -2,6 +2,7 @@
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE PREDICTION ENGINE
 // predictions.js
+// Modern prediction engine v22
 // =========================================================
 
 
@@ -817,7 +818,11 @@ async function fetchPredictionHistory(game) {
                     }
                 )
 
-                .limit(500);
+                .limit(
+                    rangeApplies
+                        ? 45
+                        : 500
+                );
 
 
         if (error) {
@@ -921,11 +926,15 @@ const MODERN_PREDICTION_WEIGHTS = Object.freeze({
 });
 
 // Modern uses actual results only. Classification and moving
-// charts are excluded from the Modern prediction model.
+// charts are excluded. The target game remains the priority:
+// 60% current month + 30% its latest seven draws + 10% today.
 const MODERN_RESULTS_SOURCE_WEIGHTS = Object.freeze({
-    targetGame: 0.80,
-    presentDayResults: 0.20,
-    recentTargetDraws: 3
+    currentMonth: 0.60,
+    recentTargetGame: 0.30,
+    presentDayResults: 0.10,
+    recentTargetDraws: 7,
+    previousMonthFallbackDraws: 7,
+    previousMonthFallbackWeight: 0.35
 });
 
 const GHANA_PREDICTION_WEIGHTS = Object.freeze({
@@ -1426,16 +1435,72 @@ function calculateStatisticalPrediction(
 
 
 // =========================================================
-// MODERN RESULTS-ONLY PREDICTION
-// 80% exact target-game history + 20% today's published
-// Modern results. No classification or moving chart is used.
+// MODERN RESULTS-ONLY PREDICTION — V22
+// 60% current-month target game + 30% latest seven target-game
+// draws + 10% today's published results. When the month has
+// fewer than seven draws, seven prior-month draws are included
+// at reduced strength. No classification chart is used.
 // =========================================================
 
 function calculateModernResultsPrediction(
     targetResults,
-    presentDayResults = []
+    presentDayResults = [],
+    predictionDrawDate = getTodayDateString()
 ) {
     const scoreMap = {};
+    const hasCustomRange = Boolean(
+        modernPredictionDateRange.from ||
+        modernPredictionDateRange.to
+    );
+    const referenceDate =
+        modernPredictionDateRange.to ||
+        predictionDrawDate ||
+        getTodayDateString();
+    const referenceMonth =
+        String(referenceDate).slice(0, 7);
+
+    const currentMonthResults = hasCustomRange
+        ? targetResults
+        : targetResults.filter(result => {
+            const drawDate = String(result.draw_date || "");
+            return drawDate.startsWith(referenceMonth) &&
+                drawDate < referenceDate;
+        });
+
+    const previousMonthFallback =
+        !hasCustomRange && currentMonthResults.length < 7
+            ? targetResults
+                .filter(result => {
+                    const drawDate = String(result.draw_date || "");
+                    return drawDate &&
+                        !drawDate.startsWith(referenceMonth) &&
+                        drawDate < referenceDate;
+                })
+                .slice(
+                    0,
+                    MODERN_RESULTS_SOURCE_WEIGHTS
+                        .previousMonthFallbackDraws
+                )
+            : [];
+
+    const monthlyPool = [
+        ...currentMonthResults,
+        ...previousMonthFallback
+    ];
+    const recentPool = monthlyPool.slice(
+        0,
+        MODERN_RESULTS_SOURCE_WEIGHTS.recentTargetDraws
+    );
+    const recentWeights = [
+        1.60,
+        1.45,
+        1.30,
+        1.15,
+        1.00,
+        0.85,
+        0.70
+    ];
+    const fallbackSet = new Set(previousMonthFallback);
 
     for (let number = 1; number <= 90; number++) {
         scoreMap[number] = {
@@ -1444,6 +1509,7 @@ function calculateModernResultsPrediction(
             machineFrequency: 0,
             todayWinningFrequency: 0,
             todayMachineFrequency: 0,
+            currentMonthScore: 0,
             recentScore: 0,
             targetGameScore: 0,
             presentDayScore: 0,
@@ -1451,23 +1517,35 @@ function calculateModernResultsPrediction(
         };
     }
 
-    targetResults.forEach((result, index) => {
+    monthlyPool.forEach(result => {
         const winningNumbers = parsePredictionNumbers(result.winning);
         const machineNumbers = parsePredictionNumbers(result.machine);
-
-        const latestThreeBoost =
-            index < MODERN_RESULTS_SOURCE_WEIGHTS.recentTargetDraws
-                ? [1.60, 1.35, 1.15][index]
-                : Math.max(0.25, 0.90 - (index * 0.01));
+        const sourceWeight = fallbackSet.has(result)
+            ? MODERN_RESULTS_SOURCE_WEIGHTS.previousMonthFallbackWeight
+            : 1;
 
         winningNumbers.forEach(number => {
             scoreMap[number].winningFrequency += 1;
-            scoreMap[number].recentScore += 2.4 * latestThreeBoost;
+            scoreMap[number].currentMonthScore += 3.5 * sourceWeight;
         });
 
         machineNumbers.forEach(number => {
             scoreMap[number].machineFrequency += 1;
-            scoreMap[number].recentScore += 0.7 * latestThreeBoost;
+            scoreMap[number].currentMonthScore += 0.8 * sourceWeight;
+        });
+    });
+
+    recentPool.forEach((result, index) => {
+        const winningNumbers = parsePredictionNumbers(result.winning);
+        const machineNumbers = parsePredictionNumbers(result.machine);
+        const recencyWeight = recentWeights[index] || 0.70;
+
+        winningNumbers.forEach(number => {
+            scoreMap[number].recentScore += 3.5 * recencyWeight;
+        });
+
+        machineNumbers.forEach(number => {
+            scoreMap[number].recentScore += 0.8 * recencyWeight;
         });
     });
 
@@ -1482,31 +1560,26 @@ function calculateModernResultsPrediction(
     });
 
     Object.values(scoreMap).forEach(item => {
-        item.targetGameScore =
-            (item.winningFrequency * 3.5) +
-            (item.machineFrequency * 0.8) +
-            item.recentScore;
-
         item.presentDayScore =
             (item.todayWinningFrequency * 3.0) +
             (item.todayMachineFrequency * 0.7);
     });
 
-    normalizePredictionComponent(scoreMap, "targetGameScore");
+    normalizePredictionComponent(scoreMap, "currentMonthScore");
+    normalizePredictionComponent(scoreMap, "recentScore");
     normalizePredictionComponent(scoreMap, "presentDayScore");
 
-    const hasPresentDayResults = presentDayResults.length > 0;
-    const targetWeight = hasPresentDayResults
-        ? MODERN_RESULTS_SOURCE_WEIGHTS.targetGame
-        : 1;
-    const presentDayWeight = hasPresentDayResults
-        ? MODERN_RESULTS_SOURCE_WEIGHTS.presentDayResults
-        : 0;
-
     Object.values(scoreMap).forEach(item => {
+        item.targetGameScoreNormalized =
+            (item.currentMonthScoreNormalized * (2 / 3)) +
+            (item.recentScoreNormalized * (1 / 3));
         item.totalScore =
-            (item.targetGameScoreNormalized * targetWeight) +
-            (item.presentDayScoreNormalized * presentDayWeight);
+            (item.currentMonthScoreNormalized *
+                MODERN_RESULTS_SOURCE_WEIGHTS.currentMonth) +
+            (item.recentScoreNormalized *
+                MODERN_RESULTS_SOURCE_WEIGHTS.recentTargetGame) +
+            (item.presentDayScoreNormalized *
+                MODERN_RESULTS_SOURCE_WEIGHTS.presentDayResults);
     });
 
     const rankedNumbers = Object.values(scoreMap).sort((a, b) => {
@@ -1523,7 +1596,10 @@ function calculateModernResultsPrediction(
             .map(item => item.number)
             .sort((a, b) => a - b),
         rankedData: rankedNumbers,
-        scoreMap
+        scoreMap,
+        currentMonthDraws: currentMonthResults.length,
+        fallbackDraws: previousMonthFallback.length,
+        recentDraws: recentPool.length
     };
 }
 
@@ -1836,11 +1912,24 @@ function displayPredictionAnalysis(
                                     <div>
 
                                         <span>
-                                            Target-Game Score
+                                            Current-Month Score
                                         </span>
 
                                         <strong>
-                                            ${item.targetGameScoreNormalized.toFixed(1)}
+                                            ${item.currentMonthScoreNormalized.toFixed(1)}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Recent-Game Score
+                                        </span>
+
+                                        <strong>
+                                            ${item.recentScoreNormalized.toFixed(1)}
                                         </strong>
 
                                     </div>
@@ -2089,7 +2178,8 @@ async function displayNextGamePrediction() {
         const predictionData =
             calculateModernResultsPrediction(
                 history,
-                presentDayResults
+                presentDayResults,
+                nextGame.drawDate
             );
 
 
@@ -2100,7 +2190,7 @@ async function displayNextGamePrediction() {
 
         displayPredictionAnalysis(
             predictionData,
-            history.length,
+            predictionData.currentMonthDraws,
             presentDayResults.length
         );
 
@@ -2221,7 +2311,8 @@ async function displayAheadGamePredictions() {
                 presentDayResults,
                 predictionData: calculateModernResultsPrediction(
                     history,
-                    presentDayResults
+                    presentDayResults,
+                    game.drawDate
                 )
             };
         })
@@ -2245,10 +2336,10 @@ async function displayAheadGamePredictions() {
                 ${renderAheadBalls(result.predictionData?.predictedNumbers)}
             </div>
             <div class="ahead-prediction-meta">
-                <span>${result.history.length} target-game draws analysed</span>
+                <span>${result.predictionData?.currentMonthDraws || 0} current-month draws analysed</span>
                 <span>${result.presentDayResults.length} results published today</span>
             </div>
-            <small>80% Target Game • 20% Today's Results • No Classification Chart</small>
+            <small>60% Current Month • 30% Recent Game • 10% Today • No Classification Chart</small>
         </article>
     `).join("");
 }
