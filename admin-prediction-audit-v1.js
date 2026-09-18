@@ -64,16 +64,16 @@
         oldCard.innerHTML = `
             <div class="analytics-card-heading">
                 <div>
-                    <span>STRICT 60 / 30 / 10 ENGINE</span>
-                    <h3>Prediction Performance Audit</h3>
-                    <p class="audit-subtitle">Pre-draw forecasts are frozen before results and scored automatically after publication.</p>
+                    <span>MODERN PREDICTION RECORDS</span>
+                    <h3>Prediction Records &amp; Accuracy</h3>
+                    <p class="audit-subtitle">Default-range Modern forecasts are frozen before each draw and scored automatically when the official result is published.</p>
                 </div>
-                <button type="button" id="prediction-audit-refresh" class="admin-secondary-btn">Refresh Audit</button>
+                <button type="button" id="prediction-audit-refresh" class="admin-secondary-btn">Refresh Records</button>
             </div>
 
             <div class="prediction-audit-kpis">
                 <article class="prediction-audit-kpi"><span>Saved Forecasts</span><strong id="audit-total">0</strong></article>
-                <article class="prediction-audit-kpi"><span>Pending</span><strong id="audit-pending">0</strong></article>
+                <article class="prediction-audit-kpi"><span>Pending Draws</span><strong id="audit-pending">0</strong></article>
                 <article class="prediction-audit-kpi"><span>Evaluated</span><strong id="audit-evaluated">0</strong></article>
                 <article class="prediction-audit-kpi"><span>Any Winning Hit</span><strong id="audit-any-hit">0%</strong></article>
                 <article class="prediction-audit-kpi"><span>Average Hits</span><strong id="audit-average">0.00</strong></article>
@@ -85,18 +85,18 @@
                         <tr>
                             <th>Date</th>
                             <th>Game</th>
+                            <th>Type</th>
+                            <th>5 Numbers</th>
                             <th>2 Sure</th>
                             <th>3 Direct</th>
+                            <th>Sources</th>
                             <th>Actual Winning</th>
-                            <th>Sure Hits</th>
-                            <th>Direct Hits</th>
-                            <th>Total</th>
-                            <th>Machine Support</th>
+                            <th>Result</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="prediction-audit-rows">
-                        <tr><td colspan="10">Loading prediction audit...</td></tr>
+                        <tr><td colspan="10">Loading prediction records...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -135,7 +135,7 @@
         try {
             let query = client
                 .from(TABLE)
-                .select("draw_date,draw_time,game,engine_version,engine_profile,sure_numbers,direct_numbers,all_numbers,actual_winning,actual_machine,sure_winning_hits,direct_winning_hits,machine_support_hits,total_winning_hits,sure_hit_count,direct_hit_count,machine_support_count,status,generated_at,evaluated_at")
+                .select("draw_date,draw_time,game,engine_version,engine_profile,sure_numbers,direct_numbers,all_numbers,weights,historical_draws,actual_winning,total_winning_hits,status,generated_at,evaluated_at")
                 .eq("lottery", "modern-billionaire")
                 .order("draw_date", { ascending: false })
                 .order("generated_at", { ascending: false })
@@ -174,26 +174,38 @@
             tbody.innerHTML = rows.map(item => {
                 const isEvaluated = item.status === "evaluated";
                 const totalHits = Number(item.total_winning_hits || 0);
-                const sureHits = Number(item.sure_hit_count || 0);
-                const directHits = Number(item.direct_hit_count || 0);
-                const machineHits = Number(item.machine_support_count || 0);
                 const resultClass = !isEvaluated
                     ? "audit-pending"
                     : totalHits > 0
                         ? "audit-hit"
                         : "audit-miss";
+                const sourceWeights = item.weights && typeof item.weights === "object"
+                    ? item.weights
+                    : {};
+                const predictionType = sourceWeights.predictionType === "early"
+                    || String(item.engine_profile || "").includes("early")
+                    ? "Early"
+                    : "Main";
+                const targetDraws = Number(
+                    sourceWeights.targetGameDraws ?? item.historical_draws ?? 0
+                );
+                const todayDraws = Number(sourceWeights.presentDayDraws ?? 0);
+                const sourceSummary = `${targetDraws} target • ${todayDraws} today`;
+                const resultSummary = isEvaluated
+                    ? `${totalHits}/5 hit${totalHits === 1 ? "" : "s"}`
+                    : "Awaiting draw";
 
                 return `
                     <tr>
                         <td>${esc(formatDate(item.draw_date))}<div class="audit-engine">${esc(item.draw_time || "")}</div></td>
-                        <td><strong>${esc(item.game || "—")}</strong><div class="audit-engine">${esc(item.engine_version || item.engine_profile || "60/30/10")}</div></td>
+                        <td><strong>${esc(item.game || "—")}</strong><div class="audit-engine">${esc(item.engine_version || "v21")} • ${esc(item.engine_profile || "results-only")}</div></td>
+                        <td><span class="audit-type ${predictionType.toLowerCase()}">${predictionType}</span></td>
+                        <td class="audit-balls">${esc(ballText(item.all_numbers))}</td>
                         <td class="audit-balls">${esc(ballText(item.sure_numbers))}</td>
                         <td class="audit-balls">${esc(ballText(item.direct_numbers))}</td>
+                        <td><span class="audit-source">${esc(sourceSummary)}</span></td>
                         <td class="audit-balls">${esc(ballText(item.actual_winning))}</td>
-                        <td class="${resultClass}">${isEvaluated ? `${sureHits}/2` : "—"}</td>
-                        <td class="${resultClass}">${isEvaluated ? `${directHits}/3` : "—"}</td>
-                        <td class="${resultClass}">${isEvaluated ? `${totalHits}/5` : "—"}</td>
-                        <td class="${resultClass}">${isEvaluated ? `${machineHits}/5` : "—"}</td>
+                        <td class="${resultClass}">${esc(resultSummary)}</td>
                         <td><span class="audit-status ${isEvaluated ? "evaluated" : "pending"}">${isEvaluated ? "Evaluated" : "Pending"}</span></td>
                     </tr>
                 `;
@@ -206,7 +218,7 @@
         finally {
             if (refresh) {
                 refresh.disabled = false;
-                refresh.textContent = "Refresh Audit";
+                refresh.textContent = "Refresh Records";
             }
         }
     }
