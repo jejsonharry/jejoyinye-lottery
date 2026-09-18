@@ -1,5 +1,7 @@
 "use strict";
 
+// Daily results poster renderer v4 — compact, high-visibility social layout.
+
 (function () {
     const GAMES = [
         { game: "Powerball", time: "9:00 AM" },
@@ -113,26 +115,26 @@
 
     function drawNumberSet(ctx, numbers, x, y, color, softColor) {
         if (numbers.length < 5) {
-            fillRoundedRect(ctx, x, y - 21, 152, 42, 21, softColor);
+            fillRoundedRect(ctx, x, y - 23, 184, 46, 23, softColor);
             ctx.fillStyle = color;
-            ctx.font = "900 19px Arial, sans-serif";
+            ctx.font = "900 21px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText("PENDING", x + 76, y + 1);
+            ctx.fillText("PENDING", x + 92, y + 1);
             return;
         }
 
         numbers.forEach((number, index) => {
-            const centerX = x + 26 + (index * 60);
+            const centerX = x + 29 + (index * 68);
             ctx.beginPath();
-            ctx.arc(centerX, y, 25.5, 0, Math.PI * 2);
+            ctx.arc(centerX, y, 28, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
-            ctx.strokeStyle = "rgba(255,255,255,0.48)";
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = "rgba(255,255,255,0.86)";
+            ctx.lineWidth = 3;
             ctx.stroke();
             ctx.fillStyle = "#ffffff";
-            ctx.font = "900 23px Arial, sans-serif";
+            ctx.font = "900 26px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(String(number).padStart(2, "0"), centerX, y + 1);
@@ -194,7 +196,7 @@
         headerGradient.addColorStop(0.62, COLORS.greenDark);
         headerGradient.addColorStop(1, COLORS.green);
         ctx.fillStyle = headerGradient;
-        ctx.fillRect(0, 0, width, 225);
+        ctx.fillRect(0, 0, width, 190);
 
         ctx.globalAlpha = 0.09;
         for (let index = 0; index < 8; index += 1) {
@@ -205,49 +207,49 @@
         }
         ctx.globalAlpha = 1;
 
-        fillRoundedRect(ctx, 42, 42, 126, 126, 28, "#ffffff");
+        fillRoundedRect(ctx, 28, 28, 112, 112, 25, "#ffffff");
         if (logo) {
-            const padding = 13;
-            const ratio = Math.min((126 - padding * 2) / logo.width, (126 - padding * 2) / logo.height);
+            const padding = 12;
+            const ratio = Math.min((112 - padding * 2) / logo.width, (112 - padding * 2) / logo.height);
             const logoWidth = logo.width * ratio;
             const logoHeight = logo.height * ratio;
-            ctx.drawImage(logo, 42 + ((126 - logoWidth) / 2), 42 + ((126 - logoHeight) / 2), logoWidth, logoHeight);
+            ctx.drawImage(logo, 28 + ((112 - logoWidth) / 2), 28 + ((112 - logoHeight) / 2), logoWidth, logoHeight);
         }
         else {
             ctx.fillStyle = COLORS.greenDark;
             ctx.font = "900 34px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText("JOLS", 105, 107);
+            ctx.fillText("JOLS", 84, 84);
         }
 
         ctx.textAlign = "left";
         ctx.textBaseline = "alphabetic";
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 44px Arial, sans-serif";
-        ctx.fillText("JOLS DAILY RESULTS", 198, 83);
-        ctx.font = "800 27px Arial, sans-serif";
+        ctx.font = "900 45px Arial, sans-serif";
+        ctx.fillText("JOLS DAILY RESULTS", 165, 68);
+        ctx.font = "900 28px Arial, sans-serif";
         ctx.fillStyle = "#d8ffea";
-        ctx.fillText("MODERN BILLIONAIRE", 198, 122);
-        ctx.font = "600 22px Arial, sans-serif";
+        ctx.fillText("MODERN BILLIONAIRE", 165, 108);
+        ctx.font = "800 22px Arial, sans-serif";
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(formatPosterDate(date), 198, 159);
+        ctx.fillText(formatPosterDate(date), 165, 145);
 
         const statusText = completed === 12 ? "COMPLETE • 12/12" : `LIVE UPDATE • ${completed}/12`;
-        fillRoundedRect(ctx, 788, 160, 244, 42, 21, completed === 12 ? "#ffffff" : "#fff2d8");
+        fillRoundedRect(ctx, 805, 126, 247, 44, 22, completed === 12 ? "#ffffff" : "#fff2d8");
         ctx.fillStyle = completed === 12 ? COLORS.greenDark : COLORS.amberDark;
-        ctx.font = "900 16px Arial, sans-serif";
+        ctx.font = "900 17px Arial, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(statusText, 910, 182);
+        ctx.fillText(statusText, 928, 149);
 
-        const tableX = 38;
-        const tableY = 254;
-        const tableWidth = 1004;
-        const headerHeight = 62;
-        const rowHeight = 70;
-        const gameWidth = 260;
-        const numberWidth = 372;
+        const tableX = 24;
+        const tableY = 210;
+        const tableWidth = 1032;
+        const headerHeight = 60;
+        const rowHeight = 65;
+        const gameWidth = 230;
+        const numberWidth = 401;
         const tableHeight = headerHeight + (rowHeight * GAMES.length);
 
         ctx.shadowColor = "rgba(6, 61, 45, 0.10)";
@@ -259,14 +261,14 @@
 
         fillRoundedRect(ctx, tableX + 2, tableY + 2, tableWidth - 4, headerHeight - 2, 24, COLORS.forest);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 21px Arial, sans-serif";
+        ctx.font = "900 22px Arial, sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText("GAME / DRAW TIME", tableX + 28, tableY + 32);
+        ctx.fillText("GAME / TIME", tableX + 22, tableY + 31);
         ctx.fillStyle = "#aef0ca";
-        ctx.fillText("WINNING NUMBERS", tableX + gameWidth + 34, tableY + 32);
+        ctx.fillText("WINNING NUMBERS", tableX + gameWidth + 28, tableY + 31);
         ctx.fillStyle = "#ffd79f";
-        ctx.fillText("MACHINE NUMBERS", tableX + gameWidth + numberWidth + 34, tableY + 32);
+        ctx.fillText("MACHINE NUMBERS", tableX + gameWidth + numberWidth + 28, tableY + 31);
 
         rows.forEach((row, index) => {
             const rowTop = tableY + headerHeight + (index * rowHeight);
@@ -287,33 +289,33 @@
             }
 
             ctx.fillStyle = COLORS.forest;
-            const gameSize = fitText(ctx, row.game, gameWidth - 48, 27, 20);
+            const gameSize = fitText(ctx, row.game, gameWidth - 38, 29, 22);
             ctx.font = `900 ${gameSize}px Arial, sans-serif`;
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
-            ctx.fillText(row.game, tableX + 28, centerY - 9);
+            ctx.fillText(row.game, tableX + 22, centerY - 8);
             ctx.fillStyle = COLORS.muted;
-            ctx.font = "800 16px Arial, sans-serif";
-            ctx.fillText(row.time, tableX + 28, centerY + 15);
+            ctx.font = "900 17px Arial, sans-serif";
+            ctx.fillText(row.time, tableX + 22, centerY + 17);
 
-            drawNumberSet(ctx, row.winning, tableX + gameWidth + 26, centerY, COLORS.green, COLORS.greenSoft);
-            drawNumberSet(ctx, row.machine, tableX + gameWidth + numberWidth + 26, centerY, COLORS.amber, COLORS.amberSoft);
+            drawNumberSet(ctx, row.winning, tableX + gameWidth + 28, centerY, COLORS.green, COLORS.greenSoft);
+            drawNumberSet(ctx, row.machine, tableX + gameWidth + numberWidth + 28, centerY, COLORS.amber, COLORS.amberSoft);
         });
 
-        const footerY = 1192;
+        const footerY = 1067;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = COLORS.muted;
-        ctx.font = "800 16px Arial, sans-serif";
-        ctx.fillText("FOR MORE RESULTS, VISIT", width / 2, footerY + 17);
+        ctx.font = "900 18px Arial, sans-serif";
+        ctx.fillText("FOR MORE RESULTS, VISIT", width / 2, footerY + 16);
         ctx.fillStyle = COLORS.forest;
-        ctx.font = "900 31px Arial, sans-serif";
-        ctx.fillText("jolslottery.com", width / 2, footerY + 51);
+        ctx.font = "900 36px Arial, sans-serif";
+        ctx.fillText("jolslottery.com", width / 2, footerY + 50);
         ctx.fillStyle = COLORS.muted;
-        ctx.font = "600 16px Arial, sans-serif";
-        ctx.fillText("Official results update • Play responsibly • 18+", width / 2, footerY + 86);
-        ctx.font = "600 14px Arial, sans-serif";
-        ctx.fillText("Results are provided for information and sharing purposes.", width / 2, footerY + 114);
+        ctx.font = "800 16px Arial, sans-serif";
+        ctx.fillText("Official results update • Play responsibly • 18+", width / 2, footerY + 82);
+        ctx.font = "700 14px Arial, sans-serif";
+        ctx.fillText("Results are provided for information and sharing purposes.", width / 2, footerY + 107);
 
         return completed;
     }
