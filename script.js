@@ -3,10 +3,10 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE WEBSITE SCRIPT
-// VERSION 36
+// VERSION 37
 // =========================================================
 
-console.log("JEJOYINYE SCRIPT VERSION 36 LOADED");
+console.log("JEJOYINYE SCRIPT VERSION 37 LOADED");
 
 
 // =========================================================
@@ -1909,31 +1909,31 @@ function drawResultShareNumbers(
     numbers.slice(0, 5).forEach(
         function (number, index) {
             const centerX =
-                startX + (index * 91);
+                startX + (index * 145);
 
             context.fillStyle =
-                "rgba(255,255,255,0.10)";
+                colour;
 
             context.beginPath();
             context.arc(
                 centerX,
                 centerY,
-                35,
+                46,
                 0,
                 Math.PI * 2
             );
             context.fill();
 
             context.strokeStyle =
-                colour;
+                "rgba(255,255,255,0.92)";
             context.lineWidth =
-                4;
+                5;
             context.stroke();
 
             context.fillStyle =
                 "#ffffff";
             context.font =
-                "800 28px Arial, sans-serif";
+                "900 38px Arial, sans-serif";
             context.textAlign =
                 "center";
             context.textBaseline =
@@ -2034,11 +2034,11 @@ async function createResultShareFile({
 
     drawShareRoundedRect(
         context,
-        65,
-        76,
-        320,
-        430,
-        38
+        35,
+        40,
+        270,
+        535,
+        32
     );
     context.fillStyle =
         "rgba(255,255,255,0.08)";
@@ -2055,10 +2055,10 @@ async function createResultShareFile({
 
         context.drawImage(
             logo,
-            100,
-            120,
-            250,
-            250
+            75,
+            78,
+            190,
+            190
         );
     }
     catch (error) {
@@ -2071,35 +2071,55 @@ async function createResultShareFile({
     context.fillStyle =
         "#f5c451";
     context.font =
-        "800 22px Arial, sans-serif";
+        "900 24px Arial, sans-serif";
     context.textAlign =
         "center";
     context.textBaseline =
         "alphabetic";
     context.fillText(
         "JEJOYINYE",
-        225,
-        420
+        170,
+        326
     );
 
     context.fillStyle =
         "#ffffff";
     context.font =
-        "700 17px Arial, sans-serif";
+        "800 18px Arial, sans-serif";
     context.fillText(
         "LOTTERY SERVICES",
-        225,
-        449
+        170,
+        358
     );
 
     context.fillStyle =
-        "rgba(255,255,255,0.72)";
+        "#ffffff";
     context.font =
-        "600 16px Arial, sans-serif";
+        "800 18px Arial, sans-serif";
     context.fillText(
         "jolslottery.com",
-        225,
-        480
+        170,
+        404
+    );
+
+    context.fillStyle =
+        "#f5c451";
+    context.font =
+        "900 19px Arial, sans-serif";
+    context.fillText(
+        "RESULTS • PREDICTIONS",
+        170,
+        454
+    );
+
+    context.fillStyle =
+        "rgba(255,255,255,0.84)";
+    context.font =
+        "800 17px Arial, sans-serif";
+    context.fillText(
+        "PLAY ONLINE",
+        170,
+        489
     );
 
     context.textAlign =
@@ -2108,88 +2128,110 @@ async function createResultShareFile({
     context.fillStyle =
         "#f5c451";
     context.font =
-        "800 22px Arial, sans-serif";
+        "900 25px Arial, sans-serif";
     context.fillText(
         String(lottery).toUpperCase(),
-        445,
-        112
+        355,
+        78
     );
-
-    context.fillStyle =
-        "#ffffff";
-    context.font =
-        "800 48px Arial, sans-serif";
 
     const resultTitle =
         `${String(game).toUpperCase()} RESULT`;
 
+    drawShareRoundedRect(
+        context,
+        340,
+        98,
+        825,
+        82,
+        22
+    );
+    context.fillStyle =
+        "rgba(255,255,255,0.10)";
+    context.fill();
+
+    context.fillStyle =
+        "#ffffff";
+    let gameTitleSize =
+        56;
+    context.font =
+        `900 ${gameTitleSize}px Arial, sans-serif`;
+
+    while (
+        context.measureText(resultTitle).width > 775
+        && gameTitleSize > 38
+    ) {
+        gameTitleSize -=
+            2;
+        context.font =
+            `900 ${gameTitleSize}px Arial, sans-serif`;
+    }
+
     context.fillText(
-        resultTitle.length > 28
-            ? resultTitle.slice(0, 28)
-            : resultTitle,
-        445,
-        177
+        resultTitle,
+        365,
+        157
     );
 
     context.fillStyle =
         "#d9eee7";
     context.font =
-        "600 22px Arial, sans-serif";
+        "800 25px Arial, sans-serif";
     context.fillText(
         `Draw Date: ${date}`,
-        445,
-        219
+        355,
+        215
     );
 
     context.fillStyle =
         "#56d88a";
     context.font =
-        "800 22px Arial, sans-serif";
+        "900 27px Arial, sans-serif";
     context.fillText(
         "WINNING NUMBERS",
-        445,
-        277
+        355,
+        260
     );
 
     drawResultShareNumbers(
         context,
         String(winning).split("-").filter(Boolean),
-        480,
-        331,
-        "#42d37c"
+        410,
+        318,
+        "#079447"
     );
 
     if (machine) {
         context.fillStyle =
             "#ff7878";
         context.font =
-            "800 22px Arial, sans-serif";
+            "900 27px Arial, sans-serif";
         context.textAlign =
             "left";
         context.fillText(
             "MACHINE NUMBERS",
-            445,
-            407
+            355,
+            404
         );
 
         drawResultShareNumbers(
             context,
             String(machine).split("-").filter(Boolean),
-            480,
-            461,
-            "#ff6b6b"
+            410,
+            462,
+            "#e88605"
         );
     }
     else {
         context.fillStyle =
             "rgba(255,255,255,0.70)";
         context.font =
-            "600 20px Arial, sans-serif";
+            "800 23px Arial, sans-serif";
         context.textAlign =
             "left";
         context.fillText(
             "Official winning numbers published",
-            445,
+            355,
             449
         );
     }
@@ -2197,13 +2239,13 @@ async function createResultShareFile({
     context.fillStyle =
         "#ffffff";
     context.font =
-        "800 21px Arial, sans-serif";
+        "900 25px Arial, sans-serif";
     context.textAlign =
         "left";
     context.fillText(
-        "PLAY ONLINE: jolslottery.com/play-online",
-        445,
-        559
+        "MORE RESULTS: jolslottery.com/results",
+        355,
+        558
     );
 
     context.textAlign =
@@ -2211,7 +2253,7 @@ async function createResultShareFile({
     context.fillStyle =
         "#f5c451";
     context.font =
-        "800 20px Arial, sans-serif";
+        "900 19px Arial, sans-serif";
     context.fillText(
         "18+ • Play responsibly",
         1135,
