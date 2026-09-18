@@ -115,7 +115,7 @@
         if (numbers.length < 5) {
             fillRoundedRect(ctx, x, y - 21, 152, 42, 21, softColor);
             ctx.fillStyle = color;
-            ctx.font = "900 18px Arial, sans-serif";
+            ctx.font = "900 19px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText("PENDING", x + 76, y + 1);
@@ -125,14 +125,14 @@
         numbers.forEach((number, index) => {
             const centerX = x + 26 + (index * 60);
             ctx.beginPath();
-            ctx.arc(centerX, y, 24, 0, Math.PI * 2);
+            ctx.arc(centerX, y, 25.5, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
             ctx.strokeStyle = "rgba(255,255,255,0.48)";
             ctx.lineWidth = 2;
             ctx.stroke();
             ctx.fillStyle = "#ffffff";
-            ctx.font = "900 21px Arial, sans-serif";
+            ctx.font = "900 23px Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(String(number).padStart(2, "0"), centerX, y + 1);
@@ -259,7 +259,7 @@
 
         fillRoundedRect(ctx, tableX + 2, tableY + 2, tableWidth - 4, headerHeight - 2, 24, COLORS.forest);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 19px Arial, sans-serif";
+        ctx.font = "900 21px Arial, sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText("GAME / DRAW TIME", tableX + 28, tableY + 32);
@@ -287,13 +287,13 @@
             }
 
             ctx.fillStyle = COLORS.forest;
-            const gameSize = fitText(ctx, row.game, gameWidth - 48, 24, 18);
+            const gameSize = fitText(ctx, row.game, gameWidth - 48, 27, 20);
             ctx.font = `900 ${gameSize}px Arial, sans-serif`;
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
             ctx.fillText(row.game, tableX + 28, centerY - 9);
             ctx.fillStyle = COLORS.muted;
-            ctx.font = "800 15px Arial, sans-serif";
+            ctx.font = "800 16px Arial, sans-serif";
             ctx.fillText(row.time, tableX + 28, centerY + 15);
 
             drawNumberSet(ctx, row.winning, tableX + gameWidth + 26, centerY, COLORS.green, COLORS.greenSoft);
@@ -303,14 +303,17 @@
         const footerY = 1192;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+        ctx.fillStyle = COLORS.muted;
+        ctx.font = "800 16px Arial, sans-serif";
+        ctx.fillText("FOR MORE RESULTS, VISIT", width / 2, footerY + 17);
         ctx.fillStyle = COLORS.forest;
-        ctx.font = "900 25px Arial, sans-serif";
-        ctx.fillText("jolslottery.com", width / 2, footerY + 23);
+        ctx.font = "900 31px Arial, sans-serif";
+        ctx.fillText("jolslottery.com", width / 2, footerY + 51);
         ctx.fillStyle = COLORS.muted;
         ctx.font = "600 16px Arial, sans-serif";
-        ctx.fillText("Official results update • Play responsibly • 18+", width / 2, footerY + 57);
+        ctx.fillText("Official results update • Play responsibly • 18+", width / 2, footerY + 86);
         ctx.font = "600 14px Arial, sans-serif";
-        ctx.fillText("Results are provided for information and sharing purposes.", width / 2, footerY + 85);
+        ctx.fillText("Results are provided for information and sharing purposes.", width / 2, footerY + 114);
 
         return completed;
     }
@@ -411,12 +414,22 @@
         refreshTimer = setTimeout(buildPoster, 500);
     }
 
+    function togglePreviewZoom() {
+        const preview = document.querySelector(".daily-results-poster-preview");
+        const button = document.getElementById("toggle-daily-results-poster-zoom");
+        if (!preview || !button) return;
+        const isZoomed = preview.classList.toggle("is-zoomed");
+        button.textContent = isZoomed ? "Fit Preview" : "Zoom Preview";
+        button.setAttribute("aria-pressed", String(isZoomed));
+    }
+
     function activate() {
         const card = document.getElementById("daily-results-poster-card");
         if (!card) return;
 
         const dateInput = document.getElementById("daily-results-poster-date");
         const generateButton = document.getElementById("generate-daily-results-poster");
+        const zoomButton = document.getElementById("toggle-daily-results-poster-zoom");
         const downloadButton = document.getElementById("download-daily-results-poster");
         const shareButton = document.getElementById("share-daily-results-poster");
         const resultDateFilter = document.getElementById("admin-result-date-filter");
@@ -424,6 +437,7 @@
 
         dateInput.value = getLagosToday();
         generateButton?.addEventListener("click", buildPoster);
+        zoomButton?.addEventListener("click", togglePreviewZoom);
         downloadButton?.addEventListener("click", downloadPoster);
         shareButton?.addEventListener("click", sharePoster);
         dateInput.addEventListener("change", buildPoster);
