@@ -2,7 +2,7 @@
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE PREDICTION ENGINE
 // predictions.js
-// Modern prediction engine v22
+// Modern prediction engine v23
 // =========================================================
 
 
@@ -1435,11 +1435,13 @@ function calculateStatisticalPrediction(
 
 
 // =========================================================
-// MODERN RESULTS-ONLY PREDICTION — V22
+// MODERN RESULTS-ONLY PREDICTION — V23
 // 60% current-month target game + 30% latest seven target-game
 // draws + 10% today's published results. When the month has
 // fewer than seven draws, seven prior-month draws are included
-// at reduced strength. No classification chart is used.
+// at reduced strength. Monthly frequency uses square-root
+// saturation so repeated hot numbers cannot dominate forever.
+// No classification chart is used.
 // =========================================================
 
 function calculateModernResultsPrediction(
@@ -1509,6 +1511,8 @@ function calculateModernResultsPrediction(
             machineFrequency: 0,
             todayWinningFrequency: 0,
             todayMachineFrequency: 0,
+            monthlyWinningEvidence: 0,
+            monthlyMachineEvidence: 0,
             currentMonthScore: 0,
             recentScore: 0,
             targetGameScore: 0,
@@ -1526,13 +1530,22 @@ function calculateModernResultsPrediction(
 
         winningNumbers.forEach(number => {
             scoreMap[number].winningFrequency += 1;
-            scoreMap[number].currentMonthScore += 3.5 * sourceWeight;
+            scoreMap[number].monthlyWinningEvidence += sourceWeight;
         });
 
         machineNumbers.forEach(number => {
             scoreMap[number].machineFrequency += 1;
-            scoreMap[number].currentMonthScore += 0.8 * sourceWeight;
+            scoreMap[number].monthlyMachineEvidence += sourceWeight;
         });
+    });
+
+    // Saturating frequency performed better than raw linear frequency
+    // in walk-forward checks. It keeps monthly evidence important while
+    // preventing one repeatedly hot number from crowding out movement.
+    Object.values(scoreMap).forEach(item => {
+        item.currentMonthScore =
+            (3.5 * Math.sqrt(item.monthlyWinningEvidence)) +
+            (0.8 * Math.sqrt(item.monthlyMachineEvidence));
     });
 
     recentPool.forEach((result, index) => {
