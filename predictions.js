@@ -2,7 +2,7 @@
 // JEJOYINYE LOTTERY SERVICES
 // COMPLETE PREDICTION ENGINE
 // predictions.js
-// Modern prediction engine v23
+// Modern prediction engine v24
 // =========================================================
 
 
@@ -937,6 +937,10 @@ const MODERN_RESULTS_SOURCE_WEIGHTS = Object.freeze({
     previousMonthFallbackWeight: 0.35
 });
 
+// Classification is active as a controlled secondary signal inside
+// each 60/30/10 source component. Actual result evidence stays primary.
+const MODERN_CLASSIFICATION_SHARE = 0.20;
+
 const GHANA_PREDICTION_WEIGHTS = Object.freeze({
     statistical: 0.70,
     classification: 0.25,
@@ -1435,13 +1439,14 @@ function calculateStatisticalPrediction(
 
 
 // =========================================================
-// MODERN RESULTS-ONLY PREDICTION — V23
+// MODERN RESULTS + CLASSIFICATION PREDICTION — V24
 // 60% current-month target game + 30% latest seven target-game
 // draws + 10% today's published results. When the month has
 // fewer than seven draws, seven prior-month draws are included
 // at reduced strength. Monthly frequency uses square-root
 // saturation so repeated hot numbers cannot dominate forever.
-// No classification chart is used.
+// The Modern classification chart contributes 20% inside each
+// source component; actual results retain the other 80%.
 // =========================================================
 
 function calculateModernResultsPrediction(
@@ -1514,11 +1519,28 @@ function calculateModernResultsPrediction(
             monthlyWinningEvidence: 0,
             monthlyMachineEvidence: 0,
             currentMonthScore: 0,
+            currentMonthClassificationScore: 0,
             recentScore: 0,
+            recentClassificationScore: 0,
             targetGameScore: 0,
             presentDayScore: 0,
+            presentDayClassificationScore: 0,
             totalScore: 0
         };
+    }
+
+    function addClassificationSignals(property, sourceNumber, weight) {
+        const relationships = MODERN_CLASSIFICATION_CHART[sourceNumber];
+
+        if (!relationships) {
+            return;
+        }
+
+        Object.values(relationships).forEach(target => {
+            if (target >= 1 && target <= 90) {
+                scoreMap[target][property] += weight;
+            }
+        });
     }
 
     monthlyPool.forEach(result => {
@@ -1531,11 +1553,21 @@ function calculateModernResultsPrediction(
         winningNumbers.forEach(number => {
             scoreMap[number].winningFrequency += 1;
             scoreMap[number].monthlyWinningEvidence += sourceWeight;
+            addClassificationSignals(
+                "currentMonthClassificationScore",
+                number,
+                sourceWeight
+            );
         });
 
         machineNumbers.forEach(number => {
             scoreMap[number].machineFrequency += 1;
             scoreMap[number].monthlyMachineEvidence += sourceWeight;
+            addClassificationSignals(
+                "currentMonthClassificationScore",
+                number,
+                sourceWeight * 0.25
+            );
         });
     });
 
@@ -1555,20 +1587,40 @@ function calculateModernResultsPrediction(
 
         winningNumbers.forEach(number => {
             scoreMap[number].recentScore += 3.5 * recencyWeight;
+            addClassificationSignals(
+                "recentClassificationScore",
+                number,
+                recencyWeight
+            );
         });
 
         machineNumbers.forEach(number => {
             scoreMap[number].recentScore += 0.8 * recencyWeight;
+            addClassificationSignals(
+                "recentClassificationScore",
+                number,
+                recencyWeight * 0.25
+            );
         });
     });
 
     presentDayResults.forEach(result => {
         parsePredictionNumbers(result.winning).forEach(number => {
             scoreMap[number].todayWinningFrequency += 1;
+            addClassificationSignals(
+                "presentDayClassificationScore",
+                number,
+                1
+            );
         });
 
         parsePredictionNumbers(result.machine).forEach(number => {
             scoreMap[number].todayMachineFrequency += 1;
+            addClassificationSignals(
+                "presentDayClassificationScore",
+                number,
+                0.25
+            );
         });
     });
 
@@ -1579,19 +1631,46 @@ function calculateModernResultsPrediction(
     });
 
     normalizePredictionComponent(scoreMap, "currentMonthScore");
+    normalizePredictionComponent(
+        scoreMap,
+        "currentMonthClassificationScore"
+    );
     normalizePredictionComponent(scoreMap, "recentScore");
+    normalizePredictionComponent(
+        scoreMap,
+        "recentClassificationScore"
+    );
     normalizePredictionComponent(scoreMap, "presentDayScore");
+    normalizePredictionComponent(
+        scoreMap,
+        "presentDayClassificationScore"
+    );
 
     Object.values(scoreMap).forEach(item => {
-        item.targetGameScoreNormalized =
-            (item.currentMonthScoreNormalized * (2 / 3)) +
-            (item.recentScoreNormalized * (1 / 3));
-        item.totalScore =
+        item.currentMonthComponent =
             (item.currentMonthScoreNormalized *
-                MODERN_RESULTS_SOURCE_WEIGHTS.currentMonth) +
+                (1 - MODERN_CLASSIFICATION_SHARE)) +
+            (item.currentMonthClassificationScoreNormalized *
+                MODERN_CLASSIFICATION_SHARE);
+        item.recentComponent =
             (item.recentScoreNormalized *
-                MODERN_RESULTS_SOURCE_WEIGHTS.recentTargetGame) +
+                (1 - MODERN_CLASSIFICATION_SHARE)) +
+            (item.recentClassificationScoreNormalized *
+                MODERN_CLASSIFICATION_SHARE);
+        item.presentDayComponent =
             (item.presentDayScoreNormalized *
+                (1 - MODERN_CLASSIFICATION_SHARE)) +
+            (item.presentDayClassificationScoreNormalized *
+                MODERN_CLASSIFICATION_SHARE);
+        item.targetGameScoreNormalized =
+            (item.currentMonthComponent * (2 / 3)) +
+            (item.recentComponent * (1 / 3));
+        item.totalScore =
+            (item.currentMonthComponent *
+                MODERN_RESULTS_SOURCE_WEIGHTS.currentMonth) +
+            (item.recentComponent *
+                MODERN_RESULTS_SOURCE_WEIGHTS.recentTargetGame) +
+            (item.presentDayComponent *
                 MODERN_RESULTS_SOURCE_WEIGHTS.presentDayResults);
     });
 
@@ -1956,6 +2035,23 @@ function displayPredictionAnalysis(
 
                                         <strong>
                                             ${item.presentDayScoreNormalized.toFixed(1)}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Classification Support
+                                        </span>
+
+                                        <strong>
+                                            ${(
+                                                (item.currentMonthClassificationScoreNormalized * 0.60) +
+                                                (item.recentClassificationScoreNormalized * 0.30) +
+                                                (item.presentDayClassificationScoreNormalized * 0.10)
+                                            ).toFixed(1)}
                                         </strong>
 
                                     </div>
@@ -2352,7 +2448,7 @@ async function displayAheadGamePredictions() {
                 <span>${result.predictionData?.currentMonthDraws || 0} current-month draws analysed</span>
                 <span>${result.presentDayResults.length} results published today</span>
             </div>
-            <small>60% Current Month • 30% Recent Game • 10% Today • No Classification Chart</small>
+            <small>60% Current Month • 30% Recent Game • 10% Today • Classification Chart Active</small>
         </article>
     `).join("");
 }
