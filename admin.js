@@ -347,7 +347,7 @@ function renderAnalyticsActivity() {
     if (!container) return;
     const activity = [];
     allAdminResults.slice(0, 4).forEach(item => activity.push({
-        date: item.draw_date || "",
+        date: item.created_at || item.draw_date || "",
         title: `${item.game || "Lottery"} result`,
         detail: item.lottery === "modern-billionaire" ? "Modern Billionaire" : "Ghana Games"
     }));
@@ -738,7 +738,10 @@ function formatDateTime(value) {
                 "2-digit",
 
             minute:
-                "2-digit"
+                "2-digit",
+
+            timeZone:
+                "Africa/Lagos"
 
         }
 
