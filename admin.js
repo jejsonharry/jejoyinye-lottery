@@ -442,7 +442,8 @@ async function loadPredictionAccuracy() {
             if (Number(detail.weeklyGameScore || 0) > 0) reasons.add("7-day");
             if (Number(detail.weeklyMovingScore || 0) > 0) reasons.add("moving");
             if (Number(detail.weeklyClassificationAppliedShare || 0) > 0 || Number(detail.monthlyClassificationAppliedShare || 0) > 0 || Number(detail.presentDayClassificationAppliedShare || 0) > 0) reasons.add("classification");
-            if (Number(detail.crossGameNormalized || 0) >= 35) reasons.add("cross-game");\n            if (Number(detail.pairSupportNormalized || 0) >= 25) reasons.add("pair");
+            if (Number(detail.crossGameNormalized || 0) >= 35) reasons.add("cross-game");
+            if (Number(detail.pairSupportNormalized || 0) >= 25) reasons.add("pair");
             if (Number(detail.previousGameCarryoverNormalized || 0) > 0) reasons.add("carryover");
             if (Number(detail.feedbackPenalty || 0) > 0) reasons.add("miss-feedback");
         });
@@ -458,7 +459,7 @@ async function loadPredictionAccuracy() {
             <td><strong>${escapeHTML(item.engine_version || "legacy")}</strong><small class="admin-muted">${escapeHTML(item.engine_profile || "balanced")}</small></td>
             <td>${escapeHTML(ballText(item.sure_numbers))}</td>
             <td>${escapeHTML(ballText(item.direct_numbers))}</td>
-            <td class="${resultClass}">${winningHits} winning hit${winningHits === 1 ? "" : "s"}</td>\n            <td><strong>${escapeHTML("7D " + percentageValue(item.weights?.weeklyTargetGame) + " • M " + percentageValue(item.weights?.currentMonthSupport) + " • Today " + percentageValue(item.weights?.presentDayResults))}</strong><small class="admin-muted">${escapeHTML("Pattern " + percentageValue(item.weights?.dailyPatternStrength) + " • Move " + percentageValue(item.weights?.movingShare))}</small><small class="admin-muted">${escapeHTML(scoreReasonSummary(item.score_details))}</small></td>
+            <td class="${resultClass}">${winningHits} winning hit${winningHits === 1 ? "" : "s"}</td>\n            <td><strong>${escapeHTML("7D " + percentageValue(item.weights?.weeklyTargetGame) + " • Cross " + percentageValue(item.weights?.crossGameShare) + " • M " + percentageValue(item.weights?.currentMonthSupport) + " • Today " + percentageValue(item.weights?.presentDayResults))}</strong><small class="admin-muted">${escapeHTML("Pattern " + percentageValue(item.weights?.dailyPatternStrength) + " • Move " + percentageValue(item.weights?.movingShare))}</small><small class="admin-muted">${escapeHTML(scoreReasonSummary(item.score_details))}</small></td>
         </tr>`;
     }).join("");
 }
