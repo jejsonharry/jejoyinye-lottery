@@ -2373,7 +2373,7 @@ function displayPredictionAnalysis(
                                         </span>
 
                                         <strong>
-                                            ${item.winningFrequency}
+                                            ${item.winningFrequency ?? "—"}
                                         </strong>
 
                                     </div>
@@ -2386,7 +2386,7 @@ function displayPredictionAnalysis(
                                         </span>
 
                                         <strong>
-                                            ${item.machineFrequency}
+                                            ${item.machineFrequency ?? "—"}
                                         </strong>
 
                                     </div>
@@ -2399,7 +2399,7 @@ function displayPredictionAnalysis(
                                         </span>
 
                                         <strong>
-                                            ${item.todayWinningFrequency}
+                                            ${item.todayWinningFrequency ?? "—"}
                                         </strong>
 
                                     </div>
@@ -2412,7 +2412,7 @@ function displayPredictionAnalysis(
                                         </span>
 
                                         <strong>
-                                            ${item.todayMachineFrequency}
+                                            ${item.todayMachineFrequency ?? "—"}
                                         </strong>
 
                                     </div>
