@@ -34,6 +34,15 @@ const adaptiveWeightSummary =
 const adaptivePatternSummary =
     document.getElementById("adaptive-pattern-summary");
 
+const adaptiveSevenDayWeight =
+    document.getElementById("adaptive-seven-day-weight");
+
+const adaptiveMonthWeight =
+    document.getElementById("adaptive-month-weight");
+
+const adaptiveTodayWeight =
+    document.getElementById("adaptive-today-weight");
+
 const upcomingGamesList =
     document.getElementById("upcoming-games-list");
 
@@ -1129,6 +1138,23 @@ function displayPredictionGroups(predictionData) {
         adaptiveWeightSummary.textContent = weights
             ? `7-Day ${Math.round(weights.recent * 100)}% • Month ${Math.round(weights.month * 100)}% • Today ${Math.round(weights.today * 100)}% • Moving ${Math.round(weights.moving * 100)}%`
             : "Adaptive weights calculated from live draw evidence";
+    }
+
+    if (weights) {
+        if (adaptiveSevenDayWeight) {
+            adaptiveSevenDayWeight.textContent =
+                `${Math.round(weights.recent * 100)}%`;
+        }
+
+        if (adaptiveMonthWeight) {
+            adaptiveMonthWeight.textContent =
+                `${Math.round(weights.month * 100)}%`;
+        }
+
+        if (adaptiveTodayWeight) {
+            adaptiveTodayWeight.textContent =
+                `${Math.round(weights.today * 100)}%`;
+        }
     }
 
     if (adaptivePatternSummary) {
