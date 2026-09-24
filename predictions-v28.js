@@ -1076,7 +1076,8 @@ function snapshotToPredictionData(snapshot) {
             recent: numericValue(weights.weeklyTargetGame, 0.60),
             month: numericValue(weights.currentMonthSupport, 0.30),
             today: numericValue(weights.presentDayResults, 0.10),
-            moving: numericValue(weights.movingShare, 0.10)
+            moving: numericValue(weights.movingShare, 0.10),
+            crossGame: numericValue(weights.crossGameShare, 0)
         },
         dailyPattern: {
             strength: numericValue(weights.dailyPatternStrength),
@@ -1136,7 +1137,7 @@ function displayPredictionGroups(predictionData) {
 
     if (adaptiveWeightSummary) {
         adaptiveWeightSummary.textContent = weights
-            ? `7-Day ${Math.round(weights.recent * 100)}% • Month ${Math.round(weights.month * 100)}% • Today ${Math.round(weights.today * 100)}% • Moving ${Math.round(weights.moving * 100)}%`
+            ? `7-Day ${Math.round(weights.recent * 100)}% • Cross-Game ${Math.round(weights.crossGame * 100)}% • Month ${Math.round(weights.month * 100)}% • Today ${Math.round(weights.today * 100)}% • Moving ${Math.round(weights.moving * 100)}%`
             : "Adaptive weights calculated from live draw evidence";
     }
 
@@ -2229,6 +2230,10 @@ function buildPredictionReasons(item) {
         reasons.push("classification confirmed");
     }
 
+    if (numericValue(item.crossGameNormalized) >= 35) {
+        reasons.push("7-day cross-game relationship");
+    }
+
     if (numericValue(item.pairSupportNormalized) >= 25) {
         reasons.push("repeated pair relationship");
     }
@@ -2532,6 +2537,13 @@ function displayPredictionAnalysis(
 
                                     </div>
 
+
+                                    <div>
+                                        <span>7-Day Cross-Game Support</span>
+                                        <strong>
+                                            ${numericValue(item.crossGameNormalized).toFixed(0)}
+                                        </strong>
+                                    </div>
 
                                     <div>
                                         <span>Pair Relationship</span>
