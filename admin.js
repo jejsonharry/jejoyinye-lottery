@@ -393,7 +393,7 @@ function renderMessageAnalytics() {
 async function loadPredictionAccuracy() {
     let query = supabaseClient
         .from("prediction_snapshots")
-        .select("draw_date,game,lottery,engine_profile,sure_numbers,direct_numbers,actual_winning,total_winning_hits,sure_hit_count,direct_hit_count,status")
+        .select("draw_date,game,lottery,engine_version,engine_profile,sure_numbers,direct_numbers,actual_winning,total_winning_hits,sure_hit_count,direct_hit_count,status,weights,score_details")
         .order("draw_date", { ascending: false })
         .limit(500);
 
@@ -422,22 +422,22 @@ async function loadPredictionAccuracy() {
     const tbody = document.getElementById("analytics-prediction-rows");
     if (!tbody) return;
     if (!evaluated.length) {
-        tbody.innerHTML = '<tr><td colspan="6">No evaluated forecasts in this period yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7">No evaluated forecasts in this period yet.</td></tr>';
         return;
     }
 
     const ballText = value => parseNumberArray(value)
         .map(number => String(number).padStart(2, "0")).join("-");
-    tbody.innerHTML = evaluated.slice(0, 25).map(item => {
+    const percentageValue = value => {\n        const number = Number(value);\n        return Number.isFinite(number) ? Math.round(number * 100) + "%" : "--";\n    };\n\n    const scoreReasonSummary = value => {\n        const details = Array.isArray(value) ? value : [];\n        if (!details.length) return "No score detail";\n        const top = details.slice().sort((a, b) => Number(a.rank || 999) - Number(b.rank || 999)).slice(0, 2);\n        const reasons = new Set();\n        top.forEach(detail => {\n            if (Number(detail.weeklyGameScore || 0) > 0) reasons.add("7-day");\n            if (Number(detail.weeklyMovingScore || 0) > 0) reasons.add("moving");\n            if (Number(detail.weeklyClassificationAppliedShare || 0) > 0 || Number(detail.monthlyClassificationAppliedShare || 0) > 0 || Number(detail.presentDayClassificationAppliedShare || 0) > 0) reasons.add("classification");\n            if (Number(detail.pairSupportNormalized || 0) >= 25) reasons.add("pair");\n            if (Number(detail.previousGameCarryoverNormalized || 0) > 0) reasons.add("carryover");\n            if (Number(detail.feedbackPenalty || 0) > 0) reasons.add("miss-feedback");\n        });\n        return [...reasons].join(" • ") || "statistical ranking";\n    };\n\n    tbody.innerHTML = evaluated.slice(0, 25).map(item => {
         const winningHits = Number(item.total_winning_hits || 0);
         const resultClass = winningHits > 0 ? "prediction-hit" : "prediction-miss";
         return `<tr>
             <td>${escapeHTML(formatDrawDate(item.draw_date))}</td>
             <td>${escapeHTML(item.game)}</td>
-            <td>${escapeHTML(item.engine_profile || "balanced")}</td>
+            <td><strong>${escapeHTML(item.engine_version || "legacy")}</strong><small class="admin-muted">${escapeHTML(item.engine_profile || "balanced")}</small></td>
             <td>${escapeHTML(ballText(item.sure_numbers))}</td>
             <td>${escapeHTML(ballText(item.direct_numbers))}</td>
-            <td class="${resultClass}">${winningHits} winning hit${winningHits === 1 ? "" : "s"}</td>
+            <td class="${resultClass}">${winningHits} winning hit${winningHits === 1 ? "" : "s"}</td>\n            <td><strong>${escapeHTML("7D " + percentageValue(item.weights?.weeklyTargetGame) + " • M " + percentageValue(item.weights?.currentMonthSupport) + " • Today " + percentageValue(item.weights?.presentDayResults))}</strong><small class="admin-muted">${escapeHTML("Pattern " + percentageValue(item.weights?.dailyPatternStrength) + " • Move " + percentageValue(item.weights?.movingShare))}</small><small class="admin-muted">${escapeHTML(scoreReasonSummary(item.score_details))}</small></td>
         </tr>`;
     }).join("");
 }
