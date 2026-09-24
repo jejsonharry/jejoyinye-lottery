@@ -50,7 +50,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions-v27.js"
+        src="predictions-v28.js"
         defer
     ></script>
 
@@ -92,7 +92,7 @@
     }
   }
   </script>
-    <link rel="stylesheet" href="predictions-luxury-v1.css?v=4">
+    <link rel="stylesheet" href="predictions-luxury-v1.css?v=5">
     <link rel="stylesheet" href="ahead-predictions.css?v=2">
   <link rel="stylesheet" href="analytics.css?v=1">
   <script src="analytics.js?v=2" defer></script>
@@ -333,6 +333,25 @@
 
                 </div>
 
+                <div class="prediction-output-groups" aria-label="Prediction groups">
+                    <div class="prediction-output-group sure-group">
+                        <span>2 SURE</span>
+                        <div id="next-game-sure-balls" class="prediction-mini-balls">
+                            <span class="prediction-mini-ball">--</span>
+                            <span class="prediction-mini-ball">--</span>
+                        </div>
+                    </div>
+
+                    <div class="prediction-output-group direct-group">
+                        <span>3 DIRECT</span>
+                        <div id="next-game-direct-balls" class="prediction-mini-balls">
+                            <span class="prediction-mini-ball">--</span>
+                            <span class="prediction-mini-ball">--</span>
+                            <span class="prediction-mini-ball">--</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="prediction-analysis-summary">
 
     <div class="analysis-summary-card">
@@ -341,13 +360,18 @@
     </div>
 
     <div class="analysis-summary-card">
-        <span>Prediction Method</span>
-        <strong>60% Previous 7 Days • 30% Month • 10% Today</strong>
+        <span>Adaptive Weighting</span>
+        <strong id="adaptive-weight-summary">Calculating live pattern...</strong>
     </div>
 
     <div class="analysis-summary-card">
         <span>Results Published Today</span>
         <strong id="analysis-today-count">0</strong>
+    </div>
+
+    <div class="analysis-summary-card">
+        <span>Today's Pattern</span>
+        <strong id="adaptive-pattern-summary">Waiting for completed draws</strong>
     </div>
 
 </div>
@@ -381,12 +405,12 @@
     </div>
 
     <p class="compact-analysis-summary">
-        The same game's actual results from the previous seven calendar days
-        are the main source. Wider current-month history and results published
-        today provide supporting evidence. Actual statistics remain primary,
-        while moving-number relationships remain a controlled secondary
-        signal. The Modern classification chart is applied only when recent
-        statistical or moving-number evidence supports it.
+        The seven-day same-game history remains the stable core, but the
+        engine is no longer locked to fixed daily weights. As Modern results
+        are released, v28 measures today's repeats, movement relationships,
+        classification confirmation and recent prediction performance, then
+        adjusts the remaining games within controlled limits. Pair support,
+        previous-game carryover and recent misses also affect ranking.
     </p>
 
     <details class="compact-analysis-details">
