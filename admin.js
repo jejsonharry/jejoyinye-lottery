@@ -428,7 +428,28 @@ async function loadPredictionAccuracy() {
 
     const ballText = value => parseNumberArray(value)
         .map(number => String(number).padStart(2, "0")).join("-");
-    const percentageValue = value => {\n        const number = Number(value);\n        return Number.isFinite(number) ? Math.round(number * 100) + "%" : "--";\n    };\n\n    const scoreReasonSummary = value => {\n        const details = Array.isArray(value) ? value : [];\n        if (!details.length) return "No score detail";\n        const top = details.slice().sort((a, b) => Number(a.rank || 999) - Number(b.rank || 999)).slice(0, 2);\n        const reasons = new Set();\n        top.forEach(detail => {\n            if (Number(detail.weeklyGameScore || 0) > 0) reasons.add("7-day");\n            if (Number(detail.weeklyMovingScore || 0) > 0) reasons.add("moving");\n            if (Number(detail.weeklyClassificationAppliedShare || 0) > 0 || Number(detail.monthlyClassificationAppliedShare || 0) > 0 || Number(detail.presentDayClassificationAppliedShare || 0) > 0) reasons.add("classification");\n            if (Number(detail.pairSupportNormalized || 0) >= 25) reasons.add("pair");\n            if (Number(detail.previousGameCarryoverNormalized || 0) > 0) reasons.add("carryover");\n            if (Number(detail.feedbackPenalty || 0) > 0) reasons.add("miss-feedback");\n        });\n        return [...reasons].join(" • ") || "statistical ranking";\n    };\n\n    tbody.innerHTML = evaluated.slice(0, 25).map(item => {
+    const percentageValue = value => {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.round(number * 100) + "%" : "--";
+    };
+
+    const scoreReasonSummary = value => {
+        const details = Array.isArray(value) ? value : [];
+        if (!details.length) return "No score detail";
+        const top = details.slice().sort((a, b) => Number(a.rank || 999) - Number(b.rank || 999)).slice(0, 2);
+        const reasons = new Set();
+        top.forEach(detail => {
+            if (Number(detail.weeklyGameScore || 0) > 0) reasons.add("7-day");
+            if (Number(detail.weeklyMovingScore || 0) > 0) reasons.add("moving");
+            if (Number(detail.weeklyClassificationAppliedShare || 0) > 0 || Number(detail.monthlyClassificationAppliedShare || 0) > 0 || Number(detail.presentDayClassificationAppliedShare || 0) > 0) reasons.add("classification");
+            if (Number(detail.pairSupportNormalized || 0) >= 25) reasons.add("pair");
+            if (Number(detail.previousGameCarryoverNormalized || 0) > 0) reasons.add("carryover");
+            if (Number(detail.feedbackPenalty || 0) > 0) reasons.add("miss-feedback");
+        });
+        return [...reasons].join(" • ") || "statistical ranking";
+    };
+
+    tbody.innerHTML = evaluated.slice(0, 25).map(item => {
         const winningHits = Number(item.total_winning_hits || 0);
         const resultClass = winningHits > 0 ? "prediction-hit" : "prediction-miss";
         return `<tr>
