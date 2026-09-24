@@ -50,7 +50,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions-v24.js"
+        src="predictions-v25.js"
         defer
     ></script>
 
@@ -336,13 +336,13 @@
                 <div class="prediction-analysis-summary">
 
     <div class="analysis-summary-card">
-        <span>Current-Month Draws Analysed</span>
+        <span>Previous 7 Days Analysed</span>
         <strong id="analysis-draw-count">0</strong>
     </div>
 
     <div class="analysis-summary-card">
         <span>Prediction Method</span>
-        <strong>60% Month • 30% Recent Game • 10% Today</strong>
+        <strong>60% Previous 7 Days • 30% Month • 10% Today</strong>
     </div>
 
     <div class="analysis-summary-card">
@@ -366,12 +366,12 @@
     <div class="compact-signal-grid modern-results-signals" aria-label="Prediction weighting">
         <div class="compact-signal-chip">
             <strong>60%</strong>
-            <span>Current-Month Game Results</span>
+            <span>Same Game • Previous 7 Days</span>
         </div>
 
         <div class="compact-signal-chip">
             <strong>30%</strong>
-            <span>Latest 3–7 Game Results</span>
+            <span>Wider Current-Month Support</span>
         </div>
 
         <div class="compact-signal-chip">
@@ -381,10 +381,10 @@
     </div>
 
     <p class="compact-analysis-summary">
-        The current month's actual results for the game are the main source.
-        Its latest seven draws receive a separate recency boost, while results
-        published today provide supporting evidence. Classification and
-        moving-number charts are excluded.
+        The same game's actual results from the previous seven calendar days
+        are the main source. Wider current-month history and results published
+        today provide supporting evidence. The Modern classification chart
+        remains active as a controlled secondary signal.
     </p>
 
     <details class="compact-analysis-details">
