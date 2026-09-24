@@ -815,3 +815,92 @@ body {
     font-size: clamp(2.05rem, 13vw, 3rem) !important;
   }
 }
+
+
+/* V28 DAILY-ADAPTIVE PREDICTION OUTPUT */
+.prediction-output-groups {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  margin: 14px 0 18px;
+}
+
+.prediction-output-group {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(215,173,69,.22);
+}
+
+.prediction-output-group > span {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--jols-gold-soft) !important;
+  font-size: .7rem;
+  font-weight: 950;
+  letter-spacing: .14em;
+}
+
+.prediction-mini-balls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prediction-mini-ball {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 950;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255,255,255,.32), transparent 20%),
+    linear-gradient(145deg, #159756, #08693c);
+  border: 2px solid rgba(244,215,125,.86);
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,.18), 0 5px 14px rgba(0,0,0,.18);
+}
+
+.prediction-group-empty {
+  color: rgba(235,244,247,.66);
+  font-weight: 800;
+}
+
+.prediction-reason-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 8px 0 12px;
+}
+
+.prediction-reason-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(93,240,160,.22);
+  background: rgba(25,199,106,.08);
+  color: #86efb5 !important;
+  font-size: .72rem;
+  font-weight: 850;
+}
+
+#adaptive-weight-summary,
+#adaptive-pattern-summary {
+  font-size: .82rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 640px) {
+  .prediction-output-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .prediction-mini-ball {
+    width: 39px;
+    height: 39px;
+  }
+}
