@@ -442,7 +442,7 @@ async function loadPredictionAccuracy() {
             if (Number(detail.weeklyGameScore || 0) > 0) reasons.add("7-day");
             if (Number(detail.weeklyMovingScore || 0) > 0) reasons.add("moving");
             if (Number(detail.weeklyClassificationAppliedShare || 0) > 0 || Number(detail.monthlyClassificationAppliedShare || 0) > 0 || Number(detail.presentDayClassificationAppliedShare || 0) > 0) reasons.add("classification");
-            if (Number(detail.pairSupportNormalized || 0) >= 25) reasons.add("pair");
+            if (Number(detail.crossGameNormalized || 0) >= 35) reasons.add("cross-game");\n            if (Number(detail.pairSupportNormalized || 0) >= 25) reasons.add("pair");
             if (Number(detail.previousGameCarryoverNormalized || 0) > 0) reasons.add("carryover");
             if (Number(detail.feedbackPenalty || 0) > 0) reasons.add("miss-feedback");
         });
