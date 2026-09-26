@@ -936,7 +936,7 @@ async function fetchPresentDayModernResults() {
 
 
 // =========================================================
-// SHARED V28 SNAPSHOT ENGINE
+// SHARED MODERN SNAPSHOT ENGINE
 // The default public prediction reads the same server-generated
 // snapshot used by admin analytics. Custom date-range analysis can
 // still use the browser fallback without changing the live snapshot.
@@ -958,7 +958,7 @@ async function fetchModernPredictionSnapshot(game) {
             .eq("lottery", "modern-billionaire")
             .eq("game", game.game)
             .eq("draw_date", game.drawDate)
-            .eq("engine_version", "v28")
+            .eq("engine_version", "sep6-classification")
             .order("generated_at", { ascending: false })
             .limit(1);
 
@@ -972,7 +972,7 @@ async function fetchModernPredictionSnapshot(game) {
     }
     catch (error) {
         console.warn(
-            "Shared v28 prediction snapshot unavailable:",
+            "Shared Modern prediction snapshot unavailable:",
             error
         );
         return null;
