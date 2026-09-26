@@ -1169,13 +1169,14 @@ function displayPredictionGroups(predictionData) {
 
 // =========================================================
 // MODERN BILLIONAIRE CLASSIFICATION CHART
-// 60% statistics + 30% classification + 10% moving numbers
+// Sep 6, 2026 first-classification baseline
+// 30% statistics + 50% classification + 20% moving numbers
 // =========================================================
 
 const MODERN_PREDICTION_WEIGHTS = Object.freeze({
-    statistical: 0.60,
-    classification: 0.30,
-    moving: 0.10
+    statistical: 0.30,
+    classification: 0.50,
+    moving: 0.20
 });
 
 // The target game remains the priority. Its previous seven calendar
@@ -1782,66 +1783,6 @@ function calculateModernResultsPrediction(
     predictionDrawDate = getTodayDateString()
 ) {
     const scoreMap = {};
-    const hasCustomRange = Boolean(
-        modernPredictionDateRange.from ||
-        modernPredictionDateRange.to
-    );
-    const referenceDate =
-        modernPredictionDateRange.to ||
-        predictionDrawDate ||
-        getTodayDateString();
-    const referenceMonth =
-        String(referenceDate).slice(0, 7);
-
-    const currentMonthResults = hasCustomRange
-        ? targetResults
-        : targetResults.filter(result => {
-            const drawDate = String(result.draw_date || "");
-            return drawDate.startsWith(referenceMonth) &&
-                drawDate < referenceDate;
-        });
-
-    const previousMonthFallback =
-        !hasCustomRange && currentMonthResults.length < 7
-            ? targetResults
-                .filter(result => {
-                    const drawDate = String(result.draw_date || "");
-                    return drawDate &&
-                        !drawDate.startsWith(referenceMonth) &&
-                        drawDate < referenceDate;
-                })
-                .slice(
-                    0,
-                    MODERN_RESULTS_SOURCE_WEIGHTS
-                        .previousMonthFallbackDraws
-                )
-            : [];
-
-    const monthlyPool = [
-        ...currentMonthResults,
-        ...previousMonthFallback
-    ];
-    const weeklyStart = new Date(`${referenceDate}T00:00:00Z`);
-    weeklyStart.setUTCDate(
-        weeklyStart.getUTCDate() -
-        MODERN_RESULTS_SOURCE_WEIGHTS.weeklyIntervalDays
-    );
-    const weeklyStartDate = weeklyStart.toISOString().slice(0, 10);
-    const recentPool = monthlyPool.filter(result => {
-        const drawDate = String(result.draw_date || "");
-        return drawDate >= weeklyStartDate &&
-            drawDate < referenceDate;
-    });
-    const recentWeights = [
-        1.60,
-        1.45,
-        1.30,
-        1.15,
-        1.00,
-        0.85,
-        0.70
-    ];
-    const fallbackSet = new Set(previousMonthFallback);
 
     for (let number = 1; number <= 90; number++) {
         scoreMap[number] = {
@@ -1850,240 +1791,163 @@ function calculateModernResultsPrediction(
             machineFrequency: 0,
             todayWinningFrequency: 0,
             todayMachineFrequency: 0,
-            monthlyWinningEvidence: 0,
-            monthlyMachineEvidence: 0,
-            currentMonthScore: 0,
-            currentMonthClassificationScore: 0,
-            currentMonthMovingScore: 0,
+            todayFrequency: 0,
             recentScore: 0,
-            recentClassificationScore: 0,
-            recentMovingScore: 0,
-            targetGameScore: 0,
-            presentDayScore: 0,
-            presentDayClassificationScore: 0,
-            presentDayMovingScore: 0,
-            totalScore: 0
+            statisticalScore: 0,
+            classificationScore: 0,
+            movingScore: 0,
+            totalScore: 0,
+
+            // Compatibility fields used by the current analysis UI.
+            currentMonthScoreNormalized: 0,
+            recentScoreNormalized: 0,
+            presentDayScoreNormalized: 0,
+            currentMonthClassificationScoreNormalized: 0,
+            recentClassificationScoreNormalized: 0,
+            presentDayClassificationScoreNormalized: 0,
+            currentMonthMovingScoreNormalized: 0,
+            recentMovingScoreNormalized: 0,
+            presentDayMovingScoreNormalized: 0,
+            adaptiveClassificationShare: 0.50,
+            crossGameNormalized: 0,
+            pairSupportNormalized: 0,
+            previousGameCarryoverNormalized: 0,
+            feedbackPenalty: 0
         };
     }
 
-    function addRelationshipSignals(
-        classificationProperty,
-        movingProperty,
-        sourceNumber,
-        weight
-    ) {
-        const relationships = MODERN_CLASSIFICATION_CHART[sourceNumber];
-
-        if (relationships) {
-            Object.values(relationships).forEach(target => {
-                if (target >= 1 && target <= 90) {
-                    scoreMap[target][classificationProperty] += weight;
-                }
-            });
-        }
-
-        (MODERN_MOVING_GRAPH[sourceNumber] || []).forEach(target => {
-            scoreMap[target][movingProperty] += weight;
-        });
-    }
-
-    monthlyPool.forEach(result => {
+    targetResults.forEach((result, index) => {
         const winningNumbers = parsePredictionNumbers(result.winning);
         const machineNumbers = parsePredictionNumbers(result.machine);
-        const sourceWeight = fallbackSet.has(result)
-            ? MODERN_RESULTS_SOURCE_WEIGHTS.previousMonthFallbackWeight
-            : 1;
+
+        const recencyWeight = Math.max(
+            0.25,
+            1 - (index / Math.max(targetResults.length, 1)) * 0.75
+        );
 
         winningNumbers.forEach(number => {
             scoreMap[number].winningFrequency += 1;
-            scoreMap[number].monthlyWinningEvidence += sourceWeight;
-            addRelationshipSignals(
-                "currentMonthClassificationScore",
-                "currentMonthMovingScore",
-                number,
-                sourceWeight
-            );
+            scoreMap[number].recentScore += 2.4 * recencyWeight;
         });
 
         machineNumbers.forEach(number => {
             scoreMap[number].machineFrequency += 1;
-            scoreMap[number].monthlyMachineEvidence += sourceWeight;
-            addRelationshipSignals(
-                "currentMonthClassificationScore",
-                "currentMonthMovingScore",
-                number,
-                sourceWeight * 0.25
-            );
+            scoreMap[number].recentScore += 0.7 * recencyWeight;
         });
     });
 
-    // Saturating frequency performed better than raw linear frequency
-    // in walk-forward checks. It keeps monthly evidence important while
-    // preventing one repeatedly hot number from crowding out movement.
-    Object.values(scoreMap).forEach(item => {
-        item.currentMonthScore =
-            (3.5 * Math.sqrt(item.monthlyWinningEvidence)) +
-            (0.8 * Math.sqrt(item.monthlyMachineEvidence));
-    });
-
-    recentPool.forEach((result, index) => {
-        const winningNumbers = parsePredictionNumbers(result.winning);
-        const machineNumbers = parsePredictionNumbers(result.machine);
-        const recencyWeight = recentWeights[index] || 0.70;
-
-        winningNumbers.forEach(number => {
-            scoreMap[number].recentScore += 3.5 * recencyWeight;
-            addRelationshipSignals(
-                "recentClassificationScore",
-                "recentMovingScore",
-                number,
-                recencyWeight
-            );
-        });
-
-        machineNumbers.forEach(number => {
-            scoreMap[number].recentScore += 0.8 * recencyWeight;
-            addRelationshipSignals(
-                "recentClassificationScore",
-                "recentMovingScore",
-                number,
-                recencyWeight * 0.25
-            );
-        });
-    });
+    const todayWinningWeight = Math.max(7, targetResults.length * 0.09);
+    const todayMachineWeight = Math.max(2, targetResults.length * 0.025);
 
     presentDayResults.forEach(result => {
         parsePredictionNumbers(result.winning).forEach(number => {
             scoreMap[number].todayWinningFrequency += 1;
-            addRelationshipSignals(
-                "presentDayClassificationScore",
-                "presentDayMovingScore",
-                number,
-                1
-            );
+            scoreMap[number].todayFrequency += 1;
+            scoreMap[number].recentScore += todayWinningWeight;
         });
 
         parsePredictionNumbers(result.machine).forEach(number => {
             scoreMap[number].todayMachineFrequency += 1;
-            addRelationshipSignals(
-                "presentDayClassificationScore",
-                "presentDayMovingScore",
-                number,
-                0.25
-            );
+            scoreMap[number].todayFrequency += 0.35;
+            scoreMap[number].recentScore += todayMachineWeight;
         });
     });
 
     Object.values(scoreMap).forEach(item => {
-        item.presentDayScore =
-            (item.todayWinningFrequency * 3.0) +
-            (item.todayMachineFrequency * 0.7);
+        item.statisticalScore =
+            (item.winningFrequency * 3.5) +
+            (item.machineFrequency * 0.8) +
+            item.recentScore;
+
+        item.totalScore = item.statisticalScore;
     });
 
-    normalizePredictionComponent(scoreMap, "currentMonthScore");
-    normalizePredictionComponent(
-        scoreMap,
-        "currentMonthClassificationScore"
+    const relationshipSignals = [
+        ...presentDayResults.map(result => ({
+            result,
+            weight: 2.5
+        })),
+        ...targetResults.slice(0, 5).map((result, index) => ({
+            result,
+            weight: Math.max(0.35, 1 - (index * 0.15))
+        }))
+    ];
+
+    relationshipSignals.forEach(({ result, weight }) => {
+        parsePredictionNumbers(result.winning).forEach(number => {
+            addModernRelationshipScores(scoreMap, number, weight);
+        });
+
+        parsePredictionNumbers(result.machine).forEach(number => {
+            addModernRelationshipScores(scoreMap, number, weight * 0.45);
+        });
+    });
+
+    normalizePredictionComponent(scoreMap, "statisticalScore");
+    normalizePredictionComponent(scoreMap, "classificationScore");
+    normalizePredictionComponent(scoreMap, "movingScore");
+
+    const maxTodayScore = Math.max(
+        0,
+        ...Object.values(scoreMap).map(item =>
+            (item.todayWinningFrequency * 3.0) +
+            (item.todayMachineFrequency * 0.7)
+        )
     );
-    normalizePredictionComponent(scoreMap, "recentScore");
-    normalizePredictionComponent(
-        scoreMap,
-        "recentClassificationScore"
-    );
-    normalizePredictionComponent(scoreMap, "presentDayScore");
-    normalizePredictionComponent(
-        scoreMap,
-        "presentDayClassificationScore"
-    );
-    normalizePredictionComponent(scoreMap, "currentMonthMovingScore");
-    normalizePredictionComponent(scoreMap, "recentMovingScore");
-    normalizePredictionComponent(scoreMap, "presentDayMovingScore");
 
     Object.values(scoreMap).forEach(item => {
-        const currentMonthBlend =
-            blendModernAdaptiveComponent(
-                item.currentMonthScoreNormalized,
-                item.currentMonthClassificationScoreNormalized,
-                item.currentMonthMovingScoreNormalized
-            );
-
-        const recentBlend =
-            blendModernAdaptiveComponent(
-                item.recentScoreNormalized,
-                item.recentClassificationScoreNormalized,
-                item.recentMovingScoreNormalized
-            );
-
-        const presentDayBlend =
-            blendModernAdaptiveComponent(
-                item.presentDayScoreNormalized,
-                item.presentDayClassificationScoreNormalized,
-                item.presentDayMovingScoreNormalized
-            );
-
-        item.currentMonthComponent =
-            currentMonthBlend.score;
-        item.currentMonthClassificationShare =
-            currentMonthBlend.classificationShare;
-
-        item.recentComponent =
-            recentBlend.score;
-        item.recentClassificationShare =
-            recentBlend.classificationShare;
-
-        item.presentDayComponent =
-            presentDayBlend.score;
-        item.presentDayClassificationShare =
-            presentDayBlend.classificationShare;
-
-        item.adaptiveClassificationShare =
-            (item.recentClassificationShare *
-                MODERN_RESULTS_SOURCE_WEIGHTS.recentTargetGame) +
-            (item.currentMonthClassificationShare *
-                MODERN_RESULTS_SOURCE_WEIGHTS.currentMonth) +
-            (item.presentDayClassificationShare *
-                MODERN_RESULTS_SOURCE_WEIGHTS.presentDayResults);
-
-        item.targetGameScoreNormalized =
-            (item.recentComponent * (2 / 3)) +
-            (item.currentMonthComponent * (1 / 3));
+        const todayScore =
+            (item.todayWinningFrequency * 3.0) +
+            (item.todayMachineFrequency * 0.7);
 
         item.totalScore =
-            (item.currentMonthComponent *
-                MODERN_RESULTS_SOURCE_WEIGHTS.currentMonth) +
-            (item.recentComponent *
-                MODERN_RESULTS_SOURCE_WEIGHTS.recentTargetGame) +
-            (item.presentDayComponent *
-                MODERN_RESULTS_SOURCE_WEIGHTS.presentDayResults);
+            (item.statisticalScoreNormalized * 0.30) +
+            (item.classificationScoreNormalized * 0.50) +
+            (item.movingScoreNormalized * 0.20);
+
+        // Populate current UI fields without changing the Sep 6 ranking.
+        item.currentMonthScoreNormalized = item.statisticalScoreNormalized;
+        item.recentScoreNormalized = item.statisticalScoreNormalized;
+        item.presentDayScoreNormalized =
+            maxTodayScore > 0 ? (todayScore / maxTodayScore) * 100 : 0;
+
+        item.currentMonthClassificationScoreNormalized =
+            item.classificationScoreNormalized;
+        item.recentClassificationScoreNormalized =
+            item.classificationScoreNormalized;
+        item.presentDayClassificationScoreNormalized =
+            presentDayResults.length ? item.classificationScoreNormalized : 0;
+
+        item.currentMonthMovingScoreNormalized = item.movingScoreNormalized;
+        item.recentMovingScoreNormalized = item.movingScoreNormalized;
+        item.presentDayMovingScoreNormalized =
+            presentDayResults.length ? item.movingScoreNormalized : 0;
     });
 
     const rankedNumbers = Object.values(scoreMap).sort((a, b) => {
         if (b.totalScore !== a.totalScore) {
             return b.totalScore - a.totalScore;
         }
-
         return a.number - b.number;
     });
 
+    const topFive = rankedNumbers.slice(0, 5);
+
     return {
-        predictedNumbers: rankedNumbers
-            .slice(0, 5)
+        predictedNumbers: topFive
             .map(item => item.number)
             .sort((a, b) => a - b),
-        sureNumbers: rankedNumbers
-            .slice(0, 2)
-            .map(item => item.number),
-        directNumbers: rankedNumbers
-            .slice(2, 5)
-            .map(item => item.number),
+        sureNumbers: topFive.slice(0, 2).map(item => item.number),
+        directNumbers: topFive.slice(2, 5).map(item => item.number),
         rankedData: rankedNumbers,
         scoreMap,
-        currentMonthDraws: currentMonthResults.length,
-        fallbackDraws: previousMonthFallback.length,
-        recentDraws: recentPool.length
+        currentMonthDraws: targetResults.length,
+        fallbackDraws: 0,
+        recentDraws: targetResults.length,
+        engineRevision: "sep6-2026-first-classification-30-50-20",
+        predictionDrawDate
     };
 }
-
 
 // =========================================================
 // STRENGTH LABEL
