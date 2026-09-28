@@ -1170,13 +1170,13 @@ function displayPredictionGroups(predictionData) {
 // =========================================================
 // MODERN BILLIONAIRE CLASSIFICATION CHART
 // Sep 6, 2026 first-classification baseline
-// 30% statistics + 50% classification + 20% moving numbers
+// 60% statistics + 30% classification + 10% moving numbers
 // =========================================================
 
 const MODERN_PREDICTION_WEIGHTS = Object.freeze({
-    statistical: 0.30,
-    classification: 0.50,
-    moving: 0.20
+    statistical: 0.60,
+    classification: 0.30,
+    moving: 0.10
 });
 
 // The target game remains the priority. Its previous seven calendar
@@ -1808,7 +1808,7 @@ function calculateModernResultsPrediction(
             currentMonthMovingScoreNormalized: 0,
             recentMovingScoreNormalized: 0,
             presentDayMovingScoreNormalized: 0,
-            adaptiveClassificationShare: 0.50,
+            adaptiveClassificationShare: 0.30,
             crossGameNormalized: 0,
             pairSupportNormalized: 0,
             previousGameCarryoverNormalized: 0,
@@ -1901,9 +1901,9 @@ function calculateModernResultsPrediction(
             (item.todayMachineFrequency * 0.7);
 
         item.totalScore =
-            (item.statisticalScoreNormalized * 0.30) +
-            (item.classificationScoreNormalized * 0.50) +
-            (item.movingScoreNormalized * 0.20);
+            (item.statisticalScoreNormalized * 0.60) +
+            (item.classificationScoreNormalized * 0.30) +
+            (item.movingScoreNormalized * 0.10);
 
         // Populate current UI fields without changing the Sep 6 ranking.
         item.currentMonthScoreNormalized = item.statisticalScoreNormalized;
@@ -1944,7 +1944,7 @@ function calculateModernResultsPrediction(
         currentMonthDraws: targetResults.length,
         fallbackDraws: 0,
         recentDraws: targetResults.length,
-        engineRevision: "sep6-2026-first-classification-30-50-20",
+        engineRevision: "sep6-structure-tuned-60-30-10",
         predictionDrawDate
     };
 }
