@@ -1073,10 +1073,14 @@ function snapshotToPredictionData(snapshot) {
         currentMonthDraws:
             numericValue(weights.currentMonthDraws),
         adaptiveWeights: {
+            statistical: numericValue(weights.statistical, 0.60),
+            classification: numericValue(weights.classification, 0.30),
+            moving: numericValue(weights.moving, weights.movingShare || 0.10),
+
+            // Legacy keys retained only for older UI helpers.
             recent: numericValue(weights.weeklyTargetGame, 0.60),
-            month: numericValue(weights.currentMonthSupport, 0.30),
-            today: numericValue(weights.presentDayResults, 0.10),
-            moving: numericValue(weights.movingShare, 0.10),
+            month: numericValue(weights.currentMonthSupport, 0),
+            today: numericValue(weights.presentDayResults, 0),
             crossGame: numericValue(weights.crossGameShare, 0)
         },
         dailyPattern: {
@@ -1137,32 +1141,30 @@ function displayPredictionGroups(predictionData) {
 
     if (adaptiveWeightSummary) {
         adaptiveWeightSummary.textContent = weights
-            ? `7-Day ${Math.round(weights.recent * 100)}% • Cross-Game ${Math.round(weights.crossGame * 100)}% • Month ${Math.round(weights.month * 100)}% • Today ${Math.round(weights.today * 100)}% • Moving ${Math.round(weights.moving * 100)}%`
-            : "Adaptive weights calculated from live draw evidence";
+            ? `Statistics ${Math.round(weights.statistical * 100)}% • Classification ${Math.round(weights.classification * 100)}% • Moving ${Math.round(weights.moving * 100)}%`
+            : "Statistics 60% • Classification 30% • Moving 10%";
     }
 
     if (weights) {
         if (adaptiveSevenDayWeight) {
             adaptiveSevenDayWeight.textContent =
-                `${Math.round(weights.recent * 100)}%`;
+                `${Math.round(weights.statistical * 100)}%`;
         }
 
         if (adaptiveMonthWeight) {
             adaptiveMonthWeight.textContent =
-                `${Math.round(weights.month * 100)}%`;
+                `${Math.round(weights.classification * 100)}%`;
         }
 
         if (adaptiveTodayWeight) {
             adaptiveTodayWeight.textContent =
-                `${Math.round(weights.today * 100)}%`;
+                `${Math.round(weights.moving * 100)}%`;
         }
     }
 
     if (adaptivePatternSummary) {
-        const pattern = predictionData?.dailyPattern;
-        adaptivePatternSummary.textContent = pattern
-            ? `Daily pattern strength ${Math.round(pattern.strength * 100)}% • Movement confirmation ${Math.round(pattern.movingConfirmation * 100)}%`
-            : "Daily pattern profile updates after each completed Modern draw";
+        adaptivePatternSummary.textContent =
+            "September 6 classification structure • Fixed 60/30/10 weighting";
     }
 }
 
@@ -2077,7 +2079,7 @@ function buildPredictionReasons(item) {
     const reasons = [];
 
     if (numericValue(item.recentScoreNormalized) >= 35) {
-        reasons.push("7-day same-game frequency");
+        reasons.push("same-game statistical history");
     }
 
     const movingSupport = Math.max(
@@ -2091,11 +2093,11 @@ function buildPredictionReasons(item) {
     }
 
     if (numericValue(item.adaptiveClassificationShare) > 0) {
-        reasons.push("classification confirmed");
+        reasons.push("classification-chart support");
     }
 
     if (numericValue(item.crossGameNormalized) >= 35) {
-        reasons.push("7-day cross-game relationship");
+        reasons.push("cross-game support");
     }
 
     if (numericValue(item.pairSupportNormalized) >= 25) {
@@ -2818,8 +2820,8 @@ async function displayAheadGamePredictions() {
                 <span>${result.presentDayResults.length} results published today</span>
             </div>
             <small>${result.predictionData?.adaptiveWeights
-                ? `Adaptive: ${Math.round(result.predictionData.adaptiveWeights.recent * 100)}% 7-Day • ${Math.round(result.predictionData.adaptiveWeights.month * 100)}% Month • ${Math.round(result.predictionData.adaptiveWeights.today * 100)}% Today`
-                : "Adaptive fallback • Classification + Moving Active"}</small>
+                ? `Weights: ${Math.round(result.predictionData.adaptiveWeights.statistical * 100)}% Statistics • ${Math.round(result.predictionData.adaptiveWeights.classification * 100)}% Classification • ${Math.round(result.predictionData.adaptiveWeights.moving * 100)}% Moving`
+                : "60% Statistics • 30% Classification • 10% Moving"}</small>
         </article>
     `).join("");
 }
