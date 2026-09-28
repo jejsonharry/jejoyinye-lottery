@@ -50,7 +50,7 @@
 
     <!-- PREDICTIONS ENGINE -->
     <script
-        src="predictions-v28.js?v=sep6-60-30-10-1"
+        src="predictions-v28.js?v=sep6-60-30-10-labels-2"
         defer
     ></script>
 
@@ -302,7 +302,7 @@
             <div class="prediction-number-area">
 
                 <span class="prediction-number-label">
-                    ADAPTIVE 5-BALL COMBINATION
+                    WEIGHTED 5-BALL COMBINATION
                 </span>
 
 
@@ -355,12 +355,12 @@
                 <div class="prediction-analysis-summary">
 
     <div class="analysis-summary-card">
-        <span>Previous 7 Days Analysed</span>
+        <span>Historical Draws Analysed</span>
         <strong id="analysis-draw-count">0</strong>
     </div>
 
     <div class="analysis-summary-card">
-        <span>Adaptive Weighting</span>
+        <span>Engine Weighting</span>
         <strong id="adaptive-weight-summary">Calculating live pattern...</strong>
     </div>
 
@@ -370,7 +370,7 @@
     </div>
 
     <div class="analysis-summary-card">
-        <span>Today's Pattern</span>
+        <span>Engine Profile</span>
         <strong id="adaptive-pattern-summary">Waiting for completed draws</strong>
     </div>
 
@@ -390,27 +390,25 @@
     <div class="compact-signal-grid modern-results-signals" aria-label="Prediction weighting">
         <div class="compact-signal-chip">
             <strong id="adaptive-seven-day-weight">--%</strong>
-            <span>Same Game • Previous 7 Days</span>
+            <span>Statistical History</span>
         </div>
 
         <div class="compact-signal-chip">
             <strong id="adaptive-month-weight">--%</strong>
-            <span>Wider Current-Month Support</span>
+            <span>Classification Chart</span>
         </div>
 
         <div class="compact-signal-chip">
             <strong id="adaptive-today-weight">--%</strong>
-            <span>Today's Live Pattern</span>
+            <span>Moving Numbers</span>
         </div>
     </div>
 
     <p class="compact-analysis-summary">
-        The seven-day same-game history remains the stable core. A controlled rolling seven-day cross-game layer also studies all 11 other Modern games from the previous seven completed days. Schedule proximity wraps across day boundaries, so Powerball can learn most strongly from the previous day's Queen, Golden and Hero, while more recent days carry more weight. The
-        engine is no longer locked to fixed daily weights. As Modern results
-        are released, v28 measures today's repeats, movement relationships,
-        classification confirmation and recent prediction performance, then
-        adjusts the remaining games within controlled limits. Pair support,
-        previous-game carryover and recent misses also affect ranking.
+        The Modern prediction engine uses the restored September 6 classification structure with fixed weighting:
+        60% statistical history, 30% classification-chart relationships and 10% moving-number support.
+        Up to 500 same-game historical records can be analysed, while earlier published results from the current day
+        can add recency evidence before the next draw. The weighting itself remains fixed at 60/30/10.
     </p>
 
     <details class="compact-analysis-details">
