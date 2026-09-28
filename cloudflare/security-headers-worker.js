@@ -1,15 +1,14 @@
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-    const cleanUrlRedirects = new Map([
-      ["/index.html", "/"],
-      ["/results.html", "/results"],
-      ["/predictions.html", "/predictions"]
-    ]);
-
-    const cleanPath = cleanUrlRedirects.get(url.pathname);
-    if (cleanPath && (request.method === "GET" || request.method === "HEAD")) {
-      url.pathname = cleanPath;
+    if (
+      url.pathname.endsWith(".html") &&
+      (request.method === "GET" || request.method === "HEAD")
+    ) {
+      url.pathname =
+        url.pathname === "/index.html"
+          ? "/"
+          : url.pathname.slice(0, -5);
 
       return Response.redirect(url.toString(), 301);
     }
