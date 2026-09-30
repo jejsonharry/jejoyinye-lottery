@@ -1,7 +1,7 @@
 // =========================================================
 // JEJOYINYE LOTTERY SERVICES
 // AGENT APPLICATION
-// SECURITY-HARDENED VERSION 25
+// SECURITY-HARDENED VERSION 26
 // =========================================================
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAAEwASh_aa_NyiR-D";
@@ -136,13 +136,9 @@ async function submitAgentApplication(event) {
     const fullname = clean(getValue("fullname"));
     const phone = clean(getValue("phone"));
     const email = clean(getValue("email"));
-    const nin = getValue("nin").replace(/\D/g, "");
     const state = clean(getValue("state"));
     const city = clean(getValue("city"));
     const address = clean(getValue("address"));
-    const bankName = clean(getValue("bank_name"));
-    const accountName = clean(getValue("account_name"));
-    const accountNumber = getValue("account_number").replace(/\D/g, "");
     const experience = clean(getValue("experience"));
     const additionalInformation = clean(getValue("message"));
     const declaration = document.getElementById("declaration");
@@ -150,13 +146,9 @@ async function submitAgentApplication(event) {
     if (fullname.length < 3) return showMessage("Please enter your full name.");
     if (!/^\d{10,14}$/.test(phone.replace(/\D/g, ""))) return showMessage("Please enter a valid phone number.");
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showMessage("Please enter a valid email address.");
-    if (!/^\d{11}$/.test(nin)) return showMessage("NIN must contain exactly 11 digits.");
     if (!state) return showMessage("Please select your state.");
     if (!city) return showMessage("Please enter your city or town.");
     if (address.length < 5) return showMessage("Please enter your business address.");
-    if (!bankName) return showMessage("Please enter your bank name.");
-    if (accountName.length < 3) return showMessage("Please enter your account name.");
-    if (!/^\d{10}$/.test(accountNumber)) return showMessage("Account number must contain exactly 10 digits.");
     if (!declaration || !declaration.checked) return showMessage("Please confirm the declaration.");
     if (!agentTurnstileToken) return showMessage("Please complete the security verification before submitting.");
     if (typeof supabaseClient === "undefined") return showMessage("We could not connect to the application service. Please refresh the page and try again.");
@@ -167,13 +159,9 @@ async function submitAgentApplication(event) {
         full_name: fullname,
         phone,
         email: email || null,
-        nin,
         state,
         city,
         business_address: address,
-        bank_name: bankName,
-        account_name: accountName,
-        account_number: accountNumber,
         lottery_experience: experience || null,
         additional_information: additionalInformation || null
     };
@@ -212,12 +200,6 @@ async function submitAgentApplication(event) {
         setLoading(false);
     }
 }
-
-const ninInput = document.getElementById("nin");
-if (ninInput) ninInput.addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 11); });
-
-const accountNumberInput = document.getElementById("account_number");
-if (accountNumberInput) accountNumberInput.addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 10); });
 
 if (agentForm) {
     installHoneypot(agentForm);
