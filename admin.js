@@ -2993,11 +2993,6 @@ function showAgentEditForm(application) {
                 </label>
 
                 <label class="agent-edit-field">
-                    <span>NIN</span>
-                    <input name="nin" value="${escapeHTML(application.nin || "")}" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="Enter verified 11-digit NIN">
-                </label>
-
-                <label class="agent-edit-field">
                     <span>State <b>*</b></span>
                     <input name="state" value="${escapeHTML(application.state || "")}" required autocomplete="address-level1">
                 </label>
@@ -3011,6 +3006,20 @@ function showAgentEditForm(application) {
                     <span>Business Address <b>*</b></span>
                     <textarea name="business_address" rows="3" required autocomplete="street-address">${escapeHTML(application.business_address || "")}</textarea>
                 </label>
+
+                <label class="agent-edit-field">
+                    <span>Lottery Experience</span>
+                    <select name="lottery_experience">
+                        <option value="" ${!application.lottery_experience ? "selected" : ""}>Not specified</option>
+                        <option value="yes" ${String(application.lottery_experience || "").toLowerCase() === "yes" ? "selected" : ""}>Yes</option>
+                        <option value="no" ${String(application.lottery_experience || "").toLowerCase() === "no" ? "selected" : ""}>No</option>
+                    </select>
+                </label>
+
+                <label class="agent-edit-field agent-edit-field-full">
+                    <span>Additional Information</span>
+                    <textarea name="additional_information" rows="4">${escapeHTML(application.additional_information || "")}</textarea>
+                </label>
             </div>
 
             <section class="agent-edit-sensitive">
@@ -3021,6 +3030,11 @@ function showAgentEditForm(application) {
                 </div>
 
                 <div class="agent-edit-grid">
+                    <label class="agent-edit-field">
+                        <span>NIN</span>
+                        <input name="nin" value="${escapeHTML(application.nin || "")}" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="Enter verified 11-digit NIN">
+                    </label>
+
                     <label class="agent-edit-field">
                         <span>Bank Name</span>
                         <input name="bank_name" value="${escapeHTML(application.bank_name || "")}" autocomplete="off" placeholder="Enter verified bank name">
@@ -3036,19 +3050,6 @@ function showAgentEditForm(application) {
                         <input name="account_number" value="${escapeHTML(application.account_number || "")}" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="Enter verified 10-digit account number">
                     </label>
 
-                    <label class="agent-edit-field">
-                        <span>Lottery Experience</span>
-                        <select name="lottery_experience">
-                            <option value="" ${!application.lottery_experience ? "selected" : ""}>Not specified</option>
-                            <option value="yes" ${String(application.lottery_experience || "").toLowerCase() === "yes" ? "selected" : ""}>Yes</option>
-                            <option value="no" ${String(application.lottery_experience || "").toLowerCase() === "no" ? "selected" : ""}>No</option>
-                        </select>
-                    </label>
-
-                    <label class="agent-edit-field agent-edit-field-full">
-                        <span>Additional Information</span>
-                        <textarea name="additional_information" rows="4">${escapeHTML(application.additional_information || "")}</textarea>
-                    </label>
                 </div>
             </section>
 
