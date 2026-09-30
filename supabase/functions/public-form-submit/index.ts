@@ -170,24 +170,20 @@ Deno.serve(async (req) => {
       const full_name = clean(payload.full_name, 120);
       const phone = clean(payload.phone, 30);
       const email = clean(payload.email, 180);
-      const nin = clean(payload.nin, 20).replace(/\D/g, "");
       const state = clean(payload.state, 80);
       const city = clean(payload.city, 100);
       const business_address = clean(payload.business_address, 500);
-      const bank_name = clean(payload.bank_name, 120);
-      const account_name = clean(payload.account_name, 160);
-      const account_number = clean(payload.account_number, 20).replace(/\D/g, "");
       const lottery_experience = clean(payload.lottery_experience, 50) || null;
       const additional_information = clean(payload.additional_information, 1200) || null;
 
-      if (full_name.length < 3 || !/^\d{10,14}$/.test(phone.replace(/\D/g, "")) || !/^\d{11}$/.test(nin) || !state || !city || business_address.length < 5 || !bank_name || account_name.length < 3 || !/^\d{10}$/.test(account_number)) {
+      if (full_name.length < 3 || !/^\d{10,14}$/.test(phone.replace(/\D/g, "")) || !state || !city || business_address.length < 5) {
         return json(400, { ok: false, error: "Please check the application details and try again." }, origin);
       }
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return json(400, { ok: false, error: "Please enter a valid email address." }, origin);
       }
 
-      const { error } = await supabase.from("agent_applications").insert([{ full_name, phone, email: email || null, nin, state, city, business_address, bank_name, account_name, account_number, lottery_experience, additional_information, status: "pending" }]);
+      const { error } = await supabase.from("agent_applications").insert([{ full_name, phone, email: email || null, state, city, business_address, lottery_experience, additional_information, status: "pending" }]);
       if (error) throw error;
       return json(200, { ok: true }, origin);
     }
