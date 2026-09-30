@@ -2746,291 +2746,116 @@ function openAgentModal(id) {
             .toLowerCase();
 
 
+    const hasNin = /^\\d{11}$/.test(String(application.nin || "").replace(/\\D/g, ""));
+    const hasBankDetails = Boolean(
+        String(application.bank_name || "").trim()
+        && String(application.account_name || "").trim()
+        && /^\\d{10}$/.test(String(application.account_number || "").replace(/\\D/g, ""))
+    );
+    const kycComplete = hasNin && hasBankDetails;
+
     agentModalContent.innerHTML = `
-
-
-        <div class="agent-detail-grid">
-
-
-            <div class="agent-detail">
-
-                <span>
-                    Full Name
-                </span>
-
-                <strong>
-                    ${escapeHTML(
-                        application.full_name
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail">
-
-                <span>
-                    Phone
-                </span>
-
-                <strong>
-                    ${escapeHTML(
-                        application.phone
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail">
-
-                <span>
-                    Email
-                </span>
-
-                <strong>
-
-                    ${escapeHTML(
-                        application.email
-                        ||
-                        "Not provided"
-                    )}
-
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail">
-
-                <span>
-                    Status
-                </span>
-
-                <strong>
-
-                    ${
-                        archived
-
-                            ? "ARCHIVED"
-
-                            : escapeHTML(
-                                status.toUpperCase()
-                            )
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail">
-
-                <span>
-                    State
-                </span>
-
-                <strong>
-                    ${escapeHTML(
-                        application.state
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail">
-
-                <span>
-                    City
-                </span>
-
-                <strong>
-                    ${escapeHTML(
-                        application.city
-                    )}
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail full">
-
-                <span>
-                    Business Address
-                </span>
-
-                <strong>
-
-                    ${escapeHTML(
-                        application.business_address
-                        ||
-                        "Not provided"
-                    )}
-
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail full">
-
-                <span>
-                    Lottery Experience
-                </span>
-
-                <strong>
-
-                    ${escapeHTML(
-                        application.lottery_experience
-                        ||
-                        "Not provided"
-                    )}
-
-                </strong>
-
-            </div>
-
-
-            <div class="agent-detail full">
-
-                <span>
-                    Additional Information
-                </span>
-
-                <strong>
-
-                    ${escapeHTML(
-                        application.additional_information
-                        ||
-                        "None"
-                    )}
-
-                </strong>
-
-            </div>
-
-
+        <div class="agent-record-tabs" role="tablist" aria-label="Agent record sections">
+            <button type="button" class="agent-record-tab active" data-agent-record-tab="application" role="tab" aria-selected="true">
+                Application Details
+            </button>
+            <button type="button" class="agent-record-tab" data-agent-record-tab="kyc" role="tab" aria-selected="false">
+                KYC &amp; Account Setup
+            </button>
         </div>
 
-
-
-        <div class="agent-onboarding-status-panel">
-            <span class="admin-eyebrow">AGENT STATUS</span>
-            <div class="agent-onboarding-options" role="group" aria-label="Agent onboarding status">
-                <label class="agent-onboarding-option">
-                    <input type="checkbox" id="agent-status-pending" ${String(application.onboarding_status || "pending").toLowerCase() === "pending" ? "checked" : ""}>
-                    <span>Pending</span>
-                </label>
-                <label class="agent-onboarding-option">
-                    <input type="checkbox" id="agent-status-onboarded" ${String(application.onboarding_status || "pending").toLowerCase() === "onboarded" ? "checked" : ""}>
-                    <span>Onboarded</span>
-                </label>
-            </div>
-            <p class="admin-muted">Once marked Onboarded, Reject and Delete Permanently are no longer available.</p>
-        </div>
-
-
-        <div class="agent-sensitive">
-
-
-            <h3>
-                Private Applicant Information
-            </h3>
-
-
-            <p>
-                Identification and banking
-                information should remain private.
-            </p>
-
-
+        <section class="agent-record-panel active" data-agent-record-panel="application">
             <div class="agent-detail-grid">
-
-
                 <div class="agent-detail">
-
-                    <span>
-                        NIN
-                    </span>
-
-                    <strong>
-
-                        ${escapeHTML(
-                            application.nin
-                            ||
-                            "Not provided"
-                        )}
-
-                    </strong>
-
+                    <span>Full Name</span>
+                    <strong>${escapeHTML(application.full_name || "Not provided")}</strong>
                 </div>
-
-
                 <div class="agent-detail">
-
-                    <span>
-                        Bank Name
-                    </span>
-
-                    <strong>
-
-                        ${escapeHTML(
-                            application.bank_name
-                            ||
-                            "Not provided"
-                        )}
-
-                    </strong>
-
+                    <span>Phone</span>
+                    <strong>${escapeHTML(application.phone || "Not provided")}</strong>
                 </div>
-
-
                 <div class="agent-detail">
-
-                    <span>
-                        Account Name
-                    </span>
-
-                    <strong>
-
-                        ${escapeHTML(
-                            application.account_name
-                            ||
-                            "Not provided"
-                        )}
-
-                    </strong>
-
+                    <span>Email</span>
+                    <strong>${escapeHTML(application.email || "Not provided")}</strong>
                 </div>
-
-
                 <div class="agent-detail">
-
-                    <span>
-                        Account Number
-                    </span>
-
-                    <strong>
-
-                        ${escapeHTML(
-                            application.account_number
-                            ||
-                            "Not provided"
-                        )}
-
-                    </strong>
-
+                    <span>Status</span>
+                    <strong>${archived ? "ARCHIVED" : escapeHTML(status.toUpperCase())}</strong>
                 </div>
-
-
+                <div class="agent-detail">
+                    <span>State</span>
+                    <strong>${escapeHTML(application.state || "Not provided")}</strong>
+                </div>
+                <div class="agent-detail">
+                    <span>City</span>
+                    <strong>${escapeHTML(application.city || "Not provided")}</strong>
+                </div>
+                <div class="agent-detail full">
+                    <span>Business Address</span>
+                    <strong>${escapeHTML(application.business_address || "Not provided")}</strong>
+                </div>
+                <div class="agent-detail full">
+                    <span>Lottery Experience</span>
+                    <strong>${escapeHTML(application.lottery_experience || "Not provided")}</strong>
+                </div>
+                <div class="agent-detail full">
+                    <span>Additional Information</span>
+                    <strong>${escapeHTML(application.additional_information || "None")}</strong>
+                </div>
             </div>
 
+            <div class="agent-onboarding-status-panel">
+                <span class="admin-eyebrow">AGENT STATUS</span>
+                <div class="agent-onboarding-options" role="group" aria-label="Agent onboarding status">
+                    <label class="agent-onboarding-option">
+                        <input type="checkbox" id="agent-status-pending" ${String(application.onboarding_status || "pending").toLowerCase() === "pending" ? "checked" : ""}>
+                        <span>Pending</span>
+                    </label>
+                    <label class="agent-onboarding-option">
+                        <input type="checkbox" id="agent-status-onboarded" ${String(application.onboarding_status || "pending").toLowerCase() === "onboarded" ? "checked" : ""}>
+                        <span>Onboarded</span>
+                    </label>
+                </div>
+                <p class="admin-muted">Once marked Onboarded, Reject and Delete Permanently are no longer available.</p>
+            </div>
+        </section>
 
-        </div>
+        <section class="agent-record-panel" data-agent-record-panel="kyc">
+            <div class="agent-sensitive">
+                <div class="agent-kyc-heading">
+                    <div>
+                        <span class="admin-eyebrow">PRIVATE INFORMATION</span>
+                        <h3>KYC &amp; Account Setup</h3>
+                        <p>NIN and bank details are collected privately after the public application has been reviewed.</p>
+                    </div>
+                    <span class="agent-kyc-status ${kycComplete ? "complete" : "pending"}">
+                        ${kycComplete ? "KYC Complete" : "KYC Pending"}
+                    </span>
+                </div>
 
+                <div class="agent-detail-grid">
+                    <div class="agent-detail">
+                        <span>NIN</span>
+                        <strong>${escapeHTML(application.nin || "Not provided")}</strong>
+                    </div>
+                    <div class="agent-detail">
+                        <span>Bank Name</span>
+                        <strong>${escapeHTML(application.bank_name || "Not provided")}</strong>
+                    </div>
+                    <div class="agent-detail">
+                        <span>Account Name</span>
+                        <strong>${escapeHTML(application.account_name || "Not provided")}</strong>
+                    </div>
+                    <div class="agent-detail">
+                        <span>Account Number</span>
+                        <strong>${escapeHTML(application.account_number || "Not provided")}</strong>
+                    </div>
+                </div>
+
+                <p class="admin-muted">Use Edit Application to add or update these details after verification.</p>
+            </div>
+        </section>
     `;
-
 
     const modalTitle = agentModal.querySelector(".agent-modal-header h2");
     if (modalTitle) {
@@ -3072,6 +2897,22 @@ function openAgentModal(id) {
         }
         if (pendingCheckbox) pendingCheckbox.checked = false;
         await updateAgentOnboardingStatus(application.id, "onboarded");
+    });
+
+    const recordTabs = Array.from(agentModalContent.querySelectorAll("[data-agent-record-tab]"));
+    const recordPanels = Array.from(agentModalContent.querySelectorAll("[data-agent-record-panel]"));
+    recordTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            const target = tab.dataset.agentRecordTab;
+            recordTabs.forEach(item => {
+                const active = item === tab;
+                item.classList.toggle("active", active);
+                item.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            recordPanels.forEach(panel => {
+                panel.classList.toggle("active", panel.dataset.agentRecordPanel === target);
+            });
+        });
     });
 
 
@@ -3152,8 +2993,8 @@ function showAgentEditForm(application) {
                 </label>
 
                 <label class="agent-edit-field">
-                    <span>NIN <b>*</b></span>
-                    <input name="nin" value="${escapeHTML(application.nin || "")}" required inputmode="numeric" maxlength="11" autocomplete="off">
+                    <span>NIN</span>
+                    <input name="nin" value="${escapeHTML(application.nin || "")}" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="Enter verified 11-digit NIN">
                 </label>
 
                 <label class="agent-edit-field">
@@ -3174,25 +3015,25 @@ function showAgentEditForm(application) {
 
             <section class="agent-edit-sensitive">
                 <div>
-                    <span class="admin-eyebrow">PRIVATE INFORMATION</span>
-                    <h3>Bank and identification details</h3>
-                    <p>Only authorised administrators should update these fields.</p>
+                    <span class="admin-eyebrow">KYC &amp; ACCOUNT SETUP</span>
+                    <h3>Private verification and payout details</h3>
+                    <p>These fields are intentionally excluded from the public application. Add them here only after verification.</p>
                 </div>
 
                 <div class="agent-edit-grid">
                     <label class="agent-edit-field">
-                        <span>Bank Name <b>*</b></span>
-                        <input name="bank_name" value="${escapeHTML(application.bank_name || "")}" required autocomplete="off">
+                        <span>Bank Name</span>
+                        <input name="bank_name" value="${escapeHTML(application.bank_name || "")}" autocomplete="off" placeholder="Enter verified bank name">
                     </label>
 
                     <label class="agent-edit-field">
-                        <span>Account Name <b>*</b></span>
-                        <input name="account_name" value="${escapeHTML(application.account_name || "")}" required autocomplete="off">
+                        <span>Account Name</span>
+                        <input name="account_name" value="${escapeHTML(application.account_name || "")}" autocomplete="off" placeholder="Enter verified account name">
                     </label>
 
                     <label class="agent-edit-field">
-                        <span>Account Number <b>*</b></span>
-                        <input name="account_number" value="${escapeHTML(application.account_number || "")}" required inputmode="numeric" maxlength="10" autocomplete="off">
+                        <span>Account Number</span>
+                        <input name="account_number" value="${escapeHTML(application.account_number || "")}" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="Enter verified 10-digit account number">
                     </label>
 
                     <label class="agent-edit-field">
@@ -3267,13 +3108,13 @@ async function saveAgentApplicationEdits(event, id) {
         full_name: fieldValue("full_name"),
         phone,
         email: email || null,
-        nin,
+        nin: nin || null,
         state: fieldValue("state"),
         city: fieldValue("city"),
         business_address: fieldValue("business_address"),
-        bank_name: fieldValue("bank_name"),
-        account_name: fieldValue("account_name"),
-        account_number: accountNumber,
+        bank_name: fieldValue("bank_name") || null,
+        account_name: fieldValue("account_name") || null,
+        account_number: accountNumber || null,
         lottery_experience: fieldValue("lottery_experience") || null,
         additional_information: fieldValue("additional_information") || null
     };
@@ -3281,13 +3122,12 @@ async function saveAgentApplicationEdits(event, id) {
     if (payload.full_name.length < 3) return showEditError("Please enter the agent's full name.");
     if (!/^\d{10,14}$/.test(phone.replace(/\D/g, ""))) return showEditError("Please enter a valid phone number.");
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showEditError("Please enter a valid email address.");
-    if (!/^\d{11}$/.test(nin)) return showEditError("NIN must contain exactly 11 digits.");
+    if (nin && !/^\d{11}$/.test(nin)) return showEditError("NIN must contain exactly 11 digits when provided.");
     if (!payload.state) return showEditError("Please enter the agent's state.");
     if (!payload.city) return showEditError("Please enter the agent's city or town.");
     if (payload.business_address.length < 5) return showEditError("Please enter a valid business address.");
-    if (!payload.bank_name) return showEditError("Please enter the bank name.");
-    if (payload.account_name.length < 3) return showEditError("Please enter the account name.");
-    if (!/^\d{10}$/.test(accountNumber)) return showEditError("Account number must contain exactly 10 digits.");
+    if (payload.account_name && payload.account_name.length < 3) return showEditError("Please enter a valid account name.");
+    if (accountNumber && !/^\d{10}$/.test(accountNumber)) return showEditError("Account number must contain exactly 10 digits when provided.");
 
     try {
         if (saveButton) {
