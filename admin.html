@@ -2733,7 +2733,98 @@
 /* ===== ANALYTICS & REPORTS ===== */
 .analytics-panel{border-radius:20px}.analytics-heading-row{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.analytics-range{display:flex;gap:7px;padding:5px;background:#eef2f7;border-radius:12px}.analytics-range-btn{border:0;background:transparent;padding:10px 13px;border-radius:9px;font-weight:800;color:#64748b;cursor:pointer}.analytics-range-btn.active{background:#14244a;color:#fff;box-shadow:0 5px 14px rgba(20,36,74,.18)}.analytics-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:22px 0}.analytics-kpi{padding:20px;border:1px solid #e2e8f0;border-radius:16px;background:linear-gradient(145deg,#fff,#f8fafc);box-shadow:0 5px 16px rgba(15,23,42,.04)}.analytics-kpi span,.analytics-kpi small{display:block;color:#64748b;font-weight:700}.analytics-kpi strong{display:block;margin:8px 0 5px;font-size:30px;color:#0f172a}.analytics-kpi small{font-size:12px}.analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.analytics-card{padding:20px;border:1px solid #e2e8f0;border-radius:16px;background:#fff}.analytics-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.analytics-card-heading span{font-size:11px;font-weight:900;letter-spacing:.7px;color:#2563eb}.analytics-card-heading h3{margin:4px 0 0;color:#0f172a}.analytics-card-heading>strong{font-size:24px;color:#14244a}.analytics-bar-row{margin:16px 0}.analytics-bar-row>div:first-child{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;color:#334155;font-weight:800}.analytics-track{height:11px;background:#e2e8f0;border-radius:999px;overflow:hidden}.analytics-track i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#14244a,#2563eb);transition:width .35s ease}.analytics-status-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.analytics-status-grid div{padding:16px;border-radius:13px;background:#f8fafc;border:1px solid #e2e8f0}.analytics-status-grid strong{display:block;font-size:24px;color:#0f172a}.analytics-status-grid span{font-size:12px;color:#64748b;font-weight:800}.analytics-activity-card{grid-column:1/-1}.analytics-activity-list{display:grid;gap:10px}.analytics-activity-item{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid #edf2f7}.analytics-activity-item:last-child{border-bottom:0}.analytics-activity-item strong{display:block;color:#0f172a}.analytics-activity-item span,.analytics-activity-item time{font-size:12px;color:#64748b}.analytics-quick-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid #e2e8f0}@media(max-width:900px){.analytics-kpi-grid{grid-template-columns:repeat(2,1fr)}.analytics-heading-row{display:block}.analytics-range{margin-top:15px;width:max-content}}@media(max-width:600px){.analytics-kpi-grid,.analytics-grid{grid-template-columns:1fr}.analytics-range{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}.analytics-range-btn{padding:10px 6px}.analytics-activity-item{display:block}.analytics-activity-item time{display:block;margin-top:5px}}
 
-</style>
+
+        /* =====================================================
+           AGENT APPLICATION / KYC TABS
+        ===================================================== */
+        .agent-record-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 0 0 20px;
+            padding: 6px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+        }
+
+        .agent-record-tab {
+            min-height: 44px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #475569;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .agent-record-tab.active {
+            background: #0f766e;
+            color: #ffffff;
+            box-shadow: 0 7px 18px rgba(15, 118, 110, 0.2);
+        }
+
+        .agent-record-panel {
+            display: none;
+        }
+
+        .agent-record-panel.active {
+            display: block;
+        }
+
+        .agent-kyc-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .agent-kyc-heading h3 {
+            margin: 4px 0 6px;
+        }
+
+        .agent-kyc-heading p {
+            margin: 0;
+            color: #7c2d12;
+            line-height: 1.55;
+        }
+
+        .agent-kyc-status {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .agent-kyc-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .agent-kyc-status.complete {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        @media (max-width: 600px) {
+            .agent-record-tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .agent-kyc-heading {
+                flex-direction: column;
+            }
+        }
+
+    </style>
 
   <meta name="robots" content="noindex, nofollow">
 
@@ -3937,7 +4028,7 @@
 
 <script src="supabase.js" defer></script>
 
-<script src="admin.js?v=1412" defer></script>
+<script src="admin.js?v=1413" defer></script>
 <script src="admin-prediction-audit-v1.js?v=3" defer></script>
 <script src="admin-daily-results-poster-v1.js?v=4" defer></script>
 
