@@ -3,7 +3,11 @@
 
     const MEASUREMENT_ID = "G-SBK671R2HY";
     const CONSENT_KEY = "jols_analytics_consent";
+    const VISITOR_KEY = "jols_analytics_visitor_id";
+    const SESSION_KEY = "jols_analytics_session_id";
+    const EVENT_ENDPOINT = "https://iedgznzmmfkdhgmkghwt.supabase.co/functions/v1/public-event-track";
     let analyticsLoaded = false;
+    let pageViewSent = false;
 
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || function () {
@@ -32,6 +36,61 @@
         } catch (_) {}
     }
 
+    function createId() {
+        if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+        return "jols-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 12);
+    }
+
+    function getStoredId(storage, key) {
+        try {
+            let value = storage.getItem(key);
+            if (!value) {
+                value = createId();
+                storage.setItem(key, value);
+            }
+            return value;
+        } catch (_) {
+            return createId();
+        }
+    }
+
+    function getVisitorId() {
+        return getStoredId(window.localStorage, VISITOR_KEY);
+    }
+
+    function getSessionId() {
+        return getStoredId(window.sessionStorage, SESSION_KEY);
+    }
+
+    function sendBusinessEvent(eventName, parameters) {
+        if (readConsent() !== "granted") return;
+
+        const metadata = { ...(parameters || {}) };
+        delete metadata.page_path;
+
+        const payload = {
+            event_name: eventName,
+            page_path: window.location.pathname,
+            visitor_id: getVisitorId(),
+            session_id: getSessionId(),
+            metadata
+        };
+
+        fetch(EVENT_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            keepalive: true,
+            credentials: "omit"
+        }).catch(() => {});
+    }
+
+    function sendPageViewOnce() {
+        if (pageViewSent || readConsent() !== "granted") return;
+        pageViewSent = true;
+        sendBusinessEvent("page_view", {});
+    }
+
     function loadAnalytics() {
         if (analyticsLoaded) return;
         analyticsLoaded = true;
@@ -54,6 +113,7 @@
         window.gtag("consent", "update", { analytics_storage: "granted" });
         saveConsent("granted");
         loadAnalytics();
+        sendPageViewOnce();
     }
 
     function denyConsent() {
@@ -79,7 +139,7 @@
         banner.innerHTML = `
             <div class="jols-consent-copy">
                 <strong id="jols-consent-title">Help us improve JOLS</strong>
-                <p>We use optional Google Analytics to understand visits and improve the website. We do not send your application, bank or NIN details to Analytics. <a href="privacy">Privacy Policy</a></p>
+                <p>We use optional analytics to understand visits, Play Online clicks and agent-application activity so we can improve JOLS. We do not send your application, bank or NIN details to analytics. <a href="privacy">Privacy Policy</a></p>
             </div>
             <div class="jols-consent-actions">
                 <button type="button" data-consent="deny">Decline</button>
@@ -105,6 +165,7 @@
         if (readConsent() !== "granted") return;
         loadAnalytics();
         window.gtag("event", eventName, parameters || {});
+        sendBusinessEvent(eventName, parameters || {});
     };
 
     function linkLabel(link) {
@@ -130,7 +191,9 @@
         const rawHref = link.getAttribute("href") || "";
         let eventName = "";
 
-        if (/modernlotterynigeria\.com/i.test(rawHref)) {
+        if (/ModernApp\.apk/i.test(rawHref)) {
+            eventName = "online_app_download";
+        } else if (/modernlotterynigeria\.com/i.test(rawHref)) {
             eventName = "play_online_click";
         } else if (/chat\.whatsapp\.com/i.test(rawHref)) {
             eventName = "whatsapp_community_click";
@@ -165,7 +228,10 @@
 
     function initialise() {
         const consent = readConsent();
-        if (consent === "granted") loadAnalytics();
+        if (consent === "granted") {
+            loadAnalytics();
+            sendPageViewOnce();
+        }
         if (consent === null) showConsentBanner();
 
         addSettingsButton();
