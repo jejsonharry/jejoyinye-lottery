@@ -2824,6 +2824,33 @@
             }
         }
 
+    
+        /* =====================================================
+           JOLS GROWTH & REVENUE DASHBOARD
+        ===================================================== */
+        .jols-growth-dashboard { display:grid; gap:16px; margin:0 0 20px; }
+        .jols-growth-funnel { grid-column:1/-1; }
+        .jols-growth-kpi-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+        .jols-growth-kpi-grid>div { padding:16px; border:1px solid #e2e8f0; border-radius:14px; background:#f8fafc; }
+        .jols-growth-kpi-grid span,.jols-growth-kpi-grid small { display:block; color:#64748b; font-size:11px; font-weight:800; }
+        .jols-growth-kpi-grid strong { display:block; margin:7px 0 5px; color:#0f172a; font-size:25px; }
+        .jols-revenue-grid { margin:0; }
+        .jols-revenue-summary .analytics-card-heading>strong { font-size:28px; }
+        .jols-revenue-operating { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
+        .jols-revenue-operating>div { display:flex; justify-content:space-between; gap:12px; padding:12px 14px; border-radius:12px; background:#f8fafc; border:1px solid #e2e8f0; }
+        .jols-revenue-operating span { color:#64748b; font-size:12px; font-weight:800; }
+        .jols-revenue-operating strong { color:#0f172a; }
+        .jols-business-metrics-form { display:grid; gap:14px; }
+        .jols-metrics-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+        .jols-business-metrics-form label { display:grid; gap:6px; }
+        .jols-business-metrics-form label>span { color:#475569; font-size:12px; font-weight:850; }
+        .jols-business-metrics-form input,.jols-business-metrics-form textarea { width:100%; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:10px; background:#fff; padding:11px 12px; color:#0f172a; font:inherit; }
+        .jols-business-metrics-form input:focus,.jols-business-metrics-form textarea:focus { outline:3px solid rgba(15,118,110,.12); border-color:#0f766e; }
+        .jols-metrics-notes { grid-column:1/-1; }
+        @media(max-width:1100px){ .jols-growth-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
+        @media(max-width:700px){ .jols-growth-kpi-grid,.jols-metrics-grid,.jols-revenue-operating{grid-template-columns:1fr 1fr;} }
+        @media(max-width:500px){ .jols-growth-kpi-grid,.jols-metrics-grid,.jols-revenue-operating{grid-template-columns:1fr;} }
+
     </style>
 
   <meta name="robots" content="noindex, nofollow">
@@ -3306,6 +3333,74 @@
                 <article class="analytics-kpi"><span>Agent Applications</span><strong id="analytics-agent-total">—</strong><small id="analytics-agent-pending">0 pending</small></article>
                 <article class="analytics-kpi"><span>Support Messages</span><strong id="analytics-message-total">—</strong><small id="analytics-message-unread">0 unread</small></article>
             </div>
+
+            <section class="jols-growth-dashboard" aria-labelledby="jols-growth-title">
+                <div class="analytics-card jols-growth-funnel">
+                    <div class="analytics-card-heading">
+                        <div>
+                            <span>JOLS GROWTH FUNNEL</span>
+                            <h3 id="jols-growth-title">Traffic → Online Play → Agent Recruitment</h3>
+                        </div>
+                        <small class="admin-muted">Consent-based website analytics</small>
+                    </div>
+
+                    <div class="jols-growth-kpi-grid">
+                        <div><span>Visitors</span><strong id="jols-growth-visitors">0</strong><small id="jols-growth-pageviews">0 page views</small></div>
+                        <div><span>Play Online Clicks</span><strong id="jols-growth-play-clicks">0</strong><small id="jols-growth-play-rate">0% of visitors</small></div>
+                        <div><span>App Downloads</span><strong id="jols-growth-app-downloads">0</strong><small>Android download clicks</small></div>
+                        <div><span>Agent Form Starts</span><strong id="jols-growth-agent-starts">0</strong><small>Opened application</small></div>
+                        <div><span>Agent Submissions</span><strong id="jols-growth-agent-submissions">0</strong><small id="jols-growth-agent-rate">0% form conversion</small></div>
+                        <div><span>Referral Registrations</span><strong id="jols-growth-referrals">0</strong><small>Entered from Modern report</small></div>
+                    </div>
+                </div>
+
+                <div class="analytics-grid jols-revenue-grid">
+                    <article class="analytics-card jols-revenue-summary">
+                        <div class="analytics-card-heading">
+                            <div><span>REVENUE SNAPSHOT</span><h3>Estimated JOLS Revenue</h3></div>
+                            <strong id="jols-estimated-revenue">₦0</strong>
+                        </div>
+                        <div class="analytics-status-grid">
+                            <div><strong id="jols-online-revenue">₦0</strong><span>Online commission</span></div>
+                            <div><strong id="jols-agent-revenue">₦0</strong><span>Agent network override</span></div>
+                            <div><strong id="jols-ad-revenue">₦0</strong><span>Advertising / sponsorship</span></div>
+                            <div><strong id="jols-other-revenue">₦0</strong><span>Other revenue</span></div>
+                        </div>
+                        <div class="jols-revenue-operating">
+                            <div><span>Active Online Players</span><strong id="jols-active-online-players">0</strong></div>
+                            <div><span>Active Agents</span><strong id="jols-active-agents">0</strong></div>
+                            <div><span>Online Player Sales</span><strong id="jols-online-sales">₦0</strong></div>
+                            <div><span>Agent Network Sales</span><strong id="jols-agent-sales">₦0</strong></div>
+                        </div>
+                        <p class="admin-muted">Revenue is an estimate from the monthly figures and commission rates entered below. It is not a settlement statement from Modern Lottery.</p>
+                    </article>
+
+                    <article class="analytics-card jols-revenue-entry-card">
+                        <div class="analytics-card-heading">
+                            <div><span>MONTHLY BUSINESS INPUT</span><h3>Update Revenue Figures</h3></div>
+                        </div>
+                        <form id="jols-business-metrics-form" class="jols-business-metrics-form">
+                            <div class="jols-metrics-grid">
+                                <label><span>Month</span><input type="month" id="jols-metric-month" required></label>
+                                <label><span>Referral Registrations</span><input type="number" min="0" step="1" id="jols-referral-registrations" value="0"></label>
+                                <label><span>Active Online Players</span><input type="number" min="0" step="1" id="jols-active-player-count" value="0"></label>
+                                <label><span>Active Agents</span><input type="number" min="0" step="1" id="jols-active-agent-count" value="0"></label>
+                                <label><span>Online Player Sales (₦)</span><input type="number" min="0" step="0.01" id="jols-online-player-sales" value="0"></label>
+                                <label><span>Online Commission Rate (%)</span><input type="number" min="0" step="0.01" id="jols-online-commission-rate" value="0"></label>
+                                <label><span>Agent Network Sales (₦)</span><input type="number" min="0" step="0.01" id="jols-agent-network-sales" value="0"></label>
+                                <label><span>Agent Override Rate (%)</span><input type="number" min="0" step="0.01" id="jols-agent-override-rate" value="0"></label>
+                                <label><span>Advertising Revenue (₦)</span><input type="number" min="0" step="0.01" id="jols-advertising-revenue" value="0"></label>
+                                <label><span>Other Revenue (₦)</span><input type="number" min="0" step="0.01" id="jols-other-revenue-input" value="0"></label>
+                            </div>
+                            <label class="jols-metrics-notes"><span>Notes</span><textarea id="jols-business-notes" rows="3" placeholder="Optional note for this month"></textarea></label>
+                            <div id="jols-business-metrics-message" class="agent-edit-message" aria-live="polite"></div>
+                            <div class="admin-actions">
+                                <button type="submit" id="jols-save-business-metrics" class="admin-success-btn">Save Monthly Figures</button>
+                            </div>
+                        </form>
+                    </article>
+                </div>
+            </section>
 
             <div class="analytics-grid">
                 <article class="analytics-card">
@@ -4028,7 +4123,7 @@
 
 <script src="supabase.js" defer></script>
 
-<script src="admin.js?v=1414" defer></script>
+<script src="admin.js?v=1415" defer></script>
 <script src="admin-prediction-audit-v1.js?v=3" defer></script>
 <script src="admin-daily-results-poster-v1.js?v=4" defer></script>
 
