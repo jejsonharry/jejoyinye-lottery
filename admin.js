@@ -342,6 +342,206 @@ async function countResultsForAnalytics(lottery = null, range = "all") {
     return count || 0;
 }
 
+function analyticsSinceTimestamp() {
+    if (analyticsRange === "all") return null;
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (Number(analyticsRange) - 1));
+    return date.toISOString();
+}
+
+function formatNaira(value) {
+    const amount = Number(value || 0);
+    return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        maximumFractionDigits: amount % 1 === 0 ? 0 : 2
+    }).format(Number.isFinite(amount) ? amount : 0);
+}
+
+function formatPercentage(numerator, denominator) {
+    const top = Number(numerator || 0);
+    const bottom = Number(denominator || 0);
+    if (!bottom) return "0%";
+    return Math.round((top / bottom) * 100) + "%";
+}
+
+function currentMetricMonth() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function metricMonthDate(value) {
+    return /^\d{4}-\d{2}$/.test(String(value || "")) ? String(value) + "-01" : currentMetricMonth() + "-01";
+}
+
+function setMetricInput(id, value) {
+    const input = document.getElementById(id);
+    if (input) input.value = String(value ?? 0);
+}
+
+function readMetricNumber(id) {
+    const input = document.getElementById(id);
+    const value = Number(input?.value || 0);
+    return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+async function loadGrowthAnalytics() {
+    const { data, error } = await supabaseClient.rpc("jols_growth_summary", {
+        p_since: analyticsSinceTimestamp()
+    });
+    if (error) throw error;
+
+    const summary = data || {};
+    const visitors = Number(summary.unique_visitors || 0);
+    const pageViews = Number(summary.page_views || 0);
+    const playClicks = Number(summary.play_online_clicks || 0);
+    const appDownloads = Number(summary.online_app_downloads || 0);
+    const starts = Number(summary.agent_application_starts || 0);
+    const submissions = Number(summary.agent_application_submissions || 0);
+
+    setAnalyticsText("jols-growth-visitors", visitors.toLocaleString());
+    setAnalyticsText("jols-growth-pageviews", `${pageViews.toLocaleString()} page view${pageViews === 1 ? "" : "s"}`);
+    setAnalyticsText("jols-growth-play-clicks", playClicks.toLocaleString());
+    setAnalyticsText("jols-growth-play-rate", `${formatPercentage(playClicks, visitors)} of visitors`);
+    setAnalyticsText("jols-growth-app-downloads", appDownloads.toLocaleString());
+    setAnalyticsText("jols-growth-agent-starts", starts.toLocaleString());
+    setAnalyticsText("jols-growth-agent-submissions", submissions.toLocaleString());
+    setAnalyticsText("jols-growth-agent-rate", `${formatPercentage(submissions, starts)} form conversion`);
+}
+
+function renderBusinessMetricSummary(record = {}) {
+    const referrals = Number(record.referral_registrations || 0);
+    const activePlayers = Number(record.active_online_players || 0);
+    const activeAgents = Number(record.active_agent_count || 0);
+    const onlineSales = Number(record.online_player_sales || 0);
+    const onlineRate = Number(record.online_commission_rate || 0);
+    const agentSales = Number(record.agent_network_sales || 0);
+    const agentRate = Number(record.agent_override_rate || 0);
+    const adRevenue = Number(record.advertising_revenue || 0);
+    const otherRevenue = Number(record.other_revenue || 0);
+
+    const onlineRevenue = onlineSales * (onlineRate / 100);
+    const agentRevenue = agentSales * (agentRate / 100);
+    const totalRevenue = onlineRevenue + agentRevenue + adRevenue + otherRevenue;
+
+    setAnalyticsText("jols-growth-referrals", referrals.toLocaleString());
+    setAnalyticsText("jols-active-online-players", activePlayers.toLocaleString());
+    setAnalyticsText("jols-active-agents", activeAgents.toLocaleString());
+    setAnalyticsText("jols-online-sales", formatNaira(onlineSales));
+    setAnalyticsText("jols-agent-sales", formatNaira(agentSales));
+    setAnalyticsText("jols-online-revenue", formatNaira(onlineRevenue));
+    setAnalyticsText("jols-agent-revenue", formatNaira(agentRevenue));
+    setAnalyticsText("jols-ad-revenue", formatNaira(adRevenue));
+    setAnalyticsText("jols-other-revenue", formatNaira(otherRevenue));
+    setAnalyticsText("jols-estimated-revenue", formatNaira(totalRevenue));
+}
+
+async function loadBusinessMetrics() {
+    const monthInput = document.getElementById("jols-metric-month");
+    if (!monthInput) return;
+
+    if (!monthInput.value) monthInput.value = currentMetricMonth();
+    const month = metricMonthDate(monthInput.value);
+
+    const { data, error } = await supabaseClient
+        .from("jols_business_metrics")
+        .select("metric_month,referral_registrations,active_online_players,active_agent_count,online_player_sales,online_commission_rate,agent_network_sales,agent_override_rate,advertising_revenue,other_revenue,notes")
+        .eq("metric_month", month)
+        .maybeSingle();
+
+    if (error) throw error;
+
+    const record = data || {
+        metric_month: month,
+        referral_registrations: 0,
+        active_online_players: 0,
+        active_agent_count: 0,
+        online_player_sales: 0,
+        online_commission_rate: 0,
+        agent_network_sales: 0,
+        agent_override_rate: 0,
+        advertising_revenue: 0,
+        other_revenue: 0,
+        notes: ""
+    };
+
+    setMetricInput("jols-referral-registrations", record.referral_registrations);
+    setMetricInput("jols-active-player-count", record.active_online_players);
+    setMetricInput("jols-active-agent-count", record.active_agent_count);
+    setMetricInput("jols-online-player-sales", record.online_player_sales);
+    setMetricInput("jols-online-commission-rate", record.online_commission_rate);
+    setMetricInput("jols-agent-network-sales", record.agent_network_sales);
+    setMetricInput("jols-agent-override-rate", record.agent_override_rate);
+    setMetricInput("jols-advertising-revenue", record.advertising_revenue);
+    setMetricInput("jols-other-revenue-input", record.other_revenue);
+
+    const notes = document.getElementById("jols-business-notes");
+    if (notes) notes.value = record.notes || "";
+
+    renderBusinessMetricSummary(record);
+}
+
+async function saveBusinessMetrics(event) {
+    event.preventDefault();
+
+    const monthInput = document.getElementById("jols-metric-month");
+    const saveButton = document.getElementById("jols-save-business-metrics");
+    const message = document.getElementById("jols-business-metrics-message");
+    const month = metricMonthDate(monthInput?.value);
+
+    const payload = {
+        metric_month: month,
+        referral_registrations: Math.floor(readMetricNumber("jols-referral-registrations")),
+        active_online_players: Math.floor(readMetricNumber("jols-active-player-count")),
+        active_agent_count: Math.floor(readMetricNumber("jols-active-agent-count")),
+        online_player_sales: readMetricNumber("jols-online-player-sales"),
+        online_commission_rate: readMetricNumber("jols-online-commission-rate"),
+        agent_network_sales: readMetricNumber("jols-agent-network-sales"),
+        agent_override_rate: readMetricNumber("jols-agent-override-rate"),
+        advertising_revenue: readMetricNumber("jols-advertising-revenue"),
+        other_revenue: readMetricNumber("jols-other-revenue-input"),
+        notes: String(document.getElementById("jols-business-notes")?.value || "").trim() || null,
+        updated_at: new Date().toISOString()
+    };
+
+    if (message) {
+        message.textContent = "";
+        message.className = "agent-edit-message";
+    }
+
+    try {
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+        }
+
+        const { data, error } = await supabaseClient
+            .from("jols_business_metrics")
+            .upsert(payload, { onConflict: "metric_month" })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        renderBusinessMetricSummary(data || payload);
+        if (message) {
+            message.textContent = "Monthly JOLS figures saved successfully.";
+            message.className = "agent-edit-message success";
+        }
+    } catch (error) {
+        if (message) {
+            message.textContent = "Unable to save monthly figures: " + (error?.message || "Unknown error");
+            message.className = "agent-edit-message error";
+        }
+    } finally {
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Monthly Figures";
+        }
+    }
+}
+
 function renderAnalyticsActivity() {
     const container = document.getElementById("analytics-recent-activity");
     if (!container) return;
@@ -489,6 +689,10 @@ async function loadAnalytics() {
         renderAgentAnalytics();
         renderMessageAnalytics();
         renderAnalyticsActivity();
+        await Promise.all([
+            loadGrowthAnalytics(),
+            loadBusinessMetrics()
+        ]);
         analyticsLoaded = true;
     } catch (error) {
         console.error("Analytics error:", error);
@@ -3888,6 +4092,10 @@ function attachEvents() {
     });
 
     document.getElementById("analytics-refresh")?.addEventListener("click", loadAnalytics);
+    document.getElementById("jols-business-metrics-form")?.addEventListener("submit", saveBusinessMetrics);
+    document.getElementById("jols-metric-month")?.addEventListener("change", () => {
+        loadBusinessMetrics().catch(error => console.error("Business metrics error:", error));
+    });
 
 
     // TAB BUTTONS
