@@ -39,6 +39,18 @@ jobs:
             --header "Content-Type: application/json" \
             --data @/tmp/prediction-schema.json
 
+      - name: Apply present-day daily forecast migration
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          jq -n --rawfile query supabase/migrations/20261025090000_modern_present_day_daily_forecast.sql \
+            '{query: $query, read_only: false}' > /tmp/present-day-forecast.json
+          curl --fail-with-body --request POST \
+            "https://api.supabase.com/v1/projects/iedgznzmmfkdhgmkghwt/database/query" \
+            --header "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --data @/tmp/present-day-forecast.json
+
       - name: Deploy Supabase functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
