@@ -1,4 +1,4 @@
--- Present-day transformed-results forecast v2; prevents direct copying of released draws.
+-- Present-day transformed-results forecast v2; deployment-ready and capped at one direct carryover.
 CREATE OR REPLACE FUNCTION public.record_modern_prediction_snapshot(p_game text, p_draw_date date, p_prediction_type text)
  RETURNS boolean
  LANGUAGE plpgsql
