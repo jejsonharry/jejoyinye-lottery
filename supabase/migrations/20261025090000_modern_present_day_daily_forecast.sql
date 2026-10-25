@@ -1,3 +1,4 @@
+-- Present-day daily-results forecast v1; deployment trigger verified through GitHub Actions.
 CREATE OR REPLACE FUNCTION public.record_modern_prediction_snapshot(p_game text, p_draw_date date, p_prediction_type text)
  RETURNS boolean
  LANGUAGE plpgsql
