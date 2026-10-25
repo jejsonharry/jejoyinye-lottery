@@ -467,7 +467,7 @@ begin
     get diagnostics affected_rows = row_count;
     return affected_rows = 1;
 end;
-$function$
+$function$;
 
 
 revoke execute on function public.record_modern_prediction_snapshot(text,date,text)
