@@ -1,4 +1,4 @@
--- Independent main and ahead-game source profiles v3; prevents duplicate forecasts.
+-- Independent main and ahead-game source profiles v3; production deployment trigger.
 CREATE OR REPLACE FUNCTION public.record_modern_prediction_snapshot(p_game text, p_draw_date date, p_prediction_type text)
  RETURNS boolean
  LANGUAGE plpgsql
