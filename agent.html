@@ -90,6 +90,22 @@
     <link rel="stylesheet" href="public-premium-texture-v1.css?v=1">
   <link rel="stylesheet" href="analytics.css?v=1">
   <script src="analytics.js?v=3" defer></script>
+<style>
+.agent-referral-promo{box-sizing:border-box;display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:32px;align-items:center;max-width:1120px;margin:0 auto 30px;padding:28px;border:1px solid #dce7df;border-radius:24px;background:linear-gradient(135deg,#062718,#0b5737);box-shadow:0 18px 45px rgba(15,23,42,.12);scroll-margin-top:110px}
+.agent-referral-promo *{box-sizing:border-box}
+.agent-referral-poster{display:block;max-width:100%;border-radius:15px;overflow:hidden}
+.agent-referral-poster img{display:block;width:100%;height:auto}
+.agent-referral-copy{min-width:0}
+.agent-referral-label{display:inline-block;padding:7px 12px;border-radius:999px;background:#fef3c7;color:#854d0e;font-size:11px;font-weight:900;letter-spacing:.06em}
+.agent-referral-copy h2{margin:16px 0 14px;color:#fff;font-size:clamp(27px,3.5vw,42px);line-height:1.15}
+.agent-referral-copy p{color:#e0eee5;line-height:1.7;margin:0 0 20px}
+.agent-referral-actions{display:flex;flex-wrap:wrap;gap:12px}
+.agent-referral-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border-radius:10px;font-weight:800;text-decoration:none}
+.agent-referral-apply{background:#facc15;color:#172033}
+.agent-referral-view{border:1px solid #9bbcad;color:#fff}
+.agent-referral-promo a:focus-visible{outline:3px solid #facc15;outline-offset:4px}
+@media(max-width:760px){.agent-referral-promo{grid-template-columns:minmax(0,1fr);padding:18px;gap:24px}.agent-referral-poster{width:min(100%,360px);margin:auto}.agent-referral-actions{flex-direction:column}.agent-referral-actions a{width:100%}}
+</style>
 </head>
 
 
@@ -178,6 +194,24 @@
 ===================================================== -->
 
 <main class="agent-page agent-page-direct">
+
+    <section id="agent-referral" class="agent-referral-promo" aria-labelledby="agent-referral-title">
+        <a class="agent-referral-poster" href="Images/JOLS_Agent_Referral_Programme.jpg" aria-label="View the full JOLS Agent Referral Programme flyer">
+            <img src="Images/JOLS_Agent_Referral_Programme.jpg" width="720" height="1080" loading="lazy" decoding="async"
+                 alt="JOLS Agent Referral Programme: earn ₦3,000 for each referred agent who successfully registers and onboards, credited instantly to your terminal.">
+        </a>
+        <div class="agent-referral-copy">
+            <span class="agent-referral-label">JOLS AGENT REFERRAL PROGRAMME</span>
+            <h2 id="agent-referral-title">Refer an Agent. Earn ₦3,000.</h2>
+            <p>Bring a new agent into the JOLS network. Once your referred agent successfully registers and completes onboarding, ₦3,000 is credited instantly to your terminal.</p>
+            <p>Refer. Register. Onboard. Get paid.</p>
+            <div class="agent-referral-actions">
+                <a class="agent-referral-apply" href="agent-application">Apply to Become an Agent</a>
+                <a class="agent-referral-view" href="Images/JOLS_Agent_Referral_Programme.jpg">View Full Flyer</a>
+            </div>
+        </div>
+    </section>
+
 
     <section class="agent-overview-card" aria-labelledby="agent-overview-title">
 
