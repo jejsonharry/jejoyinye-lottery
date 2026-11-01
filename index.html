@@ -76,6 +76,13 @@
         .home-player-promo-btn:hover,.home-player-promo-link:hover{transform:translateY(-2px)}
         .home-player-promo-note{margin-top:15px!important;color:#b9cec2!important;font-size:12px!important}
         @media(max-width:760px){.home-player-promo{grid-template-columns:1fr;gap:25px;margin:30px auto;padding:20px}.home-player-promo-poster{width:min(420px,100%);margin:0 auto}.home-player-promo-actions{flex-direction:column}.home-player-promo-btn,.home-player-promo-link{width:100%}}
+        .home-agent-referral{box-sizing:border-box;background:radial-gradient(circle at 90% 10%,rgba(250,204,21,.18),transparent 35%),linear-gradient(145deg,#061b3c,#103968)}
+        .home-agent-referral *{box-sizing:border-box}
+        .home-agent-referral .home-player-promo-copy{min-width:0}
+        .home-agent-referral-steps{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0;padding:0;list-style:none;counter-reset:referral-step}
+        .home-agent-referral-steps li{counter-increment:referral-step;padding:9px 12px;border:1px solid rgba(255,255,255,.25);border-radius:10px;color:#fff}
+        .home-agent-referral-steps li::before{content:counter(referral-step) ". ";color:#fde047;font-weight:900}
+        .home-agent-referral a:focus-visible{outline:3px solid #fde047;outline-offset:5px}
     </style>
 
 
@@ -385,6 +392,35 @@
 
 
 
+
+<!-- =====================================================
+     AGENT REFERRAL PROMOTION
+===================================================== -->
+
+<section id="agent-referral" class="home-player-promo home-agent-referral" aria-labelledby="home-agent-referral-title">
+    <a class="home-player-promo-poster" href="Images/JOLS_Agent_Referral_Programme.jpg"
+       aria-label="View the full JOLS Agent Referral Programme flyer">
+        <img src="Images/JOLS_Agent_Referral_Programme.jpg"
+             width="720" height="1080" loading="lazy" decoding="async"
+             alt="JOLS Agent Referral Programme: earn ₦3,000 per referred agent who successfully registers and onboards, credited instantly to your terminal. Refer, register, onboard, get paid.">
+    </a>
+    <div class="home-player-promo-copy">
+        <span class="home-player-promo-badge">JOLS AGENT REFERRAL PROGRAMME</span>
+        <h2 id="home-agent-referral-title">Refer an Agent. Earn ₦3,000.</h2>
+        <p>Bring a new agent into the JOLS network. Once your referred agent successfully registers and completes onboarding, ₦3,000 is credited instantly to your terminal.</p>
+        <ol class="home-agent-referral-steps" aria-label="How agent referrals work">
+            <li>Refer</li>
+            <li>Register</li>
+            <li>Onboard</li>
+            <li>Get paid</li>
+        </ol>
+        <div class="home-player-promo-actions">
+            <a class="home-player-promo-btn" href="agent-application">Apply to Become an Agent</a>
+            <a class="home-player-promo-link" href="Images/JOLS_Agent_Referral_Programme.jpg">View Full Flyer</a>
+        </div>
+        <p class="home-player-promo-note">The referral reward is credited after successful registration and onboarding.</p>
+    </div>
+</section>
 
 <!-- =====================================================
      SERVICES
